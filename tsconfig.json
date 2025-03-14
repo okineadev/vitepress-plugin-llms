@@ -1,0 +1,9 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"esModuleInterop": true,
+		"types": ["bun-types", "@types/node"]
+	},
+
+	"include": ["src/**/*.ts"]
+}

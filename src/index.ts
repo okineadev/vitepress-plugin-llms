@@ -4,8 +4,8 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 
 import pc from 'picocolors'
-import log from './logger'
 import { extractTitle, stripExt } from './helpers'
+import log from './logger'
 import type { llmstxtSettings } from './types'
 
 /**
@@ -181,7 +181,9 @@ export default function llmstxt(
 
 				// Build content string using for loop
 				for (const file of preparedFiles) {
-					llmsFullTxtFileContent += fs.readFileSync(file.fileName)
+					llmsFullTxtFileContent += fs.readFileSync(
+						path.resolve(config.vitepress.outDir, file.fileName),
+					)
 
 					// Add newline for all but the last item
 					if (preparedFiles.lastIndexOf(file) !== preparedFiles.length - 1) {

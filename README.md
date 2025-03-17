@@ -31,6 +31,18 @@ Done!
 
 Now, thanks to this plugin, the LLM version of the website documentation is automatically generated
 
+### Plugin Settings
+
+#### `generateLLMsFullTxt`
+
+- **Description**: Determines whether to generate the `llms-full.txt` which contains all the documentation in one file.
+- **Default**: `true`
+
+#### `generateLLMsTxt`
+
+- **Description**: Determines whether to generate the `llms.txt` which contains a list of sections with links.
+- **Default**: `true`
+
 ## 🚀 Why `vitepress-plugin-llms`?
 
 LLMs (Large Language Models) are great at processing text, but traditional documentation formats can be too heavy and cluttered. `vitepress-plugin-llms` generates raw Markdown documentation that LLMs can efficiently process

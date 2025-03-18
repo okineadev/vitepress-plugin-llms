@@ -13,6 +13,12 @@ export interface LlmstxtSettings {
 	 * @default true
 	 */
 	generateLLMsTxt?: boolean
+	/**
+	 * An array of strings representing file paths to be ignored
+	 *
+	 * @default []
+	 */
+	ignoreFiles?: string[]
 }
 
 /**

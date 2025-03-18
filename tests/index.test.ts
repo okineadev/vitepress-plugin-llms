@@ -134,5 +134,28 @@ describe('llmstxt plugin', () => {
 				path.resolve(mockConfig.vitepress.outDir, 'test', 'test.md'),
 			)
 		})
+
+		it('should ignore files specified in ignoreFiles option', () => {
+			plugin = llmstxt({
+				generateLLMsFullTxt: false,
+				generateLLMsTxt: false,
+				ignoreFiles: ['test.md'],
+			})
+			// @ts-ignore
+			plugin.configResolved(mockConfig)
+			// @ts-ignore
+			plugin.transform(0, 'test.md')
+			// @ts-ignore
+			plugin.transform(0, 'test/test.md')
+			// @ts-ignore
+			plugin.generateBundle()
+
+			// Verify that only non-ignored files were written
+			expect(copyFileSync).toHaveBeenCalledTimes(1)
+			expect(copyFileSync).toHaveBeenCalledWith(
+				'test/test.md',
+				path.resolve(mockConfig.vitepress.outDir, 'test', 'test.md'),
+			)
+		})
 	})
 })

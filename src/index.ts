@@ -23,6 +23,7 @@ export default function llmstxt(
 	settings: LlmstxtSettings = {
 		generateLLMsFullTxt: true,
 		generateLLMsTxt: true,
+		ignoreFiles: [],
 	},
 ): Plugin {
 	// Store the resolved Vite config
@@ -129,6 +130,11 @@ export default function llmstxt(
 
 			// Copy all markdown files to output directory
 			for (const file of mdFilesList) {
+				if (settings.ignoreFiles?.includes(file)) {
+					log.info(`Ignoring file: ${pc.cyan(file)}`)
+					continue
+				}
+
 				const relativePath = path.relative(process.cwd(), file)
 				const targetPath = path.resolve(outDir, relativePath)
 

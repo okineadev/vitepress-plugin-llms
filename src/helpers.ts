@@ -2,17 +2,29 @@ import fs from 'node:fs'
 import path from 'node:path'
 import type { PreparedFile } from './types'
 
+/** @param filepath - The path to the file */
+export const splitDirAndFile = (filepath: string) => ({
+	dir: path.dirname(filepath),
+	file: path.basename(filepath),
+})
+
 /**
  * Strip file extension
  *
  * @param filepath - The path to the file
  * @returns The filename without the extension
  */
-export const stripExt = (filepath: string) =>
-	path.join(
-		path.dirname(filepath),
-		path.basename(filepath, path.extname(filepath)),
-	)
+export const stripExt = (filepath: string) => {
+	const { dir, file } = splitDirAndFile(filepath)
+
+	return path.join(dir, path.basename(file, path.extname(file)))
+}
+
+export const stripExtPosix = (filepath: string) => {
+	const { dir, file } = splitDirAndFile(filepath)
+
+	return path.join(dir, path.basename(file, path.extname(file)))
+}
 
 /**
  * Generates a Table of Contents (TOC) for the provided prepared files.
@@ -28,7 +40,7 @@ export function generateTOC(preparedFiles: PreparedFile[]) {
 
 	for (const file of preparedFiles) {
 		const relativePath = path.relative(process.cwd(), file.path)
-		tableOfContent += `- [${file.title}](/${path.posix.join(stripExt(relativePath))}.md)\n`
+		tableOfContent += `- [${file.title}](/${stripExtPosix(relativePath)}.md)\n`
 	}
 
 	return tableOfContent

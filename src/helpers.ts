@@ -28,7 +28,7 @@ export function generateTOC(preparedFiles: PreparedFile[]) {
 
 	for (const file of preparedFiles) {
 		const relativePath = path.relative(process.cwd(), file.path)
-		tableOfContent += `- [${file.title}](/${stripExt(relativePath)}.md)\n`
+		tableOfContent += `- [${file.title}](/${stripExt(relativePath).replace(/\\/g, '/')}.md)\n`
 	}
 
 	return tableOfContent

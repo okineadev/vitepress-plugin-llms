@@ -23,7 +23,7 @@ export const stripExt = (filepath: string) => {
 export const stripExtPosix = (filepath: string) => {
 	const { dir, file } = splitDirAndFile(filepath)
 
-	return path.join(dir, path.basename(file, path.extname(file)))
+	return path.posix.join(dir, path.basename(file, path.extname(file)))
 }
 
 /**

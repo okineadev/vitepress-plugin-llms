@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import pc from 'picocolors'
+import { minimatch } from 'minimatch'
 import {
 	extractTitle,
 	generateLLMsFullTxt,
@@ -89,6 +90,13 @@ export default function llmstxt(
 		 */
 		transform(_, id: string) {
 			if (id.endsWith('.md')) {
+				if (settings.ignoreFiles?.length) {
+					for (const pattern of settings.ignoreFiles) {
+						if (minimatch(id, pattern)) {
+							return
+						}
+					}
+				}
 				// Add markdown file path to our collection
 				mdFiles.add(id)
 				// Return null to avoid modifying the file
@@ -130,11 +138,6 @@ export default function llmstxt(
 
 			// Copy all markdown files to output directory
 			for (const file of mdFilesList) {
-				if (settings.ignoreFiles?.includes(file)) {
-					log.info(`Ignoring file: ${pc.cyan(file)}`)
-					continue
-				}
-
 				const relativePath = path.relative(process.cwd(), file)
 				const targetPath = path.resolve(outDir, relativePath)
 

@@ -1,6 +1,6 @@
 <div align="center">
 
-  ![Banner](assets/banner.png)
+  [![Banner](assets/banner.png)](https://npmjs.com/package/vitepress-plugin-llms)
 
 # 📜 vitepress-plugin-llms
 

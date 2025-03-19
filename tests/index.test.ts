@@ -139,7 +139,7 @@ describe('llmstxt plugin', () => {
 			plugin = llmstxt({
 				generateLLMsFullTxt: false,
 				generateLLMsTxt: false,
-				ignoreFiles: ['test.md'],
+				ignoreFiles: ['test/*.md'],
 			})
 			// @ts-ignore
 			plugin.configResolved(mockConfig)
@@ -153,8 +153,8 @@ describe('llmstxt plugin', () => {
 			// Verify that only non-ignored files were written
 			expect(copyFileSync).toHaveBeenCalledTimes(1)
 			expect(copyFileSync).toHaveBeenCalledWith(
-				'test/test.md',
-				path.resolve(mockConfig.vitepress.outDir, 'test', 'test.md'),
+				'test.md',
+				path.resolve(mockConfig.vitepress.outDir, 'test.md'),
 			)
 		})
 	})

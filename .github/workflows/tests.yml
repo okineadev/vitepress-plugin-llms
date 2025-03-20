@@ -34,7 +34,7 @@ jobs:
       - name: 📥 Cache Bun dependencies
         # Run only on Windows because on Linux there are no problems with slow package installation
         if: matrix.os == 'windows-latest'
-        uses: actions/cache@v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: |
             ~\.bun

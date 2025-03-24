@@ -47,6 +47,32 @@ Now, thanks to this plugin, the LLM version of the website documentation is auto
 
 See [`src/types.d.ts`](src/types.d.ts)
 
+#### Example Configuration
+
+Here is an example of how to configure the plugin with custom settings:
+
+```ts
+import { defineConfig } from "vitepress";
+import llmstxt from "vitepress-plugin-llms";
+
+export default defineConfig({
+  vite: {
+    plugins: [
+      llmstxt({
+        generateLLMsFullTxt: false,
+        ignoreFiles: ["blog/*"],
+        customLLMsTxtTemplate: `# {title}\n\n{description}\n\n## Custom TOC\n\n{toc}`,
+      }),
+    ],
+  },
+});
+```
+
+This configuration does the following:
+- `generateLLMsFullTxt: false`: Disables the generation of the `llms-full.txt` file.
+- `ignoreFiles: ["blog/*"]`: Ignores all files in the `blog` directory.
+- `customLLMsTxtTemplate`: Uses a custom template for the `llms.txt` file.
+
 ## 🚀 Why `vitepress-plugin-llms`?
 
 LLMs (Large Language Models) are great at processing text, but traditional documentation formats can be too heavy and cluttered. `vitepress-plugin-llms` generates raw Markdown documentation that LLMs can efficiently process

@@ -1,6 +1,38 @@
 # Changelog
 
 
+## v0.0.19
+
+[compare changes](https://github.com/okineadev/vitepress-plugin-llms/compare/v0.0.16...v0.0.19)
+
+### 🚀 Enhancements
+
+- Simplify the plugin configuration experience ([6d9cec3](https://github.com/okineadev/vitepress-plugin-llms/commit/6d9cec3))
+- Add `domain` option to attach domain to links in `llms.txt`, `llms-full.txt` and context links ([b05688c](https://github.com/okineadev/vitepress-plugin-llms/commit/b05688c))
+
+### 🩹 Fixes
+
+- 🚑 fix missing TOC issue ([38736b6](https://github.com/okineadev/vitepress-plugin-llms/commit/38736b6))
+
+### 📖 Documentation
+
+- Add instructions for configuring Netlify redirects ([3765f6f](https://github.com/okineadev/vitepress-plugin-llms/commit/3765f6f))
+- Add websites that use this plugin to the README ([#11](https://github.com/okineadev/vitepress-plugin-llms/pull/11))
+
+### 🏡 Chore
+
+- Update package description ([3518894](https://github.com/okineadev/vitepress-plugin-llms/commit/3518894))
+- Add a note that `domain` cannot end with `/` ([bee2a73](https://github.com/okineadev/vitepress-plugin-llms/commit/bee2a73))
+
+### 🤖 CI
+
+- Run `pkg.pr.new` only from this repository ([255b024](https://github.com/okineadev/vitepress-plugin-llms/commit/255b024))
+
+### ❤️ Contributors
+
+- Okinea Dev ([@okineadev](https://github.com/okineadev))
+- Kravets ([@kravetsone](https://github.com/kravetsone))
+
 ## v0.0.16
 
 [compare changes](https://github.com/okineadev/vitepress-plugin-llms/compare/v0.0.15...v0.0.16)

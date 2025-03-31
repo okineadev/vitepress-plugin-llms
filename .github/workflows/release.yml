@@ -21,7 +21,7 @@ jobs:
           sparse-checkout: .github/workflows/scripts/check-if-tests-passed.mts
 
       - id: check
-        uses: kf6kjg/github-script@f27b40e6b7c7d0e475b6cbfe8c5bacd9349b782c
+        uses: kf6kjg/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
         env:
           CI_WORKFLOW_PATH: '.github/workflows/ci.yml'
         with:

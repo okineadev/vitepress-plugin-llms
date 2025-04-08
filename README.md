@@ -128,11 +128,12 @@ This plugin follows the [llmstxt.org](https://llmstxt.org/) standard, which defi
 
 ## ✨ Projects where this plugin is used
 
-- [**Slidev**](https://sli.dev/) - **35.7**k+ ⭐ - [llms.txt](https://sli.dev/llms.txt) | [llms-full.txt](https://sli.dev/llms-full.txt)
-- [**Elysia**](https://elysiajs.com/) - **11.9**k+ ⭐ - [llms.txt](https://elysiajs.com/llms.txt) | [llms-full.txt](https://elysiajs.com/llms-full.txt)
-- [**shadcn/vue**](https://shadcn-vue.com/) - **6.7**k+ ⭐ - [llms.txt](https://shadcn-vue.com/llms.txt) | [llms-full.txt](https://shadcn-vue.com/llms-full.txt)
-- [**Vue Macros**](https://vue-macros.dev/) - **1.8**k+ ⭐ - [llms.txt](https://vue-macros.dev/llms.txt) | [llms-full.txt](https://vue-macros.dev/llms-full.txt)
-- [**GramIO**](https://gramio.dev/) - **101**+ ⭐ - [llms.txt](https://gramio.dev/llms.txt) | [llms-full.txt](https://gramio.dev/llms-full.txt)
+- [**Slidev**](https://sli.dev/) - ![](https://img.shields.io/github/stars/slidevjs/slidev?style=social) - [llms.txt](https://sli.dev/llms.txt) | [llms-full.txt](https://sli.dev/llms-full.txt)
+- [**Elysia**](https://elysiajs.com/) - ![](https://img.shields.io/github/stars/elysiajs/elysia?style=social) - [llms.txt](https://elysiajs.com/llms.txt) | [llms-full.txt](https://elysiajs.com/llms-full.txt)
+- [**shadcn/vue**](https://shadcn-vue.com/) - ![](https://img.shields.io/github/stars/unovue/shadcn-vue?style=social) - [llms.txt](https://shadcn-vue.com/llms.txt) | [llms-full.txt](https://shadcn-vue.com/llms-full.txt)
+- [**Vue Macros**](https://vue-macros.dev/) - ![](https://img.shields.io/github/stars/vue-macros/vue-macros?style=social) - [llms.txt](https://vue-macros.dev/llms.txt) | [llms-full.txt](https://vue-macros.dev/llms-full.txt)
+- [**GramIO**](https://gramio.dev/) - ![](https://img.shields.io/github/stars/gramiojs/gramio?style=social) - [llms.txt](https://gramio.dev/llms.txt) | [llms-full.txt](https://gramio.dev/llms-full.txt)
+- [**Fantastic-admin**](https://fantastic-admin.hurui.me/) - ![](https://img.shields.io/github/stars/fantastic-admin/basic?style=social) - [llms.txt](https://fantastic-admin.hurui.me/llms.txt) | [llms-full.txt](https://fantastic-admin.hurui.me/llms-full.txt)
 
 ## ❤️ Support
 

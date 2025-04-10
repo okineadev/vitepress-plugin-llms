@@ -141,6 +141,7 @@ This plugin follows the [llmstxt.org](https://llmstxt.org/) standard, which defi
 | [**Fantastic-admin**](https://fantastic-admin.hurui.me/) | [![Stars](https://img.shields.io/github/stars/fantastic-admin/basic?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/fantastic-admin/basic) | [llms.txt](https://fantastic-admin.hurui.me/llms.txt) | [llms-full.txt](https://fantastic-admin.hurui.me/llms-full.txt) |
 | [**Vue Macros**](https://vue-macros.dev/)                | [![Stars](https://img.shields.io/github/stars/vue-macros/vue-macros?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/vue-macros/vue-macros) |      [llms.txt](https://vue-macros.dev/llms.txt)      |      [llms-full.txt](https://vue-macros.dev/llms-full.txt)      |
 | [**GramIO**](https://gramio.dev/)                        |       [![Stars](https://img.shields.io/github/stars/gramiojs/gramio?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/gramiojs/gramio)       |        [llms.txt](https://gramio.dev/llms.txt)        |        [llms-full.txt](https://gramio.dev/llms-full.txt)        |
+| [**oRPC**](https://orpc.unnoq.com/)                        |       [![Stars](https://img.shields.io/github/stars/unnoq/orpc?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/unnoq/orpc)       |        [llms.txt](https://orpc.unnoq.com/llms.txt)        |        [llms-full.txt](https://orpc.unnoq.com/llms-full.txt)        |
 
 ## ❤️ Support
 

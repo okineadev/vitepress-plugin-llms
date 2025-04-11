@@ -1,5 +1,4 @@
-import type { ViteDevServer } from 'vite'
-import type { Plugin } from 'vitepress'
+import type { Plugin, ViteDevServer } from 'vite'
 
 import fs from 'node:fs/promises'
 import path from 'node:path'

@@ -250,8 +250,6 @@ export async function generateTOC(
 	const { srcDir, domain, sidebarConfig, linksExtension, cleanUrls } = options
 	let tableOfContent = ''
 
-	let filesToProcess = preparedFiles
-
 	// If sidebar configuration exists
 	if (sidebarConfig) {
 		// Flatten sidebar config if it's an object with path keys
@@ -262,14 +260,13 @@ export async function generateTOC(
 			for (const section of flattenedSidebarConfig) {
 				tableOfContent += await processSidebarSection(
 					section,
-					filesToProcess,
+					preparedFiles,
 					srcDir,
 					domain,
 					linksExtension,
 					cleanUrls,
 				)
 
-				// tableOfContent = `${tableOfContent.trimEnd()}\n\n`
 				tableOfContent += '\n'
 			}
 
@@ -277,7 +274,7 @@ export async function generateTOC(
 			const allSidebarPaths = collectPathsFromSidebarItems(
 				flattenedSidebarConfig,
 			)
-			const unsortedFiles = filesToProcess.filter((file) => {
+			const unsortedFiles = preparedFiles.filter((file) => {
 				const relativePath = `/${stripExtPosix(path.relative(srcDir, file.path))}`
 				return !allSidebarPaths.some((sidebarPath) =>
 					isPathMatch(relativePath, sidebarPath),
@@ -287,15 +284,34 @@ export async function generateTOC(
 			// Add files that didn't match any section
 			if (unsortedFiles.length > 0) {
 				tableOfContent += '### Other\n\n'
-				filesToProcess = unsortedFiles
+
+				const tocEntries: string[] = []
+				await Promise.all(
+					unsortedFiles.map(async (file) => {
+						const relativePath = path.relative(srcDir, file.path)
+						tocEntries.push(
+							generateTOCLink(
+								file,
+								domain,
+								relativePath,
+								linksExtension,
+								cleanUrls,
+							),
+						)
+					}),
+				)
+				tableOfContent += tocEntries.join('')
 			}
+
+			// Return the completed TOC
+			return tableOfContent
 		}
 	}
 
+	// If no sidebar or empty sidebar config, process all files
 	const tocEntries: string[] = []
-
 	await Promise.all(
-		filesToProcess.map(async (file) => {
+		preparedFiles.map(async (file) => {
 			const relativePath = path.relative(srcDir, file.path)
 			tocEntries.push(
 				generateTOCLink(file, domain, relativePath, linksExtension, cleanUrls),

@@ -59,7 +59,7 @@
 		"@types/byte-size": "^8.1.2",
 		"@types/node": "^22.13.10",
 		"bun-types": "^1.2.5",
-		"bunup": "^0.4.31",
+		"bunup": "^0.5.11",
 		"husky": "^9.1.7",
 		"lint-staged": "^15.5.0",
 		"typescript": "^5.8.3",

@@ -279,7 +279,7 @@ export async function generateTOC(
 				),
 			)
 
-			tableOfContent += `${sectionResults.join('\n')}`
+			tableOfContent += `${sectionResults.join('\n')}\n`
 
 			// Find files that didn't match any section
 			const allSidebarPaths = await collectPathsFromSidebarItems(

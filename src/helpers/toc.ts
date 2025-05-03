@@ -270,7 +270,7 @@ export async function generateTOC(
 				flattenedSidebarConfig.map((section) =>
 					processSidebarSection(
 						section,
-						filesToProcess,
+						preparedFiles,
 						srcDir,
 						domain,
 						linksExtension,
@@ -320,9 +320,9 @@ export async function generateTOC(
 	}
 
 	// Process remaining files in parallel
-	if (filesToProcess.length > 0) {
+	if (preparedFiles.length > 0) {
 		const tocEntries = await Promise.all(
-			filesToProcess.map(async (file) => {
+			preparedFiles.map(async (file) => {
 				const relativePath = path.relative(srcDir, file.path)
 				return generateTOCLink(
 					file,

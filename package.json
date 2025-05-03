@@ -1,7 +1,7 @@
 {
 	"name": "vitepress-plugin-llms",
 	"description": "📜 A VitePress plugin for generating LLM-friendly documentation",
-	"version": "1.1.0",
+	"version": "1.1.2",
 	"license": "MIT",
 	"author": {
 		"name": "Okinea Dev",
@@ -35,7 +35,7 @@
 		"format": "biome format --write",
 		"test": "bun test",
 		"preversion": "bun run format && git add .",
-		"build": "tsup",
+		"build": "bunup",
 		"prepare": "husky"
 	},
 	"lint-staged": {
@@ -59,9 +59,9 @@
 		"@types/byte-size": "^8.1.2",
 		"@types/node": "^22.13.10",
 		"bun-types": "^1.2.5",
+		"bunup": "^0.4.31",
 		"husky": "^9.1.7",
 		"lint-staged": "^15.5.0",
-		"tsup": "^8.4.0",
 		"typescript": "^5.8.3",
 		"vitepress": "^1.6.3"
 	},

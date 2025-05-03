@@ -1,6 +1,57 @@
 # Changelog
 
 
+## v1.1.2
+
+[compare changes](https://github.com/okineadev/vitepress-plugin-llms/compare/v1.1.1...v1.1.2)
+
+### 📖 Documentation
+
+- Update readme ([f7081db](https://github.com/okineadev/vitepress-plugin-llms/commit/f7081db))
+- Update readme ([eef8410](https://github.com/okineadev/vitepress-plugin-llms/commit/eef8410))
+
+### 🏡 Chore
+
+- Update dependabot configuration ([ba38489](https://github.com/okineadev/vitepress-plugin-llms/commit/ba38489))
+
+### ❤️ Contributors
+
+- Okinea Dev ([@okineadev](https://github.com/okineadev))
+
+## v1.1.1
+
+[compare changes](https://github.com/okineadev/vitepress-plugin-llms/compare/v1.1.0...v1.1.1)
+
+### 🩹 Fixes
+
+- **ci:** Fix ci errors ([e4b6162](https://github.com/okineadev/vitepress-plugin-llms/commit/e4b6162))
+
+### 💅 Refactors
+
+- Import `Plugin` from `vite` instead of `vitepress` ([#22](https://github.com/okineadev/vitepress-plugin-llms/pull/22))
+- Make it more async ([9524c64](https://github.com/okineadev/vitepress-plugin-llms/commit/9524c64))
+
+### 📖 Documentation
+
+- Use badges to display the GitHub star count ([#20](https://github.com/okineadev/vitepress-plugin-llms/pull/20))
+- Add oRPC to the list of projects that use this plugin ([#21](https://github.com/okineadev/vitepress-plugin-llms/pull/21))
+- Add gitads ([5f79f81](https://github.com/okineadev/vitepress-plugin-llms/commit/5f79f81))
+- Fix netlify redirects ([cee0ac5](https://github.com/okineadev/vitepress-plugin-llms/commit/cee0ac5))
+
+### 🏡 Chore
+
+- Use Prettier for markdown formatting ([2006cd5](https://github.com/okineadev/vitepress-plugin-llms/commit/2006cd5))
+- Migrate to faster `bunup` ([943e1c3](https://github.com/okineadev/vitepress-plugin-llms/commit/943e1c3))
+- Migrate from Renovate to Dependabot ([0e7c9c5](https://github.com/okineadev/vitepress-plugin-llms/commit/0e7c9c5))
+- Remove Renovate configuration ([013763f](https://github.com/okineadev/vitepress-plugin-llms/commit/013763f))
+
+### ❤️ Contributors
+
+- Okinea Dev ([@okineadev](https://github.com/okineadev))
+- Kevin Deng 三咲智子 <sxzz@sxzz.moe>
+- Unnoq <dinwwwh@gmail.com>
+- Hooray Hu ([@hooray](https://github.com/hooray))
+
 ## v1.1.0
 
 [compare changes](https://github.com/okineadev/vitepress-plugin-llms/compare/v1.0.5...v1.1.0)

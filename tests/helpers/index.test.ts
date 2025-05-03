@@ -71,17 +71,17 @@ describe('generateLLMsTxt', () => {
 })
 
 describe('generateLLMsFullTxt', () => {
-	it('generates a `llms-full.txt` file', () => {
+	it('generates a `llms-full.txt` file', async () => {
 		expect(
-			generateLLMsFullTxt(preparedFilesSample({ srcDir }).slice(1), {
+			await generateLLMsFullTxt(preparedFilesSample({ srcDir }).slice(1), {
 				srcDir,
 			}),
 		).toMatchSnapshot()
 	})
 
-	it('correctly attaches the domain to URLs in context', () => {
+	it('correctly attaches the domain to URLs in context', async () => {
 		expect(
-			generateLLMsFullTxt(preparedFilesSample({ srcDir }).slice(1), {
+			await generateLLMsFullTxt(preparedFilesSample({ srcDir }).slice(1), {
 				srcDir,
 				domain: sampleDomain,
 			}),

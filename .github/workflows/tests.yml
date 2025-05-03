@@ -46,7 +46,7 @@ jobs:
             package.json
             bun.lock
             bunfig.toml
-            tsup.config.ts
+            bunup.config.ts
             tsconfig*.json
             !**/*.md
 

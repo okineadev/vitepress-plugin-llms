@@ -142,12 +142,7 @@ export default function llmstxt(userSettings: LlmstxtSettings = {}): Plugin {
 				const shouldIgnore = await Promise.all(
 					settings.ignoreFiles.map(async (pattern) => {
 						if (typeof pattern === 'string') {
-							return await Promise.resolve(
-								minimatch(
-									path.relative(settings.workDir as string, id),
-									pattern,
-								),
-							)
+							return minimatch(path.relative(settings.workDir, id), pattern)
 						}
 						return false
 					}),
@@ -224,7 +219,6 @@ export default function llmstxt(userSettings: LlmstxtSettings = {}): Plugin {
 					}
 					// Extract title from frontmatter or use the first heading
 					const title = extractTitle(mdFile)?.trim() || 'Untitled'
-
 					const filePath =
 						path.basename(file) === 'index.md' &&
 						path.dirname(file) !== settings.workDir
@@ -235,48 +229,11 @@ export default function llmstxt(userSettings: LlmstxtSettings = {}): Plugin {
 				}),
 			)
 
-			if (settings.generateLLMFriendlyDocsForEachPage) {
-				await Promise.all(
-					preparedFiles.map(async (file) => {
-						const relativePath = path.relative(settings.workDir, file.path)
-						try {
-							const mdFile = file.file
-							const targetPath = path.resolve(outDir, relativePath)
-
-							// Ensure target directory exists (async version)
-							await fs.mkdir(path.dirname(targetPath), {
-								recursive: true,
-							})
-
-							// Copy file to output directory (async version)
-							await fs.writeFile(
-								targetPath,
-								matter.stringify(
-									mdFile.content,
-									generateMetadata(mdFile, {
-										domain: settings.domain,
-										filePath: relativePath,
-									}),
-								),
-							)
-
-							log.success(`Processed ${pc.cyan(relativePath)}`)
-						} catch (error) {
-							log.error(
-								// @ts-ignore
-								`Failed to process ${pc.cyan(relativePath)}: ${error.message}`,
-							)
-						}
-					}),
-				)
-			}
-
 			// Sort files by title for better organization
 			preparedFiles.sort((a, b) => a.title.localeCompare(b.title))
 
 			const tasks: Promise<void>[] = []
 
-			// Generate llms.txt - table of contents with links
 			if (settings.generateLLMsTxt) {
 				const llmsTxtPath = path.resolve(outDir, 'llms.txt')
 				const templateVariables: CustomTemplateVariables = {
@@ -292,8 +249,8 @@ export default function llmstxt(userSettings: LlmstxtSettings = {}): Plugin {
 						log.info(`Generating ${pc.cyan('llms.txt')}...`)
 
 						const llmsTxt = await generateLLMsTxt(preparedFiles, {
-							indexMd: path.resolve(settings.workDir as string, 'index.md'),
-							srcDir: settings.workDir as string,
+							indexMd: path.resolve(settings.workDir, 'index.md'),
+							srcDir: settings.workDir,
 							LLMsTxtTemplate:
 								settings.customLLMsTxtTemplate || defaultLLMsTxtTemplate,
 							templateVariables,
@@ -333,8 +290,8 @@ export default function llmstxt(userSettings: LlmstxtSettings = {}): Plugin {
 							`Generating full documentation bundle (${pc.cyan('llms-full.txt')})...`,
 						)
 
-						const llmsFullTxt = generateLLMsFullTxt(preparedFiles, {
-							srcDir: settings.workDir as string,
+						const llmsFullTxt = await generateLLMsFullTxt(preparedFiles, {
+							srcDir: settings.workDir,
 							domain: settings.domain,
 							linksExtension: !settings.generateLLMFriendlyDocsForEachPage
 								? '.html'
@@ -344,6 +301,7 @@ export default function llmstxt(userSettings: LlmstxtSettings = {}): Plugin {
 
 						// Write content to llms-full.txt
 						await fs.writeFile(llmsFullTxtPath, llmsFullTxt, 'utf-8')
+
 						log.success(
 							expandTemplate(
 								'Generated {file} (~{tokens} tokens, {size}) with {fileCount} markdown files',
@@ -356,6 +314,39 @@ export default function llmstxt(userSettings: LlmstxtSettings = {}): Plugin {
 							),
 						)
 					})(),
+				)
+			}
+
+			if (settings.generateLLMFriendlyDocsForEachPage) {
+				tasks.push(
+					...preparedFiles.map(async (file) => {
+						const relativePath = path.relative(settings.workDir, file.path)
+						try {
+							const mdFile = file.file
+							const targetPath = path.resolve(outDir, relativePath)
+
+							await fs.mkdir(path.dirname(targetPath), { recursive: true })
+
+							await fs.writeFile(
+								targetPath,
+								matter.stringify(
+									mdFile.content,
+									await generateMetadata(mdFile, {
+										domain: settings.domain,
+										filePath: relativePath,
+										linksExtension: '.md',
+										cleanUrls: config.cleanUrls,
+									}),
+								),
+							)
+
+							log.success(`Processed ${pc.cyan(relativePath)}`)
+						} catch (error) {
+							log.error(
+								`Failed to process ${pc.cyan(relativePath)}: ${(error as Error).message}`,
+							)
+						}
+					}),
 				)
 			}
 

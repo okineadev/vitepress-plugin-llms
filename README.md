@@ -2,6 +2,9 @@
 <!-- markdownlint-capture -->
 <!-- markdownlint-disable no-inline-html heading-start-left first-line-h1 -->
 <div align="center">
+  
+  **Is this plugin useful for your site? Consider [sponsoring the developer](https://github.com/okineadev/vitepress-plugin-llms?sponsor) to support the project's development 😺**
+  <br><br>
   <a href="https://npmjs.com/package/vitepress-plugin-llms">
     <!-- https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#specifying-the-theme-an-image-is-shown-to -->
     <picture>
@@ -58,9 +61,6 @@ It is recommended to configure redirects so that AI can use addresses with both 
 `public/_redirects`:
 
 ```plaintext
-/*.txt           /:splat.md 301
-/llms.md         /llms.txt 301
-/llms.txt        /llms.txt 200!
 /llms-full.md    /llms-full.txt 200!
 /llms-full.txt   /llms-full.txt 200!
 ```
@@ -103,6 +103,10 @@ This configuration does the following:
 - `title`: Sets a custom header in `llms.txt`, for your custom variables use `customTemplateVariables`.
 - `customTemplateVariables`: Sets custom variables for the template, replaces `{foo}` with `bar`.
 
+## GitAds Sponsored
+
+[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=okineadev/vitepress-plugin-llms@github)](https://gitads.dev/v1/ad-track?source=okineadev/vitepress-plugin-llms@github)
+
 ## 🚀 Why `vitepress-plugin-llms`?
 
 LLMs (Large Language Models) are great at processing text, but traditional documentation formats can be too heavy and cluttered. `vitepress-plugin-llms` generates raw Markdown documentation that LLMs can efficiently process
@@ -142,11 +146,6 @@ This plugin follows the [llmstxt.org](https://llmstxt.org/) standard, which defi
 | [**Vue Macros**](https://vue-macros.dev/)                | [![Stars](https://img.shields.io/github/stars/vue-macros/vue-macros?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/vue-macros/vue-macros) |      [llms.txt](https://vue-macros.dev/llms.txt)      |      [llms-full.txt](https://vue-macros.dev/llms-full.txt)      |
 | [**oRPC**](https://orpc.unnoq.com/)                      |            [![Stars](https://img.shields.io/github/stars/unnoq/orpc?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/unnoq/orpc)            |      [llms.txt](https://orpc.unnoq.com/llms.txt)      |      [llms-full.txt](https://orpc.unnoq.com/llms-full.txt)      |
 | [**GramIO**](https://gramio.dev/)                        |       [![Stars](https://img.shields.io/github/stars/gramiojs/gramio?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/gramiojs/gramio)       |        [llms.txt](https://gramio.dev/llms.txt)        |        [llms-full.txt](https://gramio.dev/llms-full.txt)        |
-
-## GitAds Sponsored
-
-[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=okineadev/vitepress-plugin-llms@github)](https://gitads.dev/v1/ad-track?source=okineadev/vitepress-plugin-llms@github)
-
 
 ## ❤️ Support
 

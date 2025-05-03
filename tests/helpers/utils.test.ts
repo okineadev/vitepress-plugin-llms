@@ -66,8 +66,8 @@ describe('expandTemplate', () => {
 
 describe('generateMetadata', () => {
 	const dummyMatter = matter('')
-	it('should generate URL with domain when provided', () => {
-		const result = generateMetadata(dummyMatter, {
+	it('should generate URL with domain when provided', async () => {
+		const result = await generateMetadata(dummyMatter, {
 			domain: sampleDomain,
 			filePath: 'docs/guide',
 		})
@@ -75,16 +75,16 @@ describe('generateMetadata', () => {
 		expect(result.url).toBe(`${sampleDomain}/docs/guide.md`)
 	})
 
-	it('should generate URL without domain when domain is undefined', () => {
-		const result = generateMetadata(dummyMatter, {
+	it('should generate URL without domain when domain is undefined', async () => {
+		const result = await generateMetadata(dummyMatter, {
 			filePath: 'docs/guide',
 		})
 
 		expect(result.url).toBe('/docs/guide.md')
 	})
 
-	it('should include description from frontmatter when available', () => {
-		const result = generateMetadata(
+	it('should include description from frontmatter when available', async () => {
+		const result = await generateMetadata(
 			{
 				...dummyMatter,
 				data: {
@@ -101,8 +101,8 @@ describe('generateMetadata', () => {
 		expect(result.description).toBe('A comprehensive guide')
 	})
 
-	it('should not include description when frontmatter description is empty', () => {
-		const result = generateMetadata(dummyMatter, {
+	it('should not include description when frontmatter description is empty', async () => {
+		const result = await generateMetadata(dummyMatter, {
 			domain: sampleDomain,
 			filePath: 'docs/guide',
 		})
@@ -111,8 +111,8 @@ describe('generateMetadata', () => {
 		expect(result.description).toBeUndefined()
 	})
 
-	it('should not include description when frontmatter has no description', () => {
-		const result = generateMetadata(dummyMatter, {
+	it('should not include description when frontmatter has no description', async () => {
+		const result = await generateMetadata(dummyMatter, {
 			domain: sampleDomain,
 			filePath: 'docs/guide',
 		})

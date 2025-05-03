@@ -11,7 +11,7 @@ on:
       - .npmignore
       - bun.lock
       - bunfig.toml
-      - tsup.config.ts
+      - bunup.config.ts
       - tsconfig*.json
       - '!**/*.md'
 
@@ -24,7 +24,7 @@ on:
       - .npmignore
       - bun.lock
       - bunfig.toml
-      - tsup.config.ts
+      - bunup.config.ts
       - tsconfig*.json
       - '!**/*.md'
 
@@ -56,12 +56,12 @@ jobs:
           sparse-checkout-cone-mode: false
           # Download only the necessary files
           sparse-checkout: |
-            src
+            src/
             package.json
             .npmignore
             bun.lock
             bunfig.toml
-            tsup.config.ts
+            bunup.config.ts
             README.md
             LICENSE
             tsconfig*.json

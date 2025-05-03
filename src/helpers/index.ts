@@ -149,27 +149,25 @@ export interface GenerateLLMsFullTxtOptions {
  * @param options - Options for generating the `llms-full.txt` file.
  * @returns A string representing the full content of the LLMs.txt file.
  */
-export function generateLLMsFullTxt(
+export async function generateLLMsFullTxt(
 	preparedFiles: PreparedFile[],
 	options: GenerateLLMsFullTxtOptions,
 ) {
 	const { srcDir, domain, linksExtension, cleanUrls } = options
 
-	const llmsFullTxtContent = preparedFiles
-		.map((preparedFile) => {
-			const relativePath = path.relative(srcDir, preparedFile.path)
+	const fileContents = await Promise.all(
+		preparedFiles.map(async (file) => {
+			const relativePath = path.relative(srcDir, file.path)
+			const metadata = await generateMetadata(file.file, {
+				domain,
+				filePath: relativePath,
+				linksExtension,
+				cleanUrls,
+			})
 
-			return matter.stringify(
-				preparedFile.file.content,
-				generateMetadata(preparedFile.file, {
-					domain,
-					filePath: relativePath,
-					linksExtension,
-					cleanUrls,
-				}),
-			)
-		})
-		.join('\n---\n\n')
+			return matter.stringify(file.file.content, metadata)
+		}),
+	)
 
-	return llmsFullTxtContent
+	return fileContents.join('\n---\n\n')
 }

@@ -35,24 +35,26 @@ export const generateTOCLink = (
  * @param items - Array of sidebar items to process.
  * @returns Array of paths collected from the sidebar items.
  */
-function collectPathsFromSidebarItems(
+async function collectPathsFromSidebarItems(
 	items: DefaultTheme.SidebarItem[],
-): string[] {
-	const paths: string[] = []
+): Promise<string[]> {
+	return Promise.all(
+		items.map(async (item) => {
+			const paths: string[] = []
 
-	for (const item of items) {
-		// Add the current item's path if it exists
-		if (item.link) {
-			paths.push(item.link)
-		}
+			if (item.link) {
+				paths.push(item.link)
+			}
 
-		// Recursively add paths from nested items
-		if (item.items && Array.isArray(item.items)) {
-			paths.push(...collectPathsFromSidebarItems(item.items))
-		}
-	}
+			// Recursively add paths from nested items
+			if (item.items && Array.isArray(item.items)) {
+				const nestedPaths = await collectPathsFromSidebarItems(item.items)
+				paths.push(...nestedPaths)
+			}
 
-	return paths
+			return paths
+		}),
+	).then((results) => results.flat())
 }
 
 /**
@@ -117,53 +119,59 @@ async function processSidebarSection(
 
 	// Process items in this section
 	if (section.items && Array.isArray(section.items)) {
-		const linkItems: string[] = []
-		const nestedSections: string[] = []
-
-		// First pass: separate link items and nested sections
-		await Promise.all(
-			section.items.map(async (item) => {
-				// Process nested sections
-				if (item.items && item.items.length > 0) {
-					const processedSection = await processSidebarSection(
-						item,
-						preparedFiles,
-						srcDir,
-						domain,
-						linksExtension,
-						cleanUrls,
-						// Increase depth for nested sections to maintain proper heading levels
-						depth + 1,
+		const [linkItems, nestedSections] = await Promise.all([
+			Promise.all(
+				section.items
+					.filter(
+						(item): item is DefaultTheme.SidebarItem & { link: string } =>
+							typeof item.link === 'string',
 					)
-					nestedSections.push(processedSection)
-				}
-				// Process link items
-				else if (item.link) {
-					// Normalize the link for matching
-					const normalizedItemLink = normalizeLinkPath(item.link)
+					.map(async (item) => {
+						// Normalize the link path for matching
+						const normalizedItemLink = normalizeLinkPath(item.link)
+						const matchingFile = preparedFiles.find((file) => {
+							const relativePath = `/${stripExtPosix(path.relative(srcDir, file.path))}`
+							return isPathMatch(relativePath, normalizedItemLink)
+						})
 
-					const matchingFile = preparedFiles.find((file) => {
-						const relativePath = `/${stripExtPosix(path.relative(srcDir, file.path))}`
-						return isPathMatch(relativePath, normalizedItemLink)
-					})
-
-					if (matchingFile) {
-						const relativePath = path.relative(srcDir, matchingFile.path)
-						linkItems.push(
-							generateTOCLink(
+						if (matchingFile) {
+							const relativePath = path.relative(srcDir, matchingFile.path)
+							return generateTOCLink(
 								matchingFile,
 								domain,
 								relativePath,
 								linksExtension,
 								cleanUrls,
-							),
-						)
-					}
-				}
-			}),
-		)
+							)
+						}
+						return null
+					}),
+			).then((items) => items.filter((item): item is string => item !== null)),
 
-		// Add link items if any
+			Promise.all(
+				section.items
+					.filter(
+						(
+							item,
+						): item is DefaultTheme.SidebarItem & {
+							items: DefaultTheme.SidebarItem[]
+						} => Array.isArray(item.items) && item.items.length > 0,
+					)
+					.map((item) =>
+						processSidebarSection(
+							item,
+							preparedFiles,
+							srcDir,
+							domain,
+							linksExtension,
+							cleanUrls,
+							// Increase depth for nested sections to maintaint proper heading levels
+							depth + 1,
+						),
+					),
+			),
+		])
+
 		if (linkItems.length > 0) {
 			sectionTOC += linkItems.join('')
 		}
@@ -257,26 +265,29 @@ export async function generateTOC(
 
 		// Process each top-level section in the flattened sidebar
 		if (flattenedSidebarConfig.length > 0) {
-			for (const section of flattenedSidebarConfig) {
-				tableOfContent += await processSidebarSection(
-					section,
-					preparedFiles,
-					srcDir,
-					domain,
-					linksExtension,
-					cleanUrls,
-				)
+			// Process sections in parallel
+			const sectionResults = await Promise.all(
+				flattenedSidebarConfig.map((section) =>
+					processSidebarSection(
+						section,
+						filesToProcess,
+						srcDir,
+						domain,
+						linksExtension,
+						cleanUrls,
+					),
+				),
+			)
 
-				tableOfContent += '\n'
-			}
+			tableOfContent += `${sectionResults.join('\n')}`
 
 			// Find files that didn't match any section
-			const allSidebarPaths = collectPathsFromSidebarItems(
+			const allSidebarPaths = await collectPathsFromSidebarItems(
 				flattenedSidebarConfig,
 			)
 			const unsortedFiles = preparedFiles.filter((file) => {
 				const relativePath = `/${stripExtPosix(path.relative(srcDir, file.path))}`
-				return !allSidebarPaths.some((sidebarPath) =>
+				return !allSidebarPaths.some((sidebarPath: string) =>
 					isPathMatch(relativePath, sidebarPath),
 				)
 			})
@@ -308,18 +319,23 @@ export async function generateTOC(
 		}
 	}
 
-	// If no sidebar or empty sidebar config, process all files
-	const tocEntries: string[] = []
-	await Promise.all(
-		preparedFiles.map(async (file) => {
-			const relativePath = path.relative(srcDir, file.path)
-			tocEntries.push(
-				generateTOCLink(file, domain, relativePath, linksExtension, cleanUrls),
-			)
-		}),
-	)
+	// Process remaining files in parallel
+	if (filesToProcess.length > 0) {
+		const tocEntries = await Promise.all(
+			filesToProcess.map(async (file) => {
+				const relativePath = path.relative(srcDir, file.path)
+				return generateTOCLink(
+					file,
+					domain,
+					relativePath,
+					linksExtension,
+					cleanUrls,
+				)
+			}),
+		)
 
-	tableOfContent += tocEntries.join('')
+		tableOfContent += tocEntries.join('')
+	}
 
 	return tableOfContent
 }

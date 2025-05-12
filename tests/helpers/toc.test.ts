@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test'
+import type { DefaultTheme } from 'vitepress'
 import {
 	generateTOC,
 	generateTOCLink,
@@ -65,6 +66,93 @@ describe('generateTOC', () => {
 		})
 
 		expect(toc).toMatchSnapshot()
+	})
+
+	it('does not generate empty sections', async () => {
+		// Create a sidebar with an empty section
+		const sidebarWithEmptySection: DefaultTheme.Sidebar = [
+			{
+				text: 'Empty Section',
+				items: [], // No items in this section
+			},
+			{
+				text: 'Test Section',
+				items: [{ text: 'Getting Started', link: '/test/getting-started' }],
+			},
+		]
+
+		const toc = await generateTOC(preparedFilesSample({ srcDir }).slice(1), {
+			srcDir,
+			sidebarConfig: sidebarWithEmptySection,
+		})
+
+		// The empty section should not appear in the TOC
+		expect(toc).not.toContain('### Empty Section')
+		// But the non-empty section should still be there
+		expect(toc).toContain('### Test Section')
+	})
+
+	it('does not generate nested empty sections', async () => {
+		// Create a sidebar with nested empty sections
+		const sidebarWithNestedEmptySections: DefaultTheme.Sidebar = [
+			{
+				text: 'API',
+				items: [
+					{
+						text: 'Components',
+						items: [], // Empty nested section
+					},
+					{
+						text: 'Interfaces',
+						items: [], // Another empty nested section
+					},
+				],
+			},
+			{
+				text: 'Test Section',
+				items: [{ text: 'Getting Started', link: '/test/getting-started' }],
+			},
+		]
+
+		const toc = await generateTOC(preparedFilesSample({ srcDir }).slice(1), {
+			srcDir,
+			sidebarConfig: sidebarWithNestedEmptySections,
+		})
+
+		// The empty parent section should not appear
+		expect(toc).not.toContain('### API')
+		// Nested empty sections should not appear
+		expect(toc).not.toContain('#### Components')
+		expect(toc).not.toContain('#### Interfaces')
+		// But the non-empty section should still be there
+		expect(toc).toContain('### Test Section')
+	})
+
+	it('does not generate sections with non-matching files', async () => {
+		// Create a sidebar with links to files that don't exist in preparedFiles
+		const sidebarWithNonMatchingFiles: DefaultTheme.Sidebar = [
+			{
+				text: 'Non-matching Section',
+				items: [
+					{ text: 'Non-existent', link: '/test/non-existent' },
+					{ text: 'Another Missing', link: '/test/missing' },
+				],
+			},
+			{
+				text: 'Test Section',
+				items: [{ text: 'Getting Started', link: '/test/getting-started' }],
+			},
+		]
+
+		const toc = await generateTOC(preparedFilesSample({ srcDir }).slice(1), {
+			srcDir,
+			sidebarConfig: sidebarWithNonMatchingFiles,
+		})
+
+		// The section with non-matching files should not appear
+		expect(toc).not.toContain('### Non-matching Section')
+		// But the section with matching files should still be there
+		expect(toc).toContain('### Test Section')
 	})
 })
 

@@ -112,11 +112,6 @@ async function processSidebarSection(
 ): Promise<string> {
 	let sectionTOC = ''
 
-	// Add section header only if it has text and is not just a link container
-	if (section.text) {
-		sectionTOC += `${'#'.repeat(depth)} ${section.text}\n\n`
-	}
-
 	// Process items in this section
 	if (section.items && Array.isArray(section.items)) {
 		const [linkItems, nestedSections] = await Promise.all([
@@ -172,18 +167,31 @@ async function processSidebarSection(
 			),
 		])
 
+		// Filter out empty nested sections
+		const nonEmptyNestedSections = nestedSections.filter(
+			(section) => section.trim() !== '',
+		)
+
+		// Check if we have any content before adding section header
+		const hasContent = linkItems.length > 0 || nonEmptyNestedSections.length > 0
+
+		// Only add section header if there's actual content
+		if (hasContent && section.text) {
+			sectionTOC += `${'#'.repeat(depth)} ${section.text}\n\n`
+		}
+
 		if (linkItems.length > 0) {
 			sectionTOC += linkItems.join('')
 		}
 
 		// Add a blank line before nested sections if we have link items
-		if (linkItems.length > 0 && nestedSections.length > 0) {
+		if (linkItems.length > 0 && nonEmptyNestedSections.length > 0) {
 			sectionTOC += '\n'
 		}
 
-		// Add nested sections with appropriate spacing
-		if (nestedSections.length > 0) {
-			sectionTOC += nestedSections.join('\n')
+		// Add non-empty nested sections with appropriate spacing
+		if (nonEmptyNestedSections.length > 0) {
+			sectionTOC += nonEmptyNestedSections.join('\n')
 		}
 	}
 

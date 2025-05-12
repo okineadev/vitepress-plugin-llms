@@ -43,7 +43,7 @@ const PLUGIN_NAME = packageName
  * @see https://github.com/okineadev/vitepress-plugin-llms
  * @see https://llmstxt.org/
  */
-export default function llmstxt(userSettings: LlmstxtSettings = {}): Plugin {
+function llmstxt(userSettings: LlmstxtSettings = {}): Plugin {
 	// Create a settings object with defaults explicitly merged
 	const settings: Omit<LlmstxtSettings, 'workDir'> & { workDir: string } = {
 		generateLLMsTxt: true,
@@ -356,3 +356,5 @@ export default function llmstxt(userSettings: LlmstxtSettings = {}): Plugin {
 		},
 	}
 }
+
+export default llmstxt

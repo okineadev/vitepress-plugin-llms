@@ -62,7 +62,7 @@
 		"bun-types": "^1.2.5",
 		"bunup": "^0.6.1",
 		"husky": "^9.1.7",
-		"lint-staged": "^15.5.0",
+		"lint-staged": "^16.0.0",
 		"mdast-util-from-markdown": "^2.0.2",
 		"typescript": "^5.8.3",
 		"vitepress": "^1.6.3"

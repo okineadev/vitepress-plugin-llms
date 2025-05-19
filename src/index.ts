@@ -16,7 +16,7 @@ import { name as packageName } from '../package.json'
 
 import { millify } from 'millify'
 import { approximateTokenSize } from 'tokenx'
-import { defaultLLMsTxtTemplate } from './constants'
+import { defaultLLMsTxtTemplate, unnecessaryFilesList } from './constants'
 import { generateLLMsFullTxt, generateLLMsTxt } from './helpers/index'
 import log from './helpers/logger'
 import {
@@ -46,11 +46,18 @@ const PLUGIN_NAME = packageName
  */
 function llmstxt(userSettings: LlmstxtSettings = {}): Plugin {
 	// Create a settings object with defaults explicitly merged
-	const settings: Omit<LlmstxtSettings, 'workDir'> & { workDir: string } = {
+	const settings: Omit<LlmstxtSettings, 'ignoreFiles' | 'workDir'> & {
+		ignoreFiles: string[]
+		workDir: string
+	} = {
 		generateLLMsTxt: true,
 		generateLLMsFullTxt: true,
 		generateLLMFriendlyDocsForEachPage: true,
 		ignoreFiles: [],
+		excludeUnnecessaryFiles: true,
+		excludeIndexPage: true,
+		excludeBlog: true,
+		excludeTeam: true,
 		workDir: undefined as unknown as string,
 		stripHTML: true,
 		...userSettings,
@@ -68,10 +75,10 @@ function llmstxt(userSettings: LlmstxtSettings = {}): Plugin {
 	return {
 		name: PLUGIN_NAME,
 
-		config(config) {
-			const vitepressConfig = config as unknown as VitePressConfig
-			if (vitepressConfig?.vitepress?.markdown) {
-				vitepressConfig.vitepress.markdown.config = (md) =>
+		// @ts-expect-error
+		config(config: VitePressConfig) {
+			if (config?.vitepress?.markdown) {
+				config.vitepress.markdown.config = (md) =>
 					md
 						.use(vitePressPlease('unwrap', 'llm-exclude'))
 						.use(vitePressPlease('remove', 'llm-only'))
@@ -88,6 +95,18 @@ function llmstxt(userSettings: LlmstxtSettings = {}): Plugin {
 				)
 			} else {
 				settings.workDir = config.vitepress.srcDir
+			}
+
+			if (settings.excludeUnnecessaryFiles) {
+				if (settings.excludeIndexPage) {
+					settings.ignoreFiles.push(...unnecessaryFilesList.indexPage)
+				}
+				if (settings.excludeBlog) {
+					settings.ignoreFiles.push(...unnecessaryFilesList.blogs)
+				}
+				if (settings.excludeTeam) {
+					settings.ignoreFiles.push(...unnecessaryFilesList.team)
+				}
 			}
 
 			// Detect if this is the SSR build

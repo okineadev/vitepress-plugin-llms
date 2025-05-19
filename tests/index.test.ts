@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
-import type { ViteDevServer } from 'vite'
+import type { PluginOption, ViteDevServer } from 'vite'
 import type { Plugin } from 'vitepress'
 import { mockedFs } from './mocks/fs'
 
 mock.module('node:fs/promises', () => mockedFs)
-const { access, mkdir, readFile, writeFile } = mockedFs.default
+const { access, mkdir, writeFile } = mockedFs.default
 
 // Mock the logger to prevent output
 mock.module('../src/helpers/logger', () => ({

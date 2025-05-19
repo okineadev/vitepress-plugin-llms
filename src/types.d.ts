@@ -1,6 +1,7 @@
 import type { GrayMatterFile, Input } from 'gray-matter'
 import type { ResolvedConfig } from 'vite'
 import type { DefaultTheme, SiteConfig, UserConfig } from 'vitepress'
+import { unnecessaryFilesList } from './constants'
 
 interface TemplateVariables {
 	/**
@@ -130,6 +131,48 @@ export interface LlmstxtSettings extends TemplateVariables {
 	 * @default []
 	 */
 	ignoreFiles?: string[]
+
+	/**
+	 * Whether to exclude unnecessary files (such as blog, sponsor or team information) that LLM does not need at all to save tokens ♻️
+	 *
+	 * You can granularly disable certain page presets, see these options:
+	 *
+	 * - {@link LlmstxtSettings.excludeIndexPage | `excludeIndexPage`}
+	 * - {@link LlmstxtSettings.excludeBlog | `excludeBlog`}
+	 * - {@link LlmstxtSettings.excludeTeam | `excludeTeam`}
+	 *
+	 * @see {@link unnecessaryFilesList} for the list of files that will be excluded
+	 *
+	 * @default true
+	 */
+	excludeUnnecessaryFiles?: boolean
+
+	/**
+	 * Whether to exclude the `/index.md` page which usually has no content
+	 *
+	 * @see {@link unnecessaryFilesList.indexPage}
+	 *
+	 * @default true
+	 */
+	excludeIndexPage?: boolean
+
+	/**
+	 * Whether to exclude blog content
+	 *
+	 * @see {@link unnecessaryFilesList.blogs}
+	 *
+	 * @default true
+	 */
+	excludeBlog?: boolean
+
+	/**
+	 * Whether to exclude information about a team that usually does not provide practical information
+	 *
+	 * @see {@link unnecessaryFilesList.team}
+	 *
+	 * @default true
+	 */
+	excludeTeam?: boolean
 
 	/**
 	 * A custom template for the `llms.txt` file, allowing for a personalized order of elements.

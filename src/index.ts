@@ -70,7 +70,7 @@ function llmstxt(userSettings: LlmstxtSettings = {}): Plugin {
 
 		config(config) {
 			const vitepressConfig = config as unknown as VitePressConfig
-			if (vitepressConfig.vitepress.markdown) {
+			if (vitepressConfig?.vitepress?.markdown) {
 				vitepressConfig.vitepress.markdown.config = (md) =>
 					md
 						.use(vitePressPlease('unwrap', 'llm-exclude'))

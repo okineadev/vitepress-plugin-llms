@@ -34,4 +34,4 @@ export const unnecessaryFilesList = {
  * ```
  */
 export const tagRegex = (tagName: RegExp | string, flags?: string) =>
-	new RegExp(`<${tagName}>([\s\S]*?)<\/${tagName}>`, flags)
+	new RegExp(`<${tagName}>([\\s\\S]*?)<\\/${tagName}>`, flags)

@@ -26,6 +26,52 @@ import type { CustomTemplateVariables, LlmstxtSettings, PreparedFile, VitePressC
 const PLUGIN_NAME = packageName
 
 /**
+ * Resolves the actual filesystem path for a file, considering VitePress rewrites
+ */
+async function resolveActualFilePath(
+	workDir: string,
+	targetPath: string,
+	config?: VitePressConfig,
+): Promise<string | null> {
+	// First try the direct path
+	const directPath = path.resolve(workDir, targetPath)
+	try {
+		await fs.access(directPath)
+		return directPath
+	} catch {
+		// File doesn't exist at direct path
+	}
+
+	// If we have rewrites config, try to find the original file
+	const rewrites = config?.vitepress?.userConfig?.rewrites
+	if (rewrites) {
+		for (const [from, to] of Object.entries(rewrites)) {
+			// Convert rewrite patterns to check if our target matches the 'to' pattern
+			const toRegex = new RegExp(`^${to.replace(/:\w+\*/g, '(.*)')}$`)
+			const match = targetPath.match(toRegex)
+
+			if (match) {
+				// Reconstruct the original path using the 'from' pattern
+				let originalPath = from
+				match.slice(1).forEach((capture, _) => {
+					originalPath = originalPath.replace(/:rest\*|:\w+\*/g, capture)
+				})
+
+				const resolvedPath = path.resolve(workDir, originalPath)
+				try {
+					await fs.access(resolvedPath)
+					return resolvedPath
+				} catch {
+					// Continue trying other patterns
+				}
+			}
+		}
+	}
+
+	return null
+}
+
+/**
  * [VitePress](http://vitepress.dev/) plugin for generating raw documentation
  * for **LLMs** in Markdown format which is much lighter and more efficient for LLMs
  *
@@ -56,7 +102,7 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 	// Store the resolved Vite config
 	let config: VitePressConfig
 
-	// Set to store all markdown file paths
+	// Set to store all markdown file paths (actual filesystem paths)
 	const mdFiles: Set<string> = new Set()
 
 	// Flag to identify which build we're in
@@ -103,7 +149,7 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 				// remove <llm-exclude> tags, keep the content
 				// modifiedContent = modifiedContent
 
-				// Add markdown file path to our collection
+				// Add markdown file path to our collection (store actual filesystem path)
 				mdFiles.add(id)
 
 				return modifiedContent !== orig ? { code: modifiedContent, map: null } : null
@@ -239,8 +285,11 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 						(async () => {
 							log.info(`Generating ${pc.cyan('llms.txt')}...`)
 
+							// Resolve the actual index.md path, considering rewrites
+							const indexMdPath = await resolveActualFilePath(settings.workDir, 'index.md', config)
+
 							const llmsTxt = await generateLLMsTxt(preparedFiles, {
-								indexMd: path.resolve(settings.workDir, 'index.md'),
+								indexMd: indexMdPath || path.resolve(settings.workDir, 'index.md'), // fallback to original behavior
 								srcDir: settings.workDir,
 								LLMsTxtTemplate: settings.customLLMsTxtTemplate || defaultLLMsTxtTemplate,
 								templateVariables,

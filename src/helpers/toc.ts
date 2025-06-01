@@ -30,18 +30,21 @@ export const generateTOCLink = (
  * @param items - Array of sidebar items to process.
  * @returns Array of paths collected from the sidebar items.
  */
-async function collectPathsFromSidebarItems(items: DefaultTheme.SidebarItem[]): Promise<string[]> {
+async function collectPathsFromSidebarItems(
+	items: DefaultTheme.SidebarItem[],
+	base: string = '',
+): Promise<string[]> {
 	return Promise.all(
 		items.map(async (item) => {
 			const paths: string[] = []
 
 			if (item.link) {
-				paths.push(item.link)
+				paths.push(base + item.link)
 			}
 
 			// Recursively add paths from nested items
 			if (item.items && Array.isArray(item.items)) {
-				const nestedPaths = await collectPathsFromSidebarItems(item.items)
+				const nestedPaths = await collectPathsFromSidebarItems(item.items, base + (item.base ?? ''))
 				paths.push(...nestedPaths)
 			}
 
@@ -99,6 +102,7 @@ async function processSidebarSection(
 	linksExtension?: LinksExtension,
 	cleanUrls?: VitePressConfig['cleanUrls'],
 	depth = 3,
+	base: string = '',
 ): Promise<string> {
 	let sectionTOC = ''
 
@@ -112,7 +116,7 @@ async function processSidebarSection(
 					)
 					.map(async (item) => {
 						// Normalize the link path for matching
-						const normalizedItemLink = normalizeLinkPath(item.link)
+						const normalizedItemLink = normalizeLinkPath(base + (section.base ?? '') + item.link)
 						const matchingFile = preparedFiles.find((file) => {
 							const relativePath = `/${stripExtPosix(path.relative(srcDir, file.path))}`
 							return isPathMatch(relativePath, normalizedItemLink)
@@ -145,6 +149,7 @@ async function processSidebarSection(
 							cleanUrls,
 							// Increase depth for nested sections to maintaint proper heading levels
 							depth + 1,
+							base + (section.base ?? ''),
 						),
 					),
 			),

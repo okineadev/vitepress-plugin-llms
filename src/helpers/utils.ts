@@ -17,7 +17,14 @@ export const splitDirAndFile = (filepath: string) => ({
 })
 
 /**
- * Strips the file extension from a given file path.
+ * Only remove the file extension from the file path if it is a content file.
+ *
+ * This is needed to avoid removing an extension from a file more than once.
+ */
+const contentFileExts = new Set(['.md', '.html', '.vue', '.txt'])
+
+/**
+ * Strips the file extension from a given file path, only if it is a content file.
  *
  * @param filepath - The path to the file.
  * @returns The filename without the extension.
@@ -25,11 +32,16 @@ export const splitDirAndFile = (filepath: string) => ({
 export const stripExt = (filepath: string) => {
 	const { dir, file } = splitDirAndFile(filepath)
 
-	return path.join(dir, path.basename(file, path.extname(file)))
+	const ext = path.extname(file)
+	if (contentFileExts.has(ext)) {
+		return path.join(dir, path.basename(file, ext))
+	}
+
+	return path.join(dir, file)
 }
 
 /**
- * Strips the file extension from a given file path using POSIX format.
+ * Strips the file extension from a given file path using POSIX format, only if it is a content file.
  *
  * @param filepath - The path to the file.
  * @returns The filename without the extension in POSIX format.
@@ -37,7 +49,12 @@ export const stripExt = (filepath: string) => {
 export const stripExtPosix = (filepath: string) => {
 	const { dir, file } = splitDirAndFile(filepath)
 
-	return path.posix.join(dir, path.basename(file, path.extname(file)))
+	const ext = path.extname(file)
+	if (contentFileExts.has(ext)) {
+		return path.posix.join(dir, path.basename(file, ext))
+	}
+
+	return path.posix.join(dir, file)
 }
 
 /**

@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - name: 🔐 Authentication for pushing to the main branch
-        uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
+        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2.0.6
         id: app-token
         with:
           app-id: ${{ secrets.BOT_APP_ID }}
@@ -49,7 +49,7 @@ jobs:
           persist-credentials: true
 
       - name: 🔧 Setup Bun
-        uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5 # v2
+        uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2
         with:
           bun-version: latest
 

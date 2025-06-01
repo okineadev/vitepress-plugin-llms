@@ -238,7 +238,11 @@ export interface LlmstxtSettings extends TemplateVariables {
 	 *
 	 * Usually this parameter is used in rare cases
 	 */
-	sidebar?: DefaultTheme.Sidebar
+	sidebar?:
+		| DefaultTheme.Sidebar
+		| ((
+				configSidebar: DefaultTheme.Sidebar | undefined,
+		  ) => DefaultTheme.Sidebar | undefined | Promise<DefaultTheme.Sidebar | undefined>)
 }
 
 /** Represents a prepared file, including its title and path. */

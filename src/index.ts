@@ -163,6 +163,13 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 					return
 				}
 
+				// resolve the sidebar option before reading `mdFiles`
+				// in order to process files from content loaders used in the sidebar function
+				const resolvedSidebar =
+					settings.sidebar instanceof Function
+						? await settings.sidebar(config?.vitepress?.userConfig?.themeConfig?.sidebar)
+						: settings.sidebar
+
 				const outDir = config.vitepress?.outDir ?? 'dist'
 
 				// Create output directory if it doesn't exist
@@ -246,7 +253,7 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 								templateVariables,
 								vitepressConfig: config?.vitepress?.userConfig,
 								domain: settings.domain,
-								sidebar: settings.sidebar,
+								sidebar: resolvedSidebar,
 								linksExtension: !settings.generateLLMFriendlyDocsForEachPage ? '.html' : undefined,
 								cleanUrls: config.cleanUrls,
 							})

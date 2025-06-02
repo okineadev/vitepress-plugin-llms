@@ -30,9 +30,35 @@ exports[`generateTOC handles object-based sidebar configuration correctly 1`] = 
 "
 `;
 
+exports[`generateTOC handles object-based sidebar with base options configuration correctly 1`] = `
+"### Getting Started
+
+- [Getting started](/test/getting-started.md): Instructions on how to get started with the tool
+- [Some cool tool](/index.md): Blazing fast frontend tool
+
+### API Reference
+
+- [Some other section](/test/other.md)
+
+### Tutorials
+
+- [Quickstart](/test/quickstart.md): Instructions for quick project initialization
+
+"
+`;
+
 exports[`generateTOC appends the specified \`linksExtension\` to the generated links 1`] = `
 "- [Getting started](/test/getting-started.html): Instructions on how to get started with the tool
 - [Quickstart](/test/quickstart.html): Instructions for quick project initialization
 - [Some other section](/test/other.html)
+"
+`;
+
+exports[`generateTOC resolves paths with common prefixes correctly 1`] = `
+"### Blog Started
+
+- [First version](/blog/v1.md): Blazing fast frontend tool
+- [New features!](/blog/v1.1.md): Instructions on how to get started with the tool
+
 "
 `;

@@ -3,9 +3,12 @@ import type { DefaultTheme } from 'vitepress'
 import { generateTOC, generateTOCLink, isPathMatch, normalizeLinkPath } from '../../src/helpers/toc'
 import {
 	fooMdSample,
+	preparedFilesWithCommonPrefixSample,
 	preparedFilesSample,
 	sampleDomain,
 	sampleObjectVitePressSidebar,
+	sampleObjectVitePressSidebarWithBase,
+	sampleObjectVitePressSidebarWithCommonPrefix,
 	sampleVitePressSidebar,
 	srcDir,
 } from '../resources'
@@ -45,6 +48,16 @@ describe('generateTOC', () => {
 		const toc = await generateTOC(files, {
 			srcDir,
 			sidebarConfig: sampleObjectVitePressSidebar,
+		})
+
+		expect(toc).toMatchSnapshot()
+	})
+
+	it('handles object-based sidebar with base options configuration correctly', async () => {
+		const files = preparedFilesSample({ srcDir })
+		const toc = await generateTOC(files, {
+			srcDir,
+			sidebarConfig: sampleObjectVitePressSidebarWithBase,
 		})
 
 		expect(toc).toMatchSnapshot()
@@ -144,6 +157,15 @@ describe('generateTOC', () => {
 		expect(toc).not.toContain('### Non-matching Section')
 		// But the section with matching files should still be there
 		expect(toc).toContain('### Test Section')
+	})
+
+	it('resolves paths with common prefixes correctly', async () => {
+		const toc = await generateTOC(preparedFilesWithCommonPrefixSample({ srcDir }), {
+			srcDir,
+			sidebarConfig: sampleObjectVitePressSidebarWithCommonPrefix,
+		})
+
+		expect(toc).toMatchSnapshot()
 	})
 })
 

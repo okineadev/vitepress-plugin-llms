@@ -62,6 +62,58 @@ export const sampleObjectVitePressSidebar: DefaultTheme.Sidebar = {
 	],
 }
 
+export const sampleObjectVitePressSidebarWithBase: DefaultTheme.Sidebar = {
+	'/': [
+		{
+			text: 'Getting Started',
+			base: '/test',
+			items: [
+				{ text: 'Introduction', link: '/getting-started' },
+				{
+					text: 'Index',
+					base: '/',
+					link: '/index',
+				},
+			],
+		},
+	],
+	'/api/': [
+		{
+			text: 'API Reference',
+			base: '/test',
+			items: [
+				{
+					text: 'Other section',
+					link: '/other',
+				},
+			],
+		},
+	],
+	'/tutorials/': [
+		{
+			text: 'Tutorials',
+			items: [
+				{
+					text: 'Quickstart',
+					link: '/test/quickstart',
+				},
+			],
+		},
+	],
+}
+
+export const sampleObjectVitePressSidebarWithCommonPrefix: DefaultTheme.Sidebar = {
+	'/blog': [
+		{
+			text: 'Blog Started',
+			items: [
+				{ text: 'Version 1.0', link: '/blog/v1' },
+				{ text: 'Version 1.1', link: '/blog/v1.1' },
+			],
+		},
+	],
+}
+
 export const fooMdSample = ({
 	srcDir = 'docs',
 }: {
@@ -96,5 +148,22 @@ export const preparedFilesSample = ({
 		title: 'Some other section',
 		path: `${srcDir}/test/other.md`,
 		file: matter(fakeMarkdownDocument),
+	},
+]
+
+export const preparedFilesWithCommonPrefixSample = ({
+	srcDir = 'docs',
+}: {
+	srcDir?: LlmstxtSettings['workDir']
+}): PreparedFile[] => [
+	{
+		title: 'First version',
+		path: `${srcDir}/blog/v1.md`,
+		file: matter(fakeIndexMd),
+	},
+	{
+		title: 'New features!',
+		path: `${srcDir}/blog/v1.1.md`,
+		file: matter(fakeGettingStartedMd),
 	},
 ]

@@ -39,12 +39,12 @@ async function collectPathsFromSidebarItems(
 			const paths: string[] = []
 
 			if (item.link) {
-				paths.push(base + item.link)
+				paths.push((item.base ?? base) + item.link)
 			}
 
 			// Recursively add paths from nested items
 			if (item.items && Array.isArray(item.items)) {
-				const nestedPaths = await collectPathsFromSidebarItems(item.items, base + (item.base ?? ''))
+				const nestedPaths = await collectPathsFromSidebarItems(item.items, item.base ?? base ?? '')
 				paths.push(...nestedPaths)
 			}
 
@@ -116,7 +116,9 @@ async function processSidebarSection(
 					)
 					.map(async (item) => {
 						// Normalize the link path for matching
-						const normalizedItemLink = normalizeLinkPath(base + (section.base ?? '') + item.link)
+						const normalizedItemLink = normalizeLinkPath(
+							(item.base ?? section.base ?? base ?? '') + item.link,
+						)
 						const matchingFile = preparedFiles.find((file) => {
 							const relativePath = `/${stripExtPosix(path.relative(srcDir, file.path))}`
 							return isPathMatch(relativePath, normalizedItemLink)
@@ -149,7 +151,7 @@ async function processSidebarSection(
 							cleanUrls,
 							// Increase depth for nested sections to maintaint proper heading levels
 							depth + 1,
-							base + (section.base ?? ''),
+							item.base ?? section.base ?? base ?? '',
 						),
 					),
 			),

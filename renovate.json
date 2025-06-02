@@ -4,9 +4,9 @@
 	"labels": ["dependencies"],
 	"packageRules": [
 		{
-			"matchPackagePatterns": ["*"],
 			"matchUpdateTypes": ["patch"],
-			"enabled": false
+			"enabled": false,
+			"matchPackageNames": ["*"]
 		},
 		{
 			"matchManagers": ["bun"],

@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
           sparse-checkout-cone-mode: false
@@ -40,12 +40,12 @@ jobs:
             !**/*.md
 
       - name: 🔧 Setup Bun
-        uses: oven-sh/setup-bun@v2.0.2
+        uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
 
       # Run only on Windows because on Linux there are no problems with slow package installation
       - name: 📥 Cache Bun dependencies (Windows)
         if: runner.os == 'Windows'
-        uses: actions/cache@v4.2.3
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ~\.bun
           key: ${{ matrix.os }}-bun-${{ hashFiles('**/bun.lock') }}

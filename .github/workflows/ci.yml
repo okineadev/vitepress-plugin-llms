@@ -8,7 +8,6 @@ on:
       - src/**
       - tests/**
       - package.json
-      - .npmignore
       - bun.lock
       - bunfig.toml
       - bunup.config.ts
@@ -21,7 +20,6 @@ on:
       - src/**
       - tests/**
       - package.json
-      - .npmignore
       - bun.lock
       - bunfig.toml
       - bunup.config.ts
@@ -66,7 +64,6 @@ jobs:
           sparse-checkout: |
             src/
             package.json
-            .npmignore
             bun.lock
             bunfig.toml
             bunup.config.ts
@@ -75,9 +72,7 @@ jobs:
             tsconfig*.json
 
       - name: 🔧 Setup Bun
-        uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5 # v2
-        with:
-          bun-version: latest
+        uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
 
       - name: 📦 Install dependencies
         run: bun install --frozen-lockfile

@@ -1,0 +1,22 @@
+{
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": ["config:base", "helpers:pinGitHubActionDigests", "npm:unpublishSafe", ":gitSignOff"],
+	"commitMessageLowerCase": "auto",
+	"commitMessagePrefix": "chore(deps):",
+	"labels": ["📦 dependencies"],
+	"packageRules": [
+		{
+			"matchPackagePatterns": ["*"],
+			"matchUpdateTypes": ["patch"],
+			"enabled": false
+		},
+		{
+			"matchManagers": ["github-actions"],
+			"groupName": "github-actions",
+			"commitMessagePrefix": "chore(actions):",
+			"labels": ["🔄 workflows"]
+		}
+	],
+	"schedule": ["monthly"],
+	"prConcurrentLimit": 2
+}

@@ -10,7 +10,7 @@ jobs:
   lint-pr-title:
     runs-on: ubuntu-latest
 
-    if: ${{ (github.event.action == 'opened' || github.event.changes.title != null) && github.actor != 'dependabot[bot]' }}
+    if: ${{ (github.event.action == 'opened' || github.event.changes.title != null) && github.actor != 'renovate[bot]' }}
 
     steps:
       - name: 📥 Checkout

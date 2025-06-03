@@ -21,7 +21,7 @@ export const splitDirAndFile = (filepath: string) => ({
  *
  * This is needed to avoid removing an extension from a file more than once.
  */
-const contentFileExts = new Set(['.md', '.html', '.vue', '.txt'])
+const contentFileExts = new Set(['.md', '.html'])
 
 /**
  * Strips the file extension from a given file path, only if it is a content file.

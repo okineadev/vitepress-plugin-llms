@@ -30,10 +30,7 @@ export const generateTOCLink = (
  * @param items - Array of sidebar items to process.
  * @returns Array of paths collected from the sidebar items.
  */
-async function collectPathsFromSidebarItems(
-	items: DefaultTheme.SidebarItem[],
-	base: string = '',
-): Promise<string[]> {
+async function collectPathsFromSidebarItems(items: DefaultTheme.SidebarItem[], base = ''): Promise<string[]> {
 	return Promise.all(
 		items.map(async (item) => {
 			const paths: string[] = []
@@ -102,7 +99,7 @@ async function processSidebarSection(
 	linksExtension?: LinksExtension,
 	cleanUrls?: VitePressConfig['cleanUrls'],
 	depth = 3,
-	base: string = '',
+	base = '',
 ): Promise<string> {
 	let sectionTOC = ''
 

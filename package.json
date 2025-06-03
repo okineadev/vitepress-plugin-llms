@@ -37,6 +37,7 @@
 		"markdown-title": "^1.0.2",
 		"millify": "^6.1.0",
 		"minimatch": "^10.0.1",
+		"path-to-regexp": "^8.2.0",
 		"picocolors": "^1.1.1",
 		"remark": "^15.0.1",
 		"remark-frontmatter": "^5.0.0",

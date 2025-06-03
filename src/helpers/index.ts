@@ -1,5 +1,4 @@
 import fs from 'node:fs/promises'
-import path from 'node:path'
 
 import matter from 'gray-matter'
 
@@ -16,8 +15,8 @@ export interface GenerateLLMsTxtOptions {
 	/** Path to the main documentation file `index.md`.*/
 	indexMd: string
 
-	/** The source directory for the files. */
-	srcDir: VitePressConfig['vitepress']['srcDir']
+	/** The output directory for the files. */
+	outDir: string
 
 	/** Template to use for generating `llms.txt`. */
 	LLMsTxtTemplate?: LlmstxtSettings['customLLMsTxtTemplate']
@@ -67,7 +66,7 @@ export async function generateLLMsTxt(
 	preparedFiles: PreparedFile[],
 	{
 		indexMd,
-		srcDir,
+		outDir,
 		LLMsTxtTemplate = defaultLLMsTxtTemplate,
 		templateVariables = {},
 		vitepressConfig,
@@ -107,7 +106,7 @@ export async function generateLLMsTxt(
 		(!templateVariables.description && 'This file contains links to all documentation sections.')
 
 	templateVariables.toc ??= await generateTOC(preparedFiles, {
-		srcDir,
+		outDir,
 		domain,
 		sidebarConfig: sidebar || vitepressConfig?.themeConfig?.sidebar,
 		linksExtension,
@@ -121,9 +120,6 @@ export async function generateLLMsTxt(
  * Options for generating the `llms-full.txt` file.
  */
 export interface GenerateLLMsFullTxtOptions {
-	/** The source directory for the files. */
-	srcDir: VitePressConfig['vitepress']['srcDir']
-
 	/** The base domain for the generated links. */
 	domain?: LlmstxtSettings['domain']
 
@@ -145,14 +141,13 @@ export async function generateLLMsFullTxt(
 	preparedFiles: PreparedFile[],
 	options: GenerateLLMsFullTxtOptions,
 ) {
-	const { srcDir, domain, linksExtension, cleanUrls } = options
+	const { domain, linksExtension, cleanUrls } = options
 
 	const fileContents = await Promise.all(
 		preparedFiles.map(async (file) => {
-			const relativePath = path.relative(srcDir, file.path)
 			const metadata = await generateMetadata(file.file, {
 				domain,
-				filePath: relativePath,
+				filePath: file.path,
 				linksExtension,
 				cleanUrls,
 			})

@@ -16,17 +16,17 @@ import {
 import {
 	fakeCustomLlmsTxtTemplate,
 	fakeIndexMd,
+	outDir,
 	preparedFilesSample,
 	sampleDomain,
-	srcDir,
 } from '../resources'
 
 describe('generateLLMsTxt', () => {
 	it('generates a `llms.txt` file', async () => {
 		expect(
-			await generateLLMsTxt(preparedFilesSample({ srcDir }).slice(1), {
-				indexMd: `${srcDir}/index.md`,
-				srcDir,
+			await generateLLMsTxt(preparedFilesSample.slice(1), {
+				indexMd: `${outDir}/index.md`,
+				outDir: outDir,
 				LLMsTxtTemplate: defaultLLMsTxtTemplate,
 				templateVariables: {},
 				vitepressConfig: {},
@@ -35,9 +35,9 @@ describe('generateLLMsTxt', () => {
 	})
 	it('works correctly with a custom template', async () => {
 		expect(
-			await generateLLMsTxt(preparedFilesSample({ srcDir }).slice(1), {
-				indexMd: `${srcDir}/index.md`,
-				srcDir,
+			await generateLLMsTxt(preparedFilesSample.slice(1), {
+				indexMd: `${outDir}/index.md`,
+				outDir: outDir,
 				LLMsTxtTemplate: fakeCustomLlmsTxtTemplate,
 				templateVariables: {},
 				vitepressConfig: {},
@@ -46,9 +46,9 @@ describe('generateLLMsTxt', () => {
 	})
 	it('works correctly with a custom template variables', async () => {
 		expect(
-			await generateLLMsTxt(preparedFilesSample({ srcDir }), {
-				indexMd: `${srcDir}/index.md`,
-				srcDir,
+			await generateLLMsTxt(preparedFilesSample, {
+				indexMd: `${outDir}/index.md`,
+				outDir: outDir,
 				LLMsTxtTemplate: defaultLLMsTxtTemplate,
 				templateVariables: { title: 'foo', description: 'bar', toc: 'zoo' },
 				vitepressConfig: {},
@@ -58,9 +58,9 @@ describe('generateLLMsTxt', () => {
 
 	it('works correctly with a custom template and variables', async () => {
 		expect(
-			await generateLLMsTxt(preparedFilesSample({ srcDir }), {
-				indexMd: `${srcDir}/index.md`,
-				srcDir,
+			await generateLLMsTxt(preparedFilesSample, {
+				indexMd: `${outDir}/index.md`,
+				outDir: outDir,
 				LLMsTxtTemplate: '# {foo}\n\n**{bar}**\n\n{zoo}',
 				templateVariables: { title: 'foo', description: 'bar', toc: 'zoo' },
 				vitepressConfig: {},
@@ -71,17 +71,12 @@ describe('generateLLMsTxt', () => {
 
 describe('generateLLMsFullTxt', () => {
 	it('generates a `llms-full.txt` file', async () => {
-		expect(
-			await generateLLMsFullTxt(preparedFilesSample({ srcDir }).slice(1), {
-				srcDir,
-			}),
-		).toMatchSnapshot()
+		expect(await generateLLMsFullTxt(preparedFilesSample.slice(1), {})).toMatchSnapshot()
 	})
 
 	it('correctly attaches the domain to URLs in context', async () => {
 		expect(
-			await generateLLMsFullTxt(preparedFilesSample({ srcDir }).slice(1), {
-				srcDir,
+			await generateLLMsFullTxt(preparedFilesSample.slice(1), {
 				domain: sampleDomain,
 			}),
 		).toMatchSnapshot()

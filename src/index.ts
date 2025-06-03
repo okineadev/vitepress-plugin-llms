@@ -20,7 +20,13 @@ import { defaultLLMsTxtTemplate, fullTagRegex, unnecessaryFilesList } from './co
 import viteDevServerMiddleware from './devserer-middleware'
 import { generateLLMsFullTxt, generateLLMsTxt } from './helpers/index'
 import log from './helpers/logger'
-import { expandTemplate, extractTitle, generateMetadata, getHumanReadableSizeOf } from './helpers/utils'
+import {
+	expandTemplate,
+	extractTitle,
+	generateMetadata,
+	getHumanReadableSizeOf,
+	resolveOutputFilePath,
+} from './helpers/utils'
 import type { CustomTemplateVariables, LlmstxtSettings, PreparedFile, VitePressConfig } from './types'
 
 const PLUGIN_NAME = packageName
@@ -67,13 +73,7 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 			enforce: 'pre',
 			name: `${PLUGIN_NAME}:llm-tags`,
 
-			/**
-			 * Processes each file that Vite transforms and collects markdown files.
-			 *
-			 * @param content - The file content.
-			 * @param id - The file identifier (path).
-			 * @returns null if the file is processed, otherwise returns the original content.
-			 */
+			/** Processes each Markdown file */
 			async transform(content, id) {
 				const orig = content
 
@@ -96,12 +96,11 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 					}
 				}
 
-				// strip content between <llm-only> and </llm-only>
 				const modifiedContent = content
+					// strip content between <llm-only> and </llm-only>
 					.replace(fullTagRegex('llm-only', 'g'), '')
+					// remove <llm-exclude> tags, keep the content
 					.replace(fullTagRegex('llm-exclude', 'g'), '$1')
-				// remove <llm-exclude> tags, keep the content
-				// modifiedContent = modifiedContent
 
 				// Add markdown file path to our collection
 				mdFiles.add(id)
@@ -190,6 +189,16 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 
 				const preparedFiles: PreparedFile[] = await Promise.all(
 					mdFilesList.map(async (file) => {
+						const resolvedOutFilePath = path.relative(
+							settings.workDir,
+							resolveOutputFilePath(
+								file,
+								settings.workDir,
+								// @ts-ignore
+								config.vitepress.rewrites,
+							),
+						)
+
 						const content = await fs.readFile(file, 'utf-8')
 
 						const markdownProcessor = remark()
@@ -211,10 +220,12 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 
 						// Extract title from frontmatter or use the first heading
 						const title = extractTitle(processedMarkdown)?.trim() || 'Untitled'
+
 						const filePath =
-							path.basename(file) === 'index.md' && path.dirname(file) !== settings.workDir
-								? `${path.dirname(file)}.md`
-								: file
+							path.basename(resolvedOutFilePath) === 'index.md' &&
+							path.dirname(resolvedOutFilePath) !== settings.workDir
+								? `${path.dirname(resolvedOutFilePath)}.md`
+								: resolvedOutFilePath
 
 						return { path: filePath, title, file: processedMarkdown }
 					}),
@@ -241,7 +252,7 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 
 							const llmsTxt = await generateLLMsTxt(preparedFiles, {
 								indexMd: path.resolve(settings.workDir, 'index.md'),
-								srcDir: settings.workDir,
+								outDir: outDir,
 								LLMsTxtTemplate: settings.customLLMsTxtTemplate || defaultLLMsTxtTemplate,
 								templateVariables,
 								vitepressConfig: config?.vitepress?.userConfig,
@@ -277,7 +288,6 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 							log.info(`Generating full documentation bundle (${pc.cyan('llms-full.txt')})...`)
 
 							const llmsFullTxt = await generateLLMsFullTxt(preparedFiles, {
-								srcDir: settings.workDir,
 								domain: settings.domain,
 								linksExtension: !settings.generateLLMFriendlyDocsForEachPage ? '.html' : undefined,
 								cleanUrls: config.cleanUrls,
@@ -304,10 +314,9 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 				if (settings.generateLLMFriendlyDocsForEachPage) {
 					tasks.push(
 						...preparedFiles.map(async (file) => {
-							const relativePath = path.relative(settings.workDir, file.path)
 							try {
 								const mdFile = file.file
-								const targetPath = path.resolve(outDir, relativePath)
+								const targetPath = path.resolve(outDir, file.path)
 
 								await fs.mkdir(path.dirname(targetPath), { recursive: true })
 
@@ -317,16 +326,16 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 										mdFile.content,
 										await generateMetadata(mdFile, {
 											domain: settings.domain,
-											filePath: relativePath,
+											filePath: file.path,
 											linksExtension: '.md',
 											cleanUrls: config.cleanUrls,
 										}),
 									),
 								)
 
-								log.success(`Processed ${pc.cyan(relativePath)}`)
+								log.success(`Processed ${pc.cyan(file.path)}`)
 							} catch (error) {
-								log.error(`Failed to process ${pc.cyan(relativePath)}: ${(error as Error).message}`)
+								log.error(`Failed to process ${pc.cyan(file.path)}: ${(error as Error).message}`)
 							}
 						}),
 					)

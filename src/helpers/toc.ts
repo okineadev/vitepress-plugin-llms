@@ -85,7 +85,7 @@ export function isPathMatch(filePath: string, sidebarPath: string): boolean {
  *
  * @param section - A sidebar section
  * @param preparedFiles - An array of prepared files
- * @param srcDir - The VitePress source directory
+ * @param outDir - The VitePress output directory
  * @param domain - Optional domain to prefix URLs with
  * @param linksExtension - The link extension for generated links.
  * @param depth - Current depth level for headings
@@ -94,7 +94,7 @@ export function isPathMatch(filePath: string, sidebarPath: string): boolean {
 async function processSidebarSection(
 	section: DefaultTheme.SidebarItem,
 	preparedFiles: PreparedFile[],
-	srcDir: VitePressConfig['vitepress']['srcDir'],
+	outDir: string,
 	domain?: LlmstxtSettings['domain'],
 	linksExtension?: LinksExtension,
 	cleanUrls?: VitePressConfig['cleanUrls'],
@@ -114,12 +114,12 @@ async function processSidebarSection(
 						// Normalize the link path for matching
 						const normalizedItemLink = normalizeLinkPath(item.link)
 						const matchingFile = preparedFiles.find((file) => {
-							const relativePath = `/${stripExtPosix(path.relative(srcDir, file.path))}`
+							const relativePath = `/${stripExtPosix(file.path)}`
 							return isPathMatch(relativePath, normalizedItemLink)
 						})
 
 						if (matchingFile) {
-							const relativePath = path.relative(srcDir, matchingFile.path)
+							const relativePath = matchingFile.path
 							return generateTOCLink(matchingFile, domain, relativePath, linksExtension, cleanUrls)
 						}
 						return null
@@ -139,7 +139,7 @@ async function processSidebarSection(
 						processSidebarSection(
 							item,
 							preparedFiles,
-							srcDir,
+							outDir,
 							domain,
 							linksExtension,
 							cleanUrls,
@@ -204,19 +204,13 @@ function flattenSidebarConfig(sidebarConfig: DefaultTheme.Sidebar): DefaultTheme
  * Options for generating a Table of Contents (TOC).
  */
 export interface GenerateTOCOptions {
-	/**
-	 * The VitePress source directory.
-	 */
-	srcDir: VitePressConfig['vitepress']['srcDir']
+	/** The VitePress output directory. */
+	outDir: string
 
-	/**
-	 * Optional domain to prefix URLs with.
-	 */
+	/** Optional domain to prefix URLs with. */
 	domain?: LlmstxtSettings['domain']
 
-	/**
-	 * Optional VitePress sidebar configuration.
-	 */
+	/** Optional VitePress sidebar configuration. */
 	sidebarConfig?: DefaultTheme.Sidebar
 
 	/** The link extension for generated links. */
@@ -242,7 +236,7 @@ export async function generateTOC(
 	preparedFiles: PreparedFile[],
 	options: GenerateTOCOptions,
 ): Promise<string> {
-	const { srcDir, domain, sidebarConfig, linksExtension, cleanUrls } = options
+	const { outDir, domain, sidebarConfig, linksExtension, cleanUrls } = options
 	let tableOfContent = ''
 
 	// If sidebar configuration exists
@@ -255,7 +249,7 @@ export async function generateTOC(
 			// Process sections in parallel
 			const sectionResults = await Promise.all(
 				flattenedSidebarConfig.map((section) =>
-					processSidebarSection(section, preparedFiles, srcDir, domain, linksExtension, cleanUrls),
+					processSidebarSection(section, preparedFiles, outDir, domain, linksExtension, cleanUrls),
 				),
 			)
 
@@ -264,7 +258,7 @@ export async function generateTOC(
 			// Find files that didn't match any section
 			const allSidebarPaths = await collectPathsFromSidebarItems(flattenedSidebarConfig)
 			const unsortedFiles = preparedFiles.filter((file) => {
-				const relativePath = `/${stripExtPosix(path.relative(srcDir, file.path))}`
+				const relativePath = `/${stripExtPosix(file.path)}`
 				return !allSidebarPaths.some((sidebarPath: string) => isPathMatch(relativePath, sidebarPath))
 			})
 
@@ -275,8 +269,7 @@ export async function generateTOC(
 				const tocEntries: string[] = []
 				await Promise.all(
 					unsortedFiles.map(async (file) => {
-						const relativePath = path.relative(srcDir, file.path)
-						tocEntries.push(generateTOCLink(file, domain, relativePath, linksExtension, cleanUrls))
+						tocEntries.push(generateTOCLink(file, domain, file.path, linksExtension, cleanUrls))
 					}),
 				)
 				tableOfContent += tocEntries.join('')
@@ -291,8 +284,7 @@ export async function generateTOC(
 	if (preparedFiles.length > 0) {
 		const tocEntries = await Promise.all(
 			preparedFiles.map(async (file) => {
-				const relativePath = path.relative(srcDir, file.path)
-				return generateTOCLink(file, domain, relativePath, linksExtension, cleanUrls)
+				return generateTOCLink(file, domain, file.path, linksExtension, cleanUrls)
 			}),
 		)
 

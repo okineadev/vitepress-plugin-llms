@@ -4,9 +4,10 @@
 	"[json]": { "editor.defaultFormatter": "biomejs.biome" },
 	"[markdown]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
 	"editor.codeActionsOnSave": {
-		"source.organizeImports.biome": "explicit",
-		"source.fixAll.biome": "explicit",
-		"quickfix.biome": "explicit"
+		"source.organizeImports.biome": "always",
+		"source.fixAll.biome": "always",
+		"quickfix.biome": "always",
+		"source.fixAll.ts": "always"
 	},
 
 	// Read-only files

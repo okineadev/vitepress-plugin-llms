@@ -3,37 +3,37 @@ import type { DefaultTheme } from 'vitepress'
 import { generateTOC, generateTOCLink, isPathMatch, normalizeLinkPath } from '../../src/helpers/toc'
 import {
 	fooMdSample,
+	outDir,
 	preparedFilesSample,
 	sampleDomain,
 	sampleObjectVitePressSidebar,
 	sampleVitePressSidebar,
-	srcDir,
 } from '../resources'
 
 describe('generateTOC', () => {
 	it('generates a table of contents', async () => {
-		expect(await generateTOC([fooMdSample({ srcDir })], { srcDir })).toBe('- [Title](/foo.md)\n')
+		expect(await generateTOC([fooMdSample], { outDir: outDir })).toBe('- [Title](/foo.md)\n')
 	})
 
 	it('correctly attaches the domain', async () => {
 		expect(
-			await generateTOC([fooMdSample({ srcDir })], {
-				srcDir,
+			await generateTOC([fooMdSample], {
+				outDir: outDir,
 				domain: sampleDomain,
 			}),
 		).toBe(`- [Title](${sampleDomain}/foo.md)\n`)
 	})
 
 	it('correctly generates TOC with link descriptions', async () => {
-		expect(await generateTOC(preparedFilesSample({ srcDir }).slice(1), { srcDir })).toBe(
+		expect(await generateTOC(preparedFilesSample.slice(1), { outDir: outDir })).toBe(
 			'- [Getting started](/test/getting-started.md): Instructions on how to get started with the tool\n- [Quickstart](/test/quickstart.md): Instructions for quick project initialization\n- [Some other section](/test/other.md)\n',
 		)
 	})
 
 	it('organizes TOC based on sidebar configuration', async () => {
-		const files = preparedFilesSample({ srcDir }).slice(1)
+		const files = preparedFilesSample.slice(1)
 		const toc = await generateTOC(files, {
-			srcDir,
+			outDir: outDir,
 			sidebarConfig: sampleVitePressSidebar,
 		})
 
@@ -41,9 +41,9 @@ describe('generateTOC', () => {
 	})
 
 	it('handles object-based sidebar configuration correctly', async () => {
-		const files = preparedFilesSample({ srcDir }).slice(1)
+		const files = preparedFilesSample.slice(1)
 		const toc = await generateTOC(files, {
-			srcDir,
+			outDir: outDir,
 			sidebarConfig: sampleObjectVitePressSidebar,
 		})
 
@@ -51,8 +51,8 @@ describe('generateTOC', () => {
 	})
 
 	it('appends the specified `linksExtension` to the generated links', async () => {
-		const toc = await generateTOC(preparedFilesSample({ srcDir }).slice(1), {
-			srcDir,
+		const toc = await generateTOC(preparedFilesSample.slice(1), {
+			outDir: outDir,
 			linksExtension: '.html',
 		})
 
@@ -72,8 +72,8 @@ describe('generateTOC', () => {
 			},
 		]
 
-		const toc = await generateTOC(preparedFilesSample({ srcDir }).slice(1), {
-			srcDir,
+		const toc = await generateTOC(preparedFilesSample.slice(1), {
+			outDir: outDir,
 			sidebarConfig: sidebarWithEmptySection,
 		})
 
@@ -105,8 +105,8 @@ describe('generateTOC', () => {
 			},
 		]
 
-		const toc = await generateTOC(preparedFilesSample({ srcDir }).slice(1), {
-			srcDir,
+		const toc = await generateTOC(preparedFilesSample.slice(1), {
+			outDir: outDir,
 			sidebarConfig: sidebarWithNestedEmptySections,
 		})
 
@@ -135,8 +135,8 @@ describe('generateTOC', () => {
 			},
 		]
 
-		const toc = await generateTOC(preparedFilesSample({ srcDir }).slice(1), {
-			srcDir,
+		const toc = await generateTOC(preparedFilesSample.slice(1), {
+			outDir: outDir,
 			sidebarConfig: sidebarWithNonMatchingFiles,
 		})
 
@@ -149,13 +149,13 @@ describe('generateTOC', () => {
 
 describe('generateTOCLink', () => {
 	it('generates a TOC link with description', () => {
-		const result = generateTOCLink(fooMdSample({ srcDir }), sampleDomain, `${srcDir}/path`, '.md')
-		expect(result).toBe(`- [Title](${sampleDomain}/${srcDir}/path.md)\n`)
+		const result = generateTOCLink(fooMdSample, sampleDomain, `${outDir}/path`, '.md')
+		expect(result).toBe(`- [Title](${sampleDomain}/${outDir}/path.md)\n`)
 	})
 
 	it('generates a TOC link without description', () => {
-		const result = generateTOCLink(fooMdSample({ srcDir }), sampleDomain, `${srcDir}/path`, '.md')
-		expect(result).toBe(`- [Title](${sampleDomain}/${srcDir}/path.md)\n`)
+		const result = generateTOCLink(fooMdSample, sampleDomain, `${outDir}/path`, '.md')
+		expect(result).toBe(`- [Title](${sampleDomain}/${outDir}/path.md)\n`)
 	})
 })
 

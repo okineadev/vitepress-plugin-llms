@@ -1,8 +1,8 @@
 import matter from 'gray-matter'
 import type { DefaultTheme } from 'vitepress'
-import type { LlmstxtSettings, PreparedFile } from '../src/types'
+import type { PreparedFile } from '../src/types'
 
-export const srcDir = 'docs'
+export const outDir = 'dist'
 
 const blah = 'blah blah blah...'
 export const sampleDomain = 'https://example.com'
@@ -62,39 +62,31 @@ export const sampleObjectVitePressSidebar: DefaultTheme.Sidebar = {
 	],
 }
 
-export const fooMdSample = ({
-	srcDir = 'docs',
-}: {
-	srcDir?: LlmstxtSettings['workDir']
-}): PreparedFile => ({
+export const fooMdSample: PreparedFile = {
 	title: 'Title',
-	path: `${srcDir}/foo.md`,
+	path: 'foo.md',
 	file: matter(''),
-})
+}
 
-export const preparedFilesSample = ({
-	srcDir = 'docs',
-}: {
-	srcDir?: LlmstxtSettings['workDir']
-}): PreparedFile[] => [
+export const preparedFilesSample: PreparedFile[] = [
 	{
 		title: 'Some cool tool',
-		path: `${srcDir}/index.md`,
+		path: 'index.md',
 		file: matter(fakeIndexMd),
 	},
 	{
 		title: 'Getting started',
-		path: `${srcDir}/test/getting-started.md`,
+		path: 'test/getting-started.md',
 		file: matter(fakeGettingStartedMd),
 	},
 	{
 		title: 'Quickstart',
-		path: `${srcDir}/test/quickstart.md`,
+		path: 'test/quickstart.md',
 		file: matter(fakeQuickstartMd),
 	},
 	{
 		title: 'Some other section',
-		path: `${srcDir}/test/other.md`,
+		path: 'test/other.md',
 		file: matter(fakeMarkdownDocument),
 	},
 ]

@@ -196,5 +196,129 @@ describe('llmstxt plugin', () => {
 			expect(writeFile).toHaveBeenCalledTimes(1)
 			expect(writeFile.mock?.lastCall?.[1]).toMatchSnapshot()
 		})
+
+		describe('rewrites handling', () => {
+			it('should apply simple rewrites to file paths', async () => {
+				const configWithRewrites = {
+					...mockConfig,
+					vitepress: {
+						...mockConfig.vitepress,
+						rewrites: {
+							'docs/guide/index.md': 'guide.md',
+							'docs/api/reference.md': 'api.md',
+						},
+					},
+				}
+
+				plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMsTxt: false })
+				// @ts-ignore
+				plugin[1].configResolved(configWithRewrites)
+
+				await Promise.all([
+					// @ts-ignore
+					plugin[0].transform(fakeMarkdownDocument, 'docs/guide/index.md'),
+					// @ts-ignore
+					plugin[0].transform(fakeMarkdownDocument, 'docs/api/reference.md'),
+				])
+				// @ts-ignore
+				await plugin[1].generateBundle()
+
+				expect(writeFile).toHaveBeenCalledTimes(2)
+
+				expect(writeFile).nthCalledWith(
+					1,
+					path.resolve(mockConfig.vitepress.outDir, 'guide.md'),
+					'---\nurl: /guide.md\n---\n# Some cool stuff\n',
+				)
+				expect(writeFile).nthCalledWith(
+					2,
+					path.resolve(mockConfig.vitepress.outDir, 'api.md'),
+					'---\nurl: /api.md\n---\n# Some cool stuff\n',
+				)
+			})
+
+			it('should handle wildcard rewrites with :path parameter', async () => {
+				const configWithWildcardRewrites = {
+					...mockConfig,
+					vitepress: {
+						...mockConfig.vitepress,
+						rewrites: {
+							'docs/guide/:path(.*)': 'guide/:path',
+						},
+					},
+				}
+
+				plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMsTxt: false })
+				// @ts-ignore
+				plugin[1].configResolved(configWithWildcardRewrites)
+
+				// @ts-ignore
+				await plugin[0].transform(fakeMarkdownDocument, 'docs/guide/installation.md')
+				// @ts-ignore
+				await plugin[1].generateBundle()
+
+				expect(writeFile).toHaveBeenCalledWith(
+					path.resolve(mockConfig.vitepress.outDir, 'guide', 'installation.md'),
+					'---\nurl: /guide/installation.md\n---\n# Some cool stuff\n',
+				)
+			})
+
+			it('should preserve original paths when no rewrites match', async () => {
+				const configWithRewrites = {
+					...mockConfig,
+					vitepress: {
+						...mockConfig.vitepress,
+						rewrites: {
+							'docs/guide/index.md': 'guide.md',
+						},
+					},
+				}
+
+				plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMsTxt: false })
+				// @ts-ignore
+				plugin[1].configResolved(configWithRewrites)
+
+				// @ts-ignore
+				await plugin[0].transform(fakeMarkdownDocument, 'docs/other/page.md')
+				// @ts-ignore
+				await plugin[1].generateBundle()
+
+				expect(writeFile).toHaveBeenCalledTimes(1)
+
+				expect(writeFile).nthCalledWith(
+					1,
+					path.resolve(mockConfig.vitepress.outDir, 'other', 'page.md'),
+					'---\nurl: /other/page.md\n---\n# Some cool stuff\n',
+				)
+			})
+
+			it('should apply rewrites correctly in llms.txt links', async () => {
+				const configWithRewrites = {
+					...mockConfig,
+					vitepress: {
+						...mockConfig.vitepress,
+						rewrites: {
+							'docs/guide/index.md': 'guide.md',
+						},
+					},
+				}
+
+				plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMFriendlyDocsForEachPage: false })
+				// @ts-ignore
+				plugin[1].configResolved(configWithRewrites)
+
+				// @ts-ignore
+				await plugin[0].transform(fakeMarkdownDocument, 'docs/guide/index.md')
+				// @ts-ignore
+				await plugin[1].generateBundle()
+
+				expect(writeFile).toBeCalledTimes(1)
+
+				const result = writeFile.mock.calls[0][1]
+
+				expect(result).toContain('/guide.html')
+				expect(result).not.toContain('/guide/index.html')
+			})
+		})
 	})
 })

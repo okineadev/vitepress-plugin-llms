@@ -94,7 +94,7 @@ export function isPathMatch(filePath: string, sidebarPath: string): boolean {
 async function processSidebarSection(
 	section: DefaultTheme.SidebarItem,
 	preparedFiles: PreparedFile[],
-	outDir: string,
+	srcDir: VitePressConfig['vitepress']['srcDir'],
 	domain?: LlmstxtSettings['domain'],
 	linksExtension?: LinksExtension,
 	cleanUrls?: VitePressConfig['cleanUrls'],
@@ -142,7 +142,7 @@ async function processSidebarSection(
 						processSidebarSection(
 							item,
 							preparedFiles,
-							outDir,
+							srcDir,
 							domain,
 							linksExtension,
 							cleanUrls,
@@ -208,13 +208,19 @@ function flattenSidebarConfig(sidebarConfig: DefaultTheme.Sidebar): DefaultTheme
  * Options for generating a Table of Contents (TOC).
  */
 export interface GenerateTOCOptions {
-	/** The VitePress output directory. */
-	outDir: string
+	/**
+	 * The VitePress source directory.
+	 */
+	srcDir: VitePressConfig['vitepress']['srcDir']
 
-	/** Optional domain to prefix URLs with. */
+	/**
+	 * Optional domain to prefix URLs with.
+	 */
 	domain?: LlmstxtSettings['domain']
 
-	/** Optional VitePress sidebar configuration. */
+	/**
+	 * Optional VitePress sidebar configuration.
+	 */
 	sidebarConfig?: DefaultTheme.Sidebar
 
 	/** The link extension for generated links. */
@@ -222,6 +228,12 @@ export interface GenerateTOCOptions {
 
 	/** Whether to use clean URLs (without the extension). */
 	cleanUrls?: VitePressConfig['cleanUrls']
+
+	/**
+	 * Optional directory filter to only include files within the specified directory.
+	 * If not provided, all files will be included.
+	 */
+	directoryFilter?: string
 }
 
 /**
@@ -240,8 +252,18 @@ export async function generateTOC(
 	preparedFiles: PreparedFile[],
 	options: GenerateTOCOptions,
 ): Promise<string> {
-	const { outDir, domain, sidebarConfig, linksExtension, cleanUrls } = options
+	const { srcDir, domain, sidebarConfig, linksExtension, cleanUrls, directoryFilter } = options
 	let tableOfContent = ''
+
+	// Filter files by directory if directoryFilter is provided
+	const filteredFiles = directoryFilter
+		? directoryFilter === '.'
+			? preparedFiles // Root directory includes all files
+			: preparedFiles.filter((file) => {
+					const relativePath = file.path
+					return relativePath.startsWith(directoryFilter + path.sep) || relativePath === directoryFilter
+				})
+		: preparedFiles
 
 	// If sidebar configuration exists
 	if (sidebarConfig) {
@@ -253,7 +275,7 @@ export async function generateTOC(
 			// Process sections in parallel
 			const sectionResults = await Promise.all(
 				flattenedSidebarConfig.map((section) =>
-					processSidebarSection(section, preparedFiles, outDir, domain, linksExtension, cleanUrls),
+					processSidebarSection(section, filteredFiles, srcDir, domain, linksExtension, cleanUrls),
 				),
 			)
 
@@ -261,7 +283,7 @@ export async function generateTOC(
 
 			// Find files that didn't match any section
 			const allSidebarPaths = await collectPathsFromSidebarItems(flattenedSidebarConfig)
-			const unsortedFiles = preparedFiles.filter((file) => {
+			const unsortedFiles = filteredFiles.filter((file) => {
 				const relativePath = `/${stripExtPosix(file.path)}`
 				return !allSidebarPaths.some((sidebarPath: string) => isPathMatch(relativePath, sidebarPath))
 			})
@@ -273,7 +295,8 @@ export async function generateTOC(
 				const tocEntries: string[] = []
 				await Promise.all(
 					unsortedFiles.map(async (file) => {
-						tocEntries.push(generateTOCLink(file, domain, file.path, linksExtension, cleanUrls))
+						const relativePath = file.path
+						tocEntries.push(generateTOCLink(file, domain, relativePath, linksExtension, cleanUrls))
 					}),
 				)
 				tableOfContent += tocEntries.join('')
@@ -285,10 +308,11 @@ export async function generateTOC(
 	}
 
 	// Process remaining files in parallel
-	if (preparedFiles.length > 0) {
+	if (filteredFiles.length > 0) {
 		const tocEntries = await Promise.all(
-			preparedFiles.map(async (file) => {
-				return generateTOCLink(file, domain, file.path, linksExtension, cleanUrls)
+			filteredFiles.map(async (file) => {
+				const relativePath = file.path
+				return generateTOCLink(file, domain, relativePath, linksExtension, cleanUrls)
 			}),
 		)
 

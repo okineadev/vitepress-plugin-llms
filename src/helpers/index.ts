@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises'
+import path from 'node:path'
 
 import matter from 'gray-matter'
 
@@ -15,8 +16,8 @@ export interface GenerateLLMsTxtOptions {
 	/** Path to the main documentation file `index.md`.*/
 	indexMd: string
 
-	/** The output directory for the files. */
-	outDir: string
+	/** The source directory for the files. */
+	srcDir: VitePressConfig['vitepress']['srcDir']
 
 	/** Template to use for generating `llms.txt`. */
 	LLMsTxtTemplate?: LlmstxtSettings['customLLMsTxtTemplate']
@@ -38,6 +39,12 @@ export interface GenerateLLMsTxtOptions {
 
 	/** Optional sidebar configuration for organizing the TOC. */
 	sidebar?: DefaultTheme.Sidebar
+
+	/**
+	 * Optional directory filter to only include files within the specified directory.
+	 * If not provided, all files will be included.
+	 */
+	directoryFilter?: string
 }
 
 /**
@@ -66,7 +73,7 @@ export async function generateLLMsTxt(
 	preparedFiles: PreparedFile[],
 	{
 		indexMd,
-		outDir,
+		srcDir,
 		LLMsTxtTemplate = defaultLLMsTxtTemplate,
 		templateVariables = {},
 		vitepressConfig,
@@ -74,6 +81,7 @@ export async function generateLLMsTxt(
 		sidebar,
 		linksExtension,
 		cleanUrls,
+		directoryFilter,
 	}: GenerateLLMsTxtOptions,
 ): Promise<string> {
 	// @ts-expect-error
@@ -106,11 +114,12 @@ export async function generateLLMsTxt(
 		(!templateVariables.description && 'This file contains links to all documentation sections.')
 
 	templateVariables.toc ??= await generateTOC(preparedFiles, {
-		outDir,
+		srcDir,
 		domain,
 		sidebarConfig: sidebar || vitepressConfig?.themeConfig?.sidebar,
 		linksExtension,
 		cleanUrls,
+		directoryFilter,
 	})
 
 	return expandTemplate(LLMsTxtTemplate, templateVariables)
@@ -120,6 +129,9 @@ export async function generateLLMsTxt(
  * Options for generating the `llms-full.txt` file.
  */
 export interface GenerateLLMsFullTxtOptions {
+	/** The source directory for the files. */
+	srcDir: VitePressConfig['vitepress']['srcDir']
+
 	/** The base domain for the generated links. */
 	domain?: LlmstxtSettings['domain']
 
@@ -128,6 +140,12 @@ export interface GenerateLLMsFullTxtOptions {
 
 	/** Whether to use clean URLs (without the extension). */
 	cleanUrls?: VitePressConfig['cleanUrls']
+
+	/**
+	 * Optional directory filter to only include files within the specified directory.
+	 * If not provided, all files will be included.
+	 */
+	directoryFilter?: string
 }
 
 /**
@@ -141,10 +159,21 @@ export async function generateLLMsFullTxt(
 	preparedFiles: PreparedFile[],
 	options: GenerateLLMsFullTxtOptions,
 ) {
-	const { domain, linksExtension, cleanUrls } = options
+	const { srcDir, domain, linksExtension, cleanUrls, directoryFilter } = options
+
+	// Filter files by directory if directoryFilter is provided
+	const filteredFiles = directoryFilter
+		? directoryFilter === '.'
+			? preparedFiles // Root directory includes all files
+			: preparedFiles.filter((file) => {
+					const relativePath = file.path
+					return relativePath.startsWith(directoryFilter + path.sep) || relativePath === directoryFilter
+				})
+		: preparedFiles
 
 	const fileContents = await Promise.all(
-		preparedFiles.map(async (file) => {
+		filteredFiles.map(async (file) => {
+			// file.path is already relative to srcDir, so use it directly
 			const metadata = await generateMetadata(file.file, {
 				domain,
 				filePath: file.path,

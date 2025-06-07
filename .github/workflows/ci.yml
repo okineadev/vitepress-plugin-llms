@@ -52,7 +52,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.repository.full_name == 'okineadev/vitepress-plugin-llms'
 
-    permissions: {}
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
 
     steps:
       - name: 📥 Checkout
@@ -81,4 +84,63 @@ jobs:
         run: bun run build
 
       - name: ⚡ Publish prerelease
-        run: bunx pkg-pr-new publish --compact
+        run: bunx pkg-pr-new publish --json output.json --comment=off
+
+      - name: 💬 Post pkg.pr.new comment
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const output = JSON.parse(fs.readFileSync('output.json', 'utf8'));
+
+            const pkg = output.packages?.[0];
+            const installCmd = pkg ? `npm i ${pkg.name}@${pkg.version} -D` : 'npm i <package-name>@<version> -D';
+
+            const sha = context.eventName === 'pull_request'
+              ? context.payload.pull_request.head.sha
+              : context.payload.after;
+
+            const commitUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${sha}`;
+
+            const body = `### 🧪 Test this commit
+
+            \`\`\`bash
+            ${installCmd}
+            \`\`\`
+
+            [View commit](${commitUrl})`;
+
+            const botCommentIdentifier = '### 🧪 Test this commit';
+
+            async function findExistingComment(issueNumber) {
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+              });
+              return comments.data.find(c => c.body.includes(botCommentIdentifier));
+            }
+
+            async function upsertComment(issueNumber) {
+              const existing = await findExistingComment(issueNumber);
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                  body: body,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  body: body,
+                });
+              }
+            }
+
+            if (context.eventName === 'pull_request' && context.issue.number) {
+              await upsertComment(context.issue.number);
+            }

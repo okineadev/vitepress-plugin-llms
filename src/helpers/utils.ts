@@ -261,3 +261,51 @@ export function resolveOutputFilePath(
 
 	return file
 }
+
+/**
+ * Gets all directories at specific depths relative to the base directory.
+ *
+ * @param files - Array of file paths
+ * @param baseDir - Base directory path
+ * @param maxDepth - Maximum depth to traverse (1 = root only, 2 = root + first level, etc.)
+ * @returns Array of directory objects with path and depth information
+ */
+export function getDirectoriesAtDepths(
+	files: string[],
+	baseDir: string,
+	maxDepth: number,
+): Array<{
+	path: string
+	depth: number
+	relativePath: string
+}> {
+	const directories = new Set<string>()
+
+	// Always include root directory
+	directories.add(baseDir)
+
+	for (const file of files) {
+		const relativePath = path.relative(baseDir, file)
+		const parts = relativePath.split(path.sep)
+
+		// Build directory paths up to maxDepth
+		for (let depth = 1; depth < Math.min(parts.length, maxDepth); depth++) {
+			const dirParts = parts.slice(0, depth)
+			const dirPath = path.resolve(baseDir, ...dirParts)
+			directories.add(dirPath)
+		}
+	}
+
+	return Array.from(directories)
+		.map((dirPath) => ({
+			path: dirPath,
+			depth: dirPath === baseDir ? 1 : path.relative(baseDir, dirPath).split(path.sep).length + 1,
+			relativePath: path.relative(baseDir, dirPath) || '.',
+		}))
+		.filter((dir) => dir.depth <= maxDepth)
+		.sort((a, b) => {
+			// Sort by depth first, then by path
+			if (a.depth !== b.depth) return a.depth - b.depth
+			return a.path.localeCompare(b.path)
+		})
+}

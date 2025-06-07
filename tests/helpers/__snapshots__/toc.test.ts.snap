@@ -62,3 +62,18 @@ exports[`generateTOC resolves paths with common prefixes correctly 1`] = `
 
 "
 `;
+
+exports[`generateTOC with directoryFilter should include all files when directoryFilter is "." (root) 1`] = `
+"- [Some cool tool](/index.md): Blazing fast frontend tool
+- [Getting started](/test/getting-started.md): Instructions on how to get started with the tool
+- [Quickstart](/test/quickstart.md): Instructions for quick project initialization
+- [Some other section](/test/other.md)
+"
+`;
+
+exports[`generateTOC with directoryFilter should filter files by directory when directoryFilter is specified 1`] = `
+"- [Getting started](/test/getting-started.md): Instructions on how to get started with the tool
+- [Quickstart](/test/quickstart.md): Instructions for quick project initialization
+- [Some other section](/test/other.md)
+"
+`;

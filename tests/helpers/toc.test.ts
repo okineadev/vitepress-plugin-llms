@@ -3,32 +3,32 @@ import type { DefaultTheme } from 'vitepress'
 import { generateTOC, generateTOCLink, isPathMatch, normalizeLinkPath } from '../../src/helpers/toc'
 import {
 	fooMdSample,
-	preparedFilesWithCommonPrefixSample,
-	outDir,
 	preparedFilesSample,
+	preparedFilesWithCommonPrefixSample,
 	sampleDomain,
 	sampleObjectVitePressSidebar,
 	sampleObjectVitePressSidebarWithBase,
 	sampleObjectVitePressSidebarWithCommonPrefix,
 	sampleVitePressSidebar,
+	srcDir,
 } from '../resources'
 
 describe('generateTOC', () => {
 	it('generates a table of contents', async () => {
-		expect(await generateTOC([fooMdSample], { outDir: outDir })).toBe('- [Title](/foo.md)\n')
+		expect(await generateTOC([fooMdSample], { srcDir })).toBe('- [Title](/foo.md)\n')
 	})
 
 	it('correctly attaches the domain', async () => {
 		expect(
 			await generateTOC([fooMdSample], {
-				outDir: outDir,
+				srcDir,
 				domain: sampleDomain,
 			}),
 		).toBe(`- [Title](${sampleDomain}/foo.md)\n`)
 	})
 
 	it('correctly generates TOC with link descriptions', async () => {
-		expect(await generateTOC(preparedFilesSample.slice(1), { outDir: outDir })).toBe(
+		expect(await generateTOC(preparedFilesSample.slice(1), { srcDir })).toBe(
 			'- [Getting started](/test/getting-started.md): Instructions on how to get started with the tool\n- [Quickstart](/test/quickstart.md): Instructions for quick project initialization\n- [Some other section](/test/other.md)\n',
 		)
 	})
@@ -36,7 +36,7 @@ describe('generateTOC', () => {
 	it('organizes TOC based on sidebar configuration', async () => {
 		const files = preparedFilesSample.slice(1)
 		const toc = await generateTOC(files, {
-			outDir: outDir,
+			srcDir,
 			sidebarConfig: sampleVitePressSidebar,
 		})
 
@@ -46,7 +46,7 @@ describe('generateTOC', () => {
 	it('handles object-based sidebar configuration correctly', async () => {
 		const files = preparedFilesSample.slice(1)
 		const toc = await generateTOC(files, {
-			outDir: outDir,
+			srcDir,
 			sidebarConfig: sampleObjectVitePressSidebar,
 		})
 
@@ -56,7 +56,7 @@ describe('generateTOC', () => {
 	it('handles object-based sidebar with base options configuration correctly', async () => {
 		const files = preparedFilesSample
 		const toc = await generateTOC(files, {
-			outDir,
+			srcDir,
 			sidebarConfig: sampleObjectVitePressSidebarWithBase,
 		})
 
@@ -65,7 +65,7 @@ describe('generateTOC', () => {
 
 	it('appends the specified `linksExtension` to the generated links', async () => {
 		const toc = await generateTOC(preparedFilesSample.slice(1), {
-			outDir: outDir,
+			srcDir,
 			linksExtension: '.html',
 		})
 
@@ -86,7 +86,7 @@ describe('generateTOC', () => {
 		]
 
 		const toc = await generateTOC(preparedFilesSample.slice(1), {
-			outDir: outDir,
+			srcDir,
 			sidebarConfig: sidebarWithEmptySection,
 		})
 
@@ -119,7 +119,7 @@ describe('generateTOC', () => {
 		]
 
 		const toc = await generateTOC(preparedFilesSample.slice(1), {
-			outDir: outDir,
+			srcDir,
 			sidebarConfig: sidebarWithNestedEmptySections,
 		})
 
@@ -149,7 +149,7 @@ describe('generateTOC', () => {
 		]
 
 		const toc = await generateTOC(preparedFilesSample.slice(1), {
-			outDir: outDir,
+			srcDir,
 			sidebarConfig: sidebarWithNonMatchingFiles,
 		})
 
@@ -161,7 +161,7 @@ describe('generateTOC', () => {
 
 	it('resolves paths with common prefixes correctly', async () => {
 		const toc = await generateTOC(preparedFilesWithCommonPrefixSample, {
-			outDir,
+			srcDir,
 			sidebarConfig: sampleObjectVitePressSidebarWithCommonPrefix,
 		})
 
@@ -171,13 +171,13 @@ describe('generateTOC', () => {
 
 describe('generateTOCLink', () => {
 	it('generates a TOC link with description', () => {
-		const result = generateTOCLink(fooMdSample, sampleDomain, `${outDir}/path`, '.md')
-		expect(result).toBe(`- [Title](${sampleDomain}/${outDir}/path.md)\n`)
+		const result = generateTOCLink(fooMdSample, sampleDomain, `${srcDir}/path`, '.md')
+		expect(result).toBe(`- [Title](${sampleDomain}/${srcDir}/path.md)\n`)
 	})
 
 	it('generates a TOC link without description', () => {
-		const result = generateTOCLink(fooMdSample, sampleDomain, `${outDir}/path`, '.md')
-		expect(result).toBe(`- [Title](${sampleDomain}/${outDir}/path.md)\n`)
+		const result = generateTOCLink(fooMdSample, sampleDomain, `${srcDir}/path`, '.md')
+		expect(result).toBe(`- [Title](${sampleDomain}/${srcDir}/path.md)\n`)
 	})
 })
 
@@ -207,5 +207,33 @@ describe('isPathMatch', () => {
 	it('does not match different paths', () => {
 		const result = isPathMatch('docs/guide.md', 'docs/tutorial')
 		expect(result).toBe(false)
+	})
+})
+
+describe('generateTOC with directoryFilter', () => {
+	it('should include all files when directoryFilter is "." (root)', async () => {
+		const result = await generateTOC(preparedFilesSample, {
+			srcDir,
+			directoryFilter: '.',
+		})
+		expect(result).toMatchSnapshot()
+	})
+
+	it('should filter files by directory when directoryFilter is specified', async () => {
+		const result = await generateTOC(preparedFilesSample, {
+			srcDir,
+			directoryFilter: 'test',
+		})
+
+		expect(result).toMatchSnapshot()
+	})
+
+	it('should return empty TOC when no files match directoryFilter', async () => {
+		const result = await generateTOC(preparedFilesSample, {
+			srcDir,
+			directoryFilter: 'nonexistent',
+		})
+
+		expect(result).toBe('')
 	})
 })

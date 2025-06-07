@@ -4,25 +4,25 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import matter from 'gray-matter'
+import { millify } from 'millify'
 import { minimatch } from 'minimatch'
 import pc from 'picocolors'
 import { remark } from 'remark'
 import remarkFrontmatter from 'remark-frontmatter'
-import { remarkPlease } from './helpers/markdown'
-
+import { approximateTokenSize } from 'tokenx'
 import { remove } from 'unist-util-remove'
 
 import { name as packageName } from '../package.json'
 
-import { millify } from 'millify'
-import { approximateTokenSize } from 'tokenx'
 import { defaultLLMsTxtTemplate, fullTagRegex, unnecessaryFilesList } from './constants'
 import { generateLLMsFullTxt, generateLLMsTxt } from './helpers/index'
 import log from './helpers/logger'
+import { remarkPlease } from './helpers/markdown'
 import {
 	expandTemplate,
 	extractTitle,
 	generateMetadata,
+	getDirectoriesAtDepths,
 	getHumanReadableSizeOf,
 	resolveOutputFilePath,
 	stripExt,
@@ -56,6 +56,10 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 		excludeTeam: true,
 		workDir: undefined as unknown as string,
 		stripHTML: true,
+		experimental: {
+			depth: 1,
+			...userSettings.experimental,
+		},
 		...userSettings,
 	}
 
@@ -262,7 +266,6 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 				const tasks: Promise<void>[] = []
 
 				if (settings.generateLLMsTxt) {
-					const llmsTxtPath = path.resolve(outDir, 'llms.txt')
 					const templateVariables: CustomTemplateVariables = {
 						title: settings.title,
 						description: settings.description,
@@ -271,68 +274,109 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 						...settings.customTemplateVariables,
 					}
 
+					// Get directories at specified depths
+					const directories = getDirectoriesAtDepths(
+						mdFilesList,
+						settings.workDir,
+						settings.experimental?.depth ?? 1,
+					)
+
+					// Generate llms.txt for each directory at the specified depths
 					tasks.push(
-						(async () => {
-							log.info(`Generating ${pc.cyan('llms.txt')}...`)
+						...directories.map((directory) =>
+							(async () => {
+								const isRoot = directory.relativePath === '.'
+								const directoryFilter = isRoot ? '.' : directory.relativePath
 
-							const llmsTxt = await generateLLMsTxt(preparedFiles, {
-								indexMd: path.resolve(settings.workDir, 'index.md'),
-								outDir: outDir,
-								LLMsTxtTemplate: settings.customLLMsTxtTemplate || defaultLLMsTxtTemplate,
-								templateVariables,
-								vitepressConfig: config?.vitepress?.userConfig,
-								domain: settings.domain,
-								sidebar: resolvedSidebar,
-								linksExtension: !settings.generateLLMFriendlyDocsForEachPage ? '.html' : undefined,
-								cleanUrls: config.cleanUrls,
-							})
+								// Determine output path
+								const outputFileName = isRoot ? 'llms.txt' : `${directory.relativePath}/llms.txt`
+								const llmsTxtPath = path.resolve(outDir, outputFileName)
 
-							await fs.writeFile(llmsTxtPath, llmsTxt, 'utf-8')
+								// Create directory if needed
+								await fs.mkdir(path.dirname(llmsTxtPath), { recursive: true })
 
-							log.success(
-								expandTemplate(
-									'Generated {file} (~{tokens} tokens, {size}) with {fileCount} documentation links',
-									{
-										file: pc.cyan('llms.txt'),
-										tokens: pc.bold(millify(approximateTokenSize(llmsTxt))),
-										size: pc.bold(getHumanReadableSizeOf(llmsTxt)),
-										fileCount: pc.bold(fileCount.toString()),
-									},
-								),
-							)
-						})(),
+								log.info(`Generating ${pc.cyan(outputFileName)}...`)
+
+								const llmsTxt = await generateLLMsTxt(preparedFiles, {
+									indexMd: path.resolve(settings.workDir, 'index.md'),
+									srcDir: settings.workDir,
+									LLMsTxtTemplate: settings.customLLMsTxtTemplate || defaultLLMsTxtTemplate,
+									templateVariables,
+									vitepressConfig: config?.vitepress?.userConfig,
+									domain: settings.domain,
+									sidebar: resolvedSidebar,
+									linksExtension: !settings.generateLLMFriendlyDocsForEachPage ? '.html' : undefined,
+									cleanUrls: config.cleanUrls,
+									directoryFilter,
+								})
+
+								await fs.writeFile(llmsTxtPath, llmsTxt, 'utf-8')
+
+								log.success(
+									expandTemplate(
+										'Generated {file} (~{tokens} tokens, {size}) with {fileCount} documentation links',
+										{
+											file: pc.cyan(outputFileName),
+											tokens: pc.bold(millify(approximateTokenSize(llmsTxt))),
+											size: pc.bold(getHumanReadableSizeOf(llmsTxt)),
+											fileCount: pc.bold(fileCount.toString()),
+										},
+									),
+								)
+							})(),
+						),
 					)
 				}
 
 				// Generate llms-full.txt - all content in one file
 				if (settings.generateLLMsFullTxt) {
-					const llmsFullTxtPath = path.resolve(outDir, 'llms-full.txt')
+					// Get directories at specified depths for llms-full.txt as well
+					const directories = getDirectoriesAtDepths(
+						mdFilesList,
+						settings.workDir,
+						settings.experimental?.depth ?? 1,
+					)
 
+					// Generate llms-full.txt for each directory at the specified depths
 					tasks.push(
-						(async () => {
-							log.info(`Generating full documentation bundle (${pc.cyan('llms-full.txt')})...`)
+						...directories.map((directory) =>
+							(async () => {
+								const isRoot = directory.relativePath === '.'
+								const directoryFilter = isRoot ? '.' : directory.relativePath
 
-							const llmsFullTxt = await generateLLMsFullTxt(preparedFiles, {
-								domain: settings.domain,
-								linksExtension: !settings.generateLLMFriendlyDocsForEachPage ? '.html' : undefined,
-								cleanUrls: config.cleanUrls,
-							})
+								// Determine output path
+								const outputFileName = isRoot ? 'llms-full.txt' : `${directory.relativePath}/llms-full.txt`
+								const llmsFullTxtPath = path.resolve(outDir, outputFileName)
 
-							// Write content to llms-full.txt
-							await fs.writeFile(llmsFullTxtPath, llmsFullTxt, 'utf-8')
+								// Create directory if needed
+								await fs.mkdir(path.dirname(llmsFullTxtPath), { recursive: true })
 
-							log.success(
-								expandTemplate(
-									'Generated {file} (~{tokens} tokens, {size}) with {fileCount} markdown files',
-									{
-										file: pc.cyan('llms-full.txt'),
-										tokens: pc.bold(millify(approximateTokenSize(llmsFullTxt))),
-										size: pc.bold(getHumanReadableSizeOf(llmsFullTxt)),
-										fileCount: pc.bold(fileCount.toString()),
-									},
-								),
-							)
-						})(),
+								log.info(`Generating full documentation bundle (${pc.cyan(outputFileName)})...`)
+
+								const llmsFullTxt = await generateLLMsFullTxt(preparedFiles, {
+									srcDir: settings.workDir,
+									domain: settings.domain,
+									linksExtension: !settings.generateLLMFriendlyDocsForEachPage ? '.html' : undefined,
+									cleanUrls: config.cleanUrls,
+									directoryFilter,
+								})
+
+								// Write content to llms-full.txt
+								await fs.writeFile(llmsFullTxtPath, llmsFullTxt, 'utf-8')
+
+								log.success(
+									expandTemplate(
+										'Generated {file} (~{tokens} tokens, {size}) with {fileCount} markdown files',
+										{
+											file: pc.cyan(outputFileName),
+											tokens: pc.bold(millify(approximateTokenSize(llmsFullTxt))),
+											size: pc.bold(getHumanReadableSizeOf(llmsFullTxt)),
+											fileCount: pc.bold(fileCount.toString()),
+										},
+									),
+								)
+							})(),
+						),
 					)
 				}
 

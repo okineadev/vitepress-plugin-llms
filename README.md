@@ -70,6 +70,9 @@ export default defineConfig({
         title: 'Awesome tool',
         customTemplateVariables: {
           foo: 'bar'
+        },
+        experimental: {
+          depth: 2 // Generate llms.txt and llms-full.txt in root and first-level subdirectories
         }
       })
     ]
@@ -84,6 +87,7 @@ This configuration does the following:
 - `customLLMsTxtTemplate`: Uses a custom template for the `llms.txt` file.
 - `title`: Sets a custom header in `llms.txt`, for your custom variables use `customTemplateVariables`.
 - `customTemplateVariables`: Sets custom variables for the template, replaces `{foo}` with `bar`.
+- `experimental: { depth: 2 }`: Generates both `llms.txt` and `llms-full.txt` files in the root directory and all first-level subdirectories, with each directory containing only files from that specific directory and its subdirectories.
 
 #### Embedding content specifically for LLMs with `<llm-only>` tag
 

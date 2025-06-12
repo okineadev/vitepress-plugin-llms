@@ -22,6 +22,7 @@ export const unnecessaryFilesList = {
 
 export const tagRegex = (tag: RegExp | string, type: 'open' | 'closed', flags?: string) =>
 	new RegExp(`<${type === 'open' ? '' : '/'}${tag}>`, flags)
+
 /**
  * Generates a regular expression that matches a complete custom tag, including its content.
  *

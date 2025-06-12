@@ -298,8 +298,16 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 								log.info(`Generating ${pc.cyan(outputFileName)}...`)
 
 								const llmsTxt = await generateLLMsTxt(preparedFiles, {
-									indexMd: path.resolve(settings.workDir, 'index.md'),
-									srcDir: settings.workDir,
+									indexMd: path.resolve(
+										settings.workDir,
+										resolveOutputFilePath(
+											'index.md',
+											settings.workDir,
+											// @ts-ignore
+											config.vitepress.rewrites,
+										),
+									),
+									outDir: settings.workDir,
 									LLMsTxtTemplate: settings.customLLMsTxtTemplate || defaultLLMsTxtTemplate,
 									templateVariables,
 									vitepressConfig: config?.vitepress?.userConfig,
@@ -354,7 +362,6 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 								log.info(`Generating full documentation bundle (${pc.cyan(outputFileName)})...`)
 
 								const llmsFullTxt = await generateLLMsFullTxt(preparedFiles, {
-									srcDir: settings.workDir,
 									domain: settings.domain,
 									linksExtension: !settings.generateLLMFriendlyDocsForEachPage ? '.html' : undefined,
 									cleanUrls: config.cleanUrls,

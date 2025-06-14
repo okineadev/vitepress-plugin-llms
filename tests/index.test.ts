@@ -344,7 +344,7 @@ describe('llmstxt plugin', () => {
 				// Should only generate root llms.txt
 				expect(writeFile).toHaveBeenCalledTimes(1)
 				const calls = writeFile.mock.calls.map((call) => call[0] as string)
-				expect(calls.some((path) => path.endsWith('/dist/llms.txt'))).toBe(true)
+				expect(calls.some((filepath) => filepath.endsWith(path.join('dist', 'llms.txt')))).toBe(true)
 			})
 
 			it('should generate llms.txt in root and first-level subdirectories when depth is 2', async () => {
@@ -371,9 +371,9 @@ describe('llmstxt plugin', () => {
 				// Should generate root llms.txt + subdirectory llms.txt files
 				expect(writeFile).toHaveBeenCalledTimes(3)
 				const calls = writeFile.mock.calls.map((call) => call[0] as string)
-				expect(calls.some((path) => path.endsWith('/dist/llms.txt'))).toBe(true) // root
-				expect(calls.some((path) => path.endsWith('/guide/llms.txt'))).toBe(true)
-				expect(calls.some((path) => path.endsWith('/api/llms.txt'))).toBe(true)
+				expect(calls.some((filepath) => filepath.endsWith(path.join('dist', 'llms.txt')))).toBe(true) // root
+				expect(calls.some((filepath) => filepath.endsWith(path.join('guide', 'llms.txt')))).toBe(true)
+				expect(calls.some((filepath) => filepath.endsWith(path.join('api', 'llms.txt')))).toBe(true)
 			})
 
 			it('should generate llms.txt files up to specified depth level', async () => {
@@ -402,10 +402,12 @@ describe('llmstxt plugin', () => {
 				// Should generate files at root, first-level, and second-level directories
 				expect(writeFile).toHaveBeenCalledTimes(4)
 				const calls = writeFile.mock.calls.map((call) => call[0] as string)
-				expect(calls.some((path) => path.endsWith('/dist/llms.txt'))).toBe(true) // root
-				expect(calls.some((path) => path.endsWith('/guide/llms.txt'))).toBe(true)
-				expect(calls.some((path) => path.endsWith('/api/llms.txt'))).toBe(true)
-				expect(calls.some((path) => path.endsWith('/api/advanced/llms.txt'))).toBe(true)
+				expect(calls.some((filepath) => filepath.endsWith(path.join('dist', 'llms.txt')))).toBe(true) // root
+				expect(calls.some((filepath) => filepath.endsWith(path.join('guide', 'llms.txt')))).toBe(true)
+				expect(calls.some((filepath) => filepath.endsWith(path.join('api', 'llms.txt')))).toBe(true)
+				expect(calls.some((filepath) => filepath.endsWith(path.join('api', 'advanced', 'llms.txt')))).toBe(
+					true,
+				)
 			})
 
 			it('should filter content correctly for each directory level', async () => {
@@ -477,14 +479,14 @@ describe('llmstxt plugin', () => {
 				const calls = writeFile.mock.calls.map((call) => call[0] as string)
 
 				// Check llms.txt files
-				expect(calls.some((path) => path.endsWith('/dist/llms.txt'))).toBe(true) // root
-				expect(calls.some((path) => path.endsWith('/guide/llms.txt'))).toBe(true)
-				expect(calls.some((path) => path.endsWith('/api/llms.txt'))).toBe(true)
+				expect(calls.some((filepath) => filepath.endsWith(path.join('dist', 'llms.txt')))).toBe(true) // root
+				expect(calls.some((filepath) => filepath.endsWith(path.join('guide', 'llms.txt')))).toBe(true)
+				expect(calls.some((filepath) => filepath.endsWith(path.join('api', 'llms.txt')))).toBe(true)
 
 				// Check llms-full.txt files
-				expect(calls.some((path) => path.endsWith('/dist/llms-full.txt'))).toBe(true) // root
-				expect(calls.some((path) => path.endsWith('/guide/llms-full.txt'))).toBe(true)
-				expect(calls.some((path) => path.endsWith('/api/llms-full.txt'))).toBe(true)
+				expect(calls.some((filepath) => filepath.endsWith(path.join('dist', 'llms-full.txt')))).toBe(true) // root
+				expect(calls.some((filepath) => filepath.endsWith(path.join('guide', 'llms-full.txt')))).toBe(true)
+				expect(calls.some((filepath) => filepath.endsWith(path.join('api', 'llms-full.txt')))).toBe(true)
 			})
 
 			it('should filter llms-full.txt content correctly for each directory', async () => {

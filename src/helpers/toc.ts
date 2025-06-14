@@ -254,8 +254,9 @@ export async function generateTOC(
 		? directoryFilter === '.'
 			? preparedFiles // Root directory includes all files
 			: preparedFiles.filter((file) => {
-					const relativePath = file.path
-					return relativePath.startsWith(directoryFilter + path.sep) || relativePath === directoryFilter
+					const normalizedPath = path.posix.normalize(`/${file.path}`)
+					const normalizedFilter = path.posix.normalize(`/${directoryFilter}`)
+					return normalizedPath.startsWith(`${normalizedFilter}/`) || normalizedPath === normalizedFilter
 				})
 		: preparedFiles
 

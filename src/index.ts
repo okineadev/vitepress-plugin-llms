@@ -289,7 +289,7 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 								const directoryFilter = isRoot ? '.' : directory.relativePath
 
 								// Determine output path
-								const outputFileName = isRoot ? 'llms.txt' : `${directory.relativePath}/llms.txt`
+								const outputFileName = isRoot ? 'llms.txt' : path.join(directory.relativePath, 'llms.txt')
 								const llmsTxtPath = path.resolve(outDir, outputFileName)
 
 								// Create directory if needed
@@ -353,7 +353,9 @@ function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 								const directoryFilter = isRoot ? '.' : directory.relativePath
 
 								// Determine output path
-								const outputFileName = isRoot ? 'llms-full.txt' : `${directory.relativePath}/llms-full.txt`
+								const outputFileName = isRoot
+									? 'llms-full.txt'
+									: path.join(directory.relativePath, 'llms-full.txt')
 								const llmsFullTxtPath = path.resolve(outDir, outputFileName)
 
 								// Create directory if needed

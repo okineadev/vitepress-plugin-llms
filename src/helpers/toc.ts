@@ -21,7 +21,7 @@ export const generateTOCLink = (
 	cleanUrls: VitePressConfig['cleanUrls'] = false,
 ) => {
 	const description: string = file.file.data.description
-	return `- [${file.title}](${generateLink(stripExtPosix(relativePath), domain, extension ?? '.md', cleanUrls)})${description ? `: ${description.trim()}` : ''}\n`
+	return `- [${file.title}](${generateLink(path.posix.normalize(stripExtPosix(relativePath)), domain, extension ?? '.md', cleanUrls)})${description ? `: ${description.trim()}` : ''}\n`
 }
 
 /**

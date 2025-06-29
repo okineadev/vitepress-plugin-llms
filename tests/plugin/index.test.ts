@@ -1,22 +1,17 @@
 import { beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import type { ViteDevServer } from 'vite'
 import type { Plugin } from 'vitepress'
-import { mockedFs } from '../mocks/fs'
+import mockedFs from '../mocks/fs'
+import mockedLogger from '../mocks/utils/logger'
+
 import fakeMarkdownDocument from '../test-assets/markdown-document.md' with { type: 'text' }
 
 const { access, mkdir, writeFile } = mockedFs.default
 
 mock.module('node:fs/promises', () => mockedFs)
 
-// Mock the logger to prevent output
-mock.module('../../src/utils/logger', () => ({
-	default: {
-		info: mock(),
-		success: mock(),
-		warn: mock(),
-		error: mock(),
-	},
-}))
+// Mock the logger to prevent logs in tests
+mock.module('../../src/utils/logger', () => mockedLogger)
 
 import path from 'node:path'
 // Import the module under test AFTER mocking its dependencies

@@ -3,15 +3,17 @@ import path from 'node:path'
 
 import { defaultLLMsTxtTemplate } from '../../src/constants'
 
-import { mockedFs } from '../mocks/fs'
+import mockedFs from '../mocks/fs'
 
 mock.module('node:fs/promises', () => mockedFs)
+
+const { readFile } = mockedFs.default
 
 import { generateLLMsTxt } from '../../src/generator'
 import { fakeCustomLlmsTxtTemplate, outDir, preparedFilesSample } from '../resources'
 import fakeIndexMd from '../test-assets/index.md' with { type: 'text' }
 
-mockedFs.default.readFile.mockReturnValue(Promise.resolve(fakeIndexMd))
+readFile.mockReturnValue(Promise.resolve(fakeIndexMd))
 
 describe('generateLLMsTxt', () => {
 	it('generates a `llms.txt` file', async () => {

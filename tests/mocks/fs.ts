@@ -14,3 +14,5 @@ export const mockedFs = {
 		writeFile: mock(),
 	},
 }
+
+export default mockedFs

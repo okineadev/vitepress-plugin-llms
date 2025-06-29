@@ -311,6 +311,7 @@ export async function generateBundle(
 				outDir,
 				settings.domain,
 				config?.vitepress?.userConfig?.cleanUrls,
+				config?.vitepress?.userConfig?.base,
 			),
 		)
 	}

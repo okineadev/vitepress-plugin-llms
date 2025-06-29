@@ -1,6 +1,6 @@
 import path from 'node:path'
 import type { DefaultTheme } from 'vitepress'
-import type { LinksExtension, LlmstxtSettings, PreparedFile } from '../types'
+import type { LinksExtension, LlmstxtSettings, PreparedFile, VitePressConfig } from '../types'
 import { generateLink, stripExtPosix, transformToPosixPath } from '../utils'
 
 /**
@@ -19,7 +19,7 @@ export const generateTOCLink = (
 	domain: LlmstxtSettings['domain'],
 	relativePath: string,
 	extension?: LinksExtension,
-	cleanUrls: boolean = false,
+	cleanUrls: VitePressConfig['cleanUrls'] = false,
 	base?: string,
 ) => {
 	const description: string = file.file.data.description
@@ -99,7 +99,7 @@ async function processSidebarSection(
 	outDir: string,
 	domain?: LlmstxtSettings['domain'],
 	linksExtension?: LinksExtension,
-	cleanUrls?: boolean,
+	cleanUrls?: VitePressConfig['cleanUrls'],
 	depth = 3,
 	base = '',
 ): Promise<string> {
@@ -222,11 +222,14 @@ export interface GenerateTOCOptions {
 	/** The link extension for generated links. */
 	linksExtension?: LinksExtension
 
-	/** Whether to use clean URLs (without the extension). VitePressConfig['cleanUrls'] */
-	cleanUrls?: boolean
+	/** Whether to use clean URLs (without the extension). */
+	cleanUrls?: VitePressConfig['cleanUrls']
 
-	/** The base URL path from VitePress config. VitePressConfig['base'] */
-	base?: string
+	/** The base URL path from VitePress config.
+	 *
+	 * {@link VitePressConfig.base}
+	 */
+	base?: VitePressConfig['base']
 
 	/**
 	 * Optional directory filter to only include files within the specified directory.

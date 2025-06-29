@@ -1,6 +1,6 @@
 import path from 'node:path'
 import matter from 'gray-matter'
-import type { LinksExtension, LlmstxtSettings, PreparedFile } from '../types'
+import type { LinksExtension, LlmstxtSettings, PreparedFile, VitePressConfig } from '../types'
 import { generateMetadata } from '../utils'
 
 /**
@@ -13,11 +13,14 @@ export interface GenerateLLMsFullTxtOptions {
 	/** The link extension for generated links. */
 	linksExtension?: LinksExtension
 
-	/** Whether to use clean URLs (without the extension). VitePressConfig['cleanUrls'] */
-	cleanUrls?: boolean
+	/** Whether to use clean URLs (without the extension). */
+	cleanUrls?: VitePressConfig['cleanUrls']
 
-	/** The base URL path from VitePress config. VitePressConfig['base'] */
-	base?: string
+	/** The base URL path from VitePress config.
+	 *
+	 * {@link VitePressConfig.base}
+	 */
+	base?: VitePressConfig['base']
 
 	/**
 	 * Optional directory filter to only include files within the specified directory.
@@ -52,7 +55,7 @@ export async function generateLLMsFullTxt(
 	const fileContents = await Promise.all(
 		filteredFiles.map(async (file) => {
 			// file.path is already relative to outDir, so use it directly
-			const metadata = await generateMetadata(file.file, {
+			const metadata = generateMetadata(file.file, {
 				domain,
 				filePath: file.path,
 				linksExtension,

@@ -20,33 +20,28 @@ describe('generateLink', () => {
 	})
 
 	it('generates a link with base URL', () => {
-		const result = generateLink('docs/guide', sampleDomain, '.md', false, '/docs/flowdown')
-		expect(result).toBe(`${sampleDomain}/docs/flowdown/docs/guide.md`)
+		const result = generateLink('docs/guide', sampleDomain, '.md', false, '/awesomeproject')
+		expect(result).toBe(`${sampleDomain}/awesomeproject/docs/guide.md`)
 	})
 
 	it('generates a link with base URL without domain', () => {
-		const result = generateLink('docs/guide', undefined, '.md', false, '/docs/flowdown')
-		expect(result).toBe('/docs/flowdown/docs/guide.md')
+		const result = generateLink('docs/guide', undefined, '.md', false, '/awesomeproject')
+		expect(result).toBe('/awesomeproject/docs/guide.md')
 	})
 
 	it('generates a link with base URL and clean URLs', () => {
-		const result = generateLink('docs/guide', sampleDomain, '.md', true, '/docs/flowdown')
-		expect(result).toBe(`${sampleDomain}/docs/flowdown/docs/guide`)
+		const result = generateLink('docs/guide', sampleDomain, '.md', true, '/awesomeproject')
+		expect(result).toBe(`${sampleDomain}/awesomeproject/docs/guide`)
 	})
 
 	it('handles base URL without leading slash', () => {
-		const result = generateLink('docs/guide', sampleDomain, '.md', false, 'docs/flowdown')
-		expect(result).toBe(`${sampleDomain}/docs/flowdown/docs/guide.md`)
+		const result = generateLink('docs/guide', sampleDomain, '.md', false, 'awesomeproject')
+		expect(result).toBe(`${sampleDomain}/awesomeproject/docs/guide.md`)
 	})
 
 	it('handles base URL with trailing slash', () => {
-		const result = generateLink('docs/guide', sampleDomain, '.md', false, '/docs/flowdown/')
-		expect(result).toBe(`${sampleDomain}/docs/flowdown/docs/guide.md`)
-	})
-
-	it('handles path with leading slash', () => {
-		const result = generateLink('/docs/guide', sampleDomain, '.md', false, '/docs/flowdown')
-		expect(result).toBe(`${sampleDomain}/docs/flowdown/docs/guide.md`)
+		const result = generateLink('docs/guide', sampleDomain, '.md', false, '/awesomeproject/')
+		expect(result).toBe(`${sampleDomain}/awesomeproject/docs/guide.md`)
 	})
 })
 

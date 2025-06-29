@@ -198,6 +198,42 @@ describe('llmstxt plugin', () => {
 			expect(writeFile.mock?.lastCall?.[1]).toMatchSnapshot()
 		})
 
+		it('should respect vitepress base option when generating output paths', async () => {
+			const configWithBase = {
+				...mockConfig,
+				base: 'awesomeproject',
+
+				vitepress: {
+					...mockConfig.vitepress,
+				},
+			}
+
+			plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMsTxt: false })
+			// @ts-ignore
+			plugin[1].configResolved(configWithBase)
+			await Promise.all([
+				// @ts-ignore
+				plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
+				// @ts-ignore
+				plugin[0].transform(fakeMarkdownDocument, 'docs/guide/index.md'),
+			])
+			// @ts-ignore
+			await plugin[1].generateBundle()
+
+			// Should generate files with correct url frontmatter including base
+			expect(writeFile).toHaveBeenCalledTimes(2)
+			expect(writeFile).nthCalledWith(
+				1,
+				path.resolve(configWithBase.vitepress.outDir, 'test.md'),
+				'---\nurl: /awesomeproject/test.md\n---\n# Some cool stuff\n',
+			)
+			expect(writeFile).nthCalledWith(
+				2,
+				path.resolve(configWithBase.vitepress.outDir, 'guide.md'),
+				'---\nurl: /awesomeproject/guide.md\n---\n# Some cool stuff\n',
+			)
+		})
+
 		describe('rewrites handling', () => {
 			it('should apply simple rewrites to file paths', async () => {
 				const configWithRewrites = {

@@ -31,11 +31,14 @@ export interface GenerateLLMsTxtOptions {
 	/** The link extension for generated links. */
 	linksExtension?: LinksExtension
 
-	/** Whether to use clean URLs (without the extension). VitePressConfig['cleanUrls'] */
-	cleanUrls?: boolean
+	/** Whether to use clean URLs (without the extension). */
+	cleanUrls?: VitePressConfig['cleanUrls']
 
-	/** The base URL path from VitePress config. VitePressConfig['base'] */
-	base?: string
+	/** The base URL path from VitePress config.
+	 *
+	 * {@link VitePressConfig.base}
+	 */
+	base?: VitePressConfig['base']
 
 	/** Optional sidebar configuration for organizing the TOC. */
 	sidebar?: DefaultTheme.Sidebar

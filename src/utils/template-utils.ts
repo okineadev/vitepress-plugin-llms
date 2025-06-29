@@ -70,22 +70,40 @@ export const expandTemplate = (template: string, variables: Record<string, strin
 /**
  * Generates a complete link by combining a domain, path, and an optional extension.
  *
- * @param domain - The base domain of the link (e.g., "https://example.com").
  * @param urlPath - The path to append to the domain (e.g., "guide").
+ * @param domain - The base domain of the link (e.g., "https://example.com").
  * @param extension - An optional extension to append to the path (e.g., ".md").
+ * @param cleanUrls - Whether to use clean URLs (without the extension).
+ * @param base - The base URL path from VitePress config (e.g., "/docs/flowdown").
  * @returns The generated link
  */
 export const generateLink = (
 	urlPath: string,
 	domain?: string,
 	extension?: LinksExtension,
-	cleanUrls?: VitePressConfig['cleanUrls'],
-): string =>
-	expandTemplate('{domain}/{path}{extension}', {
-		domain: domain || '',
-		path: transformToPosixPath(urlPath),
-		extension: cleanUrls ? '' : extension,
-	})
+	cleanUrls?: boolean,
+	base?: string,
+): string => {
+	// Normalize base path - ensure it starts with / and doesn't end with /
+	const normalizedBase = base ? (base.startsWith('/') ? base : `/${base}`).replace(/\/$/, '') : ''
+
+	// Normalize path - ensure it doesn't start with / since we'll add it
+	const normalizedPath = transformToPosixPath(urlPath).replace(/^\//, '')
+
+	// Build the full path with base
+	const fullPath = normalizedBase ? `${normalizedBase}/${normalizedPath}` : normalizedPath
+
+	// Build the final URL
+	const pathWithExtension = `${fullPath}${cleanUrls ? '' : extension}`
+
+	// If we have a domain, prepend it
+	if (domain) {
+		// If fullPath already starts with /, don't add another one
+		return fullPath.startsWith('/') ? `${domain}${pathWithExtension}` : `${domain}/${pathWithExtension}`
+	} else {
+		return fullPath.startsWith('/') ? pathWithExtension : `/${pathWithExtension}`
+	}
+}
 
 /**
  * Options for generating metadata for markdown files.
@@ -100,8 +118,11 @@ export interface GenerateMetadataOptions {
 	/** The link extension for generated links. */
 	linksExtension?: LinksExtension
 
-	/** Whether to use clean URLs (without the extension). */
-	cleanUrls?: VitePressConfig['cleanUrls']
+	/** Whether to use clean URLs (without the extension). VitePressConfig['cleanUrls'] */
+	cleanUrls?: boolean
+
+	/** The base URL path from VitePress config. VitePressConfig['base'] */
+	base?: string
 }
 
 /**
@@ -117,10 +138,10 @@ export interface GenerateMetadataOptions {
  */
 export function generateMetadata(
 	sourceFile: GrayMatterFile<Input>,
-	{ domain, filePath, linksExtension, cleanUrls }: GenerateMetadataOptions,
+	{ domain, filePath, linksExtension, cleanUrls, base }: GenerateMetadataOptions,
 ): { url: string; description?: string } {
 	return {
-		url: generateLink(stripExtPosix(filePath), domain, linksExtension ?? '.md', cleanUrls),
+		url: generateLink(stripExtPosix(filePath), domain, linksExtension ?? '.md', cleanUrls, base),
 		...(sourceFile.data?.description && { description: sourceFile.data.description }),
 	}
 }

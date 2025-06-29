@@ -18,6 +18,36 @@ describe('generateLink', () => {
 		const result = generateLink('docs/guide', sampleDomain, '.md', true)
 		expect(result).toBe(`${sampleDomain}/docs/guide`)
 	})
+
+	it('generates a link with base URL', () => {
+		const result = generateLink('docs/guide', sampleDomain, '.md', false, '/docs/flowdown')
+		expect(result).toBe(`${sampleDomain}/docs/flowdown/docs/guide.md`)
+	})
+
+	it('generates a link with base URL without domain', () => {
+		const result = generateLink('docs/guide', undefined, '.md', false, '/docs/flowdown')
+		expect(result).toBe('/docs/flowdown/docs/guide.md')
+	})
+
+	it('generates a link with base URL and clean URLs', () => {
+		const result = generateLink('docs/guide', sampleDomain, '.md', true, '/docs/flowdown')
+		expect(result).toBe(`${sampleDomain}/docs/flowdown/docs/guide`)
+	})
+
+	it('handles base URL without leading slash', () => {
+		const result = generateLink('docs/guide', sampleDomain, '.md', false, 'docs/flowdown')
+		expect(result).toBe(`${sampleDomain}/docs/flowdown/docs/guide.md`)
+	})
+
+	it('handles base URL with trailing slash', () => {
+		const result = generateLink('docs/guide', sampleDomain, '.md', false, '/docs/flowdown/')
+		expect(result).toBe(`${sampleDomain}/docs/flowdown/docs/guide.md`)
+	})
+
+	it('handles path with leading slash', () => {
+		const result = generateLink('/docs/guide', sampleDomain, '.md', false, '/docs/flowdown')
+		expect(result).toBe(`${sampleDomain}/docs/flowdown/docs/guide.md`)
+	})
 })
 
 describe('getDirectoriesAtDepths', () => {

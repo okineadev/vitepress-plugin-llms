@@ -232,7 +232,8 @@ export async function generateBundle(
 						domain: settings.domain,
 						sidebar: resolvedSidebar,
 						linksExtension: !settings.generateLLMFriendlyDocsForEachPage ? '.html' : undefined,
-						cleanUrls: config.cleanUrls,
+						cleanUrls: config?.vitepress?.userConfig?.cleanUrls,
+						base: config?.vitepress?.userConfig?.base,
 						directoryFilter,
 					})
 
@@ -282,7 +283,8 @@ export async function generateBundle(
 					const llmsFullTxt = await generateLLMsFullTxt(preparedFiles, {
 						domain: settings.domain,
 						linksExtension: !settings.generateLLMFriendlyDocsForEachPage ? '.html' : undefined,
-						cleanUrls: config.cleanUrls,
+						cleanUrls: config?.vitepress?.userConfig?.cleanUrls,
+						base: config?.vitepress?.userConfig?.base,
 						directoryFilter,
 					})
 
@@ -303,7 +305,14 @@ export async function generateBundle(
 	}
 
 	if (settings.generateLLMFriendlyDocsForEachPage) {
-		tasks.push(generateLLMFriendlyPages(preparedFiles, outDir, settings.domain, config.cleanUrls))
+		tasks.push(
+			generateLLMFriendlyPages(
+				preparedFiles,
+				outDir,
+				settings.domain,
+				config?.vitepress?.userConfig?.cleanUrls,
+			),
+		)
 	}
 
 	if (tasks.length) {

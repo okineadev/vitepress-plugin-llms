@@ -31,8 +31,11 @@ export interface GenerateLLMsTxtOptions {
 	/** The link extension for generated links. */
 	linksExtension?: LinksExtension
 
-	/** Whether to use clean URLs (without the extension). */
-	cleanUrls?: VitePressConfig['cleanUrls']
+	/** Whether to use clean URLs (without the extension). VitePressConfig['cleanUrls'] */
+	cleanUrls?: boolean
+
+	/** The base URL path from VitePress config. VitePressConfig['base'] */
+	base?: string
 
 	/** Optional sidebar configuration for organizing the TOC. */
 	sidebar?: DefaultTheme.Sidebar
@@ -62,6 +65,8 @@ export async function generateLLMsTxt(
 		domain,
 		sidebar,
 		directoryFilter,
+		cleanUrls,
+		base,
 	}: GenerateLLMsTxtOptions,
 ): Promise<string> {
 	// @ts-expect-error
@@ -98,6 +103,8 @@ export async function generateLLMsTxt(
 		domain,
 		sidebarConfig: sidebar || vitepressConfig?.themeConfig?.sidebar,
 		directoryFilter,
+		cleanUrls,
+		base,
 	})
 
 	return expandTemplate(LLMsTxtTemplate, templateVariables)

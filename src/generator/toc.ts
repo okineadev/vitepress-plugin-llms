@@ -11,6 +11,7 @@ import { generateLink, stripExtPosix, transformToPosixPath } from '../utils'
  * @param relativePath - The relative path of the file, which is converted to a `.md` link.
  * @param extension - The link extension for the generated link (default is `.md`).
  * @param cleanUrls - Whether to use clean URLs (without the extension).
+ * @param base - The base URL path from VitePress config.
  * @returns The formatted TOC entry as a Markdown list item.
  */
 export const generateTOCLink = (
@@ -18,10 +19,11 @@ export const generateTOCLink = (
 	domain: LlmstxtSettings['domain'],
 	relativePath: string,
 	extension?: LinksExtension,
-	cleanUrls: VitePressConfig['cleanUrls'] = false,
+	cleanUrls: boolean = false,
+	base?: string,
 ) => {
 	const description: string = file.file.data.description
-	return `- [${file.title}](${generateLink(stripExtPosix(relativePath), domain, extension ?? '.md', cleanUrls)})${description ? `: ${description.trim()}` : ''}\n`
+	return `- [${file.title}](${generateLink(stripExtPosix(relativePath), domain, extension ?? '.md', cleanUrls, base)})${description ? `: ${description.trim()}` : ''}\n`
 }
 
 /**
@@ -97,7 +99,7 @@ async function processSidebarSection(
 	outDir: string,
 	domain?: LlmstxtSettings['domain'],
 	linksExtension?: LinksExtension,
-	cleanUrls?: VitePressConfig['cleanUrls'],
+	cleanUrls?: boolean,
 	depth = 3,
 	base = '',
 ): Promise<string> {
@@ -123,7 +125,7 @@ async function processSidebarSection(
 
 						if (matchingFile) {
 							const relativePath = matchingFile.path
-							return generateTOCLink(matchingFile, domain, relativePath, linksExtension, cleanUrls)
+							return generateTOCLink(matchingFile, domain, relativePath, linksExtension, cleanUrls, base)
 						}
 						return null
 					}),
@@ -220,8 +222,11 @@ export interface GenerateTOCOptions {
 	/** The link extension for generated links. */
 	linksExtension?: LinksExtension
 
-	/** Whether to use clean URLs (without the extension). */
-	cleanUrls?: VitePressConfig['cleanUrls']
+	/** Whether to use clean URLs (without the extension). VitePressConfig['cleanUrls'] */
+	cleanUrls?: boolean
+
+	/** The base URL path from VitePress config. VitePressConfig['base'] */
+	base?: string
 
 	/**
 	 * Optional directory filter to only include files within the specified directory.
@@ -246,7 +251,7 @@ export async function generateTOC(
 	preparedFiles: PreparedFile[],
 	options: GenerateTOCOptions,
 ): Promise<string> {
-	const { outDir, domain, sidebarConfig, linksExtension, cleanUrls, directoryFilter } = options
+	const { outDir, domain, sidebarConfig, linksExtension, cleanUrls, base, directoryFilter } = options
 	let tableOfContent = ''
 
 	// Filter files by directory if directoryFilter is provided
@@ -270,7 +275,7 @@ export async function generateTOC(
 			// Process sections in parallel
 			const sectionResults = await Promise.all(
 				flattenedSidebarConfig.map((section) =>
-					processSidebarSection(section, filteredFiles, outDir, domain, linksExtension, cleanUrls),
+					processSidebarSection(section, filteredFiles, outDir, domain, linksExtension, cleanUrls, 3, base),
 				),
 			)
 
@@ -291,7 +296,7 @@ export async function generateTOC(
 				await Promise.all(
 					unsortedFiles.map(async (file) => {
 						const relativePath = file.path
-						tocEntries.push(generateTOCLink(file, domain, relativePath, linksExtension, cleanUrls))
+						tocEntries.push(generateTOCLink(file, domain, relativePath, linksExtension, cleanUrls, base))
 					}),
 				)
 				tableOfContent += tocEntries.join('')
@@ -307,7 +312,7 @@ export async function generateTOC(
 		const tocEntries = await Promise.all(
 			filteredFiles.map(async (file) => {
 				const relativePath = file.path
-				return generateTOCLink(file, domain, relativePath, linksExtension, cleanUrls)
+				return generateTOCLink(file, domain, relativePath, linksExtension, cleanUrls, base)
 			}),
 		)
 

@@ -1,5 +1,5 @@
 import type { GrayMatterFile, Input } from 'gray-matter'
-import type { LinksExtension, LlmstxtSettings, VitePressConfig } from '../types'
+import type { LinksExtension, LlmstxtSettings } from '../types'
 import { stripExtPosix, transformToPosixPath } from './file-utils'
 
 /**

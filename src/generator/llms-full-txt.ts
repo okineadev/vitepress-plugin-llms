@@ -1,6 +1,6 @@
 import path from 'node:path'
 import matter from 'gray-matter'
-import type { LinksExtension, LlmstxtSettings, PreparedFile, VitePressConfig } from '../types'
+import type { LinksExtension, LlmstxtSettings, PreparedFile } from '../types'
 import { generateMetadata } from '../utils'
 
 /**

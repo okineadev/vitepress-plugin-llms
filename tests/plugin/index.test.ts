@@ -99,6 +99,7 @@ describe('llmstxt plugin', () => {
 
 		it('should process markdown files and generate output files', async () => {
 			plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMsTxt: false })
+			console.log(fakeMarkdownDocument)
 			// @ts-ignore
 			plugin[1].configResolved(mockConfig)
 			await Promise.all([

@@ -77,7 +77,7 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 				if (settings.workDir) {
 					settings.workDir = path.resolve(config.vitepress.srcDir, settings.workDir)
 				} else {
-					settings.workDir = config.vitepress.srcDir
+					settings.workDir = path.resolve(config.vitepress.srcDir)
 				}
 
 				if (settings.excludeUnnecessaryFiles) {

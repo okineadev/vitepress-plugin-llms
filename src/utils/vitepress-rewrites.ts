@@ -17,7 +17,7 @@ import type { VitePressConfig } from '../internal-types'
 export function resolveOutputFilePath(
 	file: string,
 	workDir: string,
-	rewrites: VitePressConfig['rewrites'],
+	rewrites: VitePressConfig['rewrites'] = {},
 ): string {
 	let resolvedRewrite: string | undefined
 
@@ -62,4 +62,63 @@ export function resolveOutputFilePath(
 	}
 
 	return file
+}
+
+/**
+ * Resolves the source file path from output path using VitePress rewrites configuration.
+ * This is the reverse operation of {@link resolveOutputFilePath}.
+ *
+ * @param outputPath - The output file path to resolve back to source (e.g., 'index.md')
+ * @param workDir - The working directory
+ * @param rewrites - VitePress rewrites configuration (object, function, or undefined)
+ * @returns The resolved source file path or the original outputPath if no rewrite found
+ */
+export function resolveSourceFilePath(
+	outputPath: string,
+	workDir: string,
+	rewrites: VitePressConfig['rewrites'] = {},
+): string {
+	// Handle function-based rewrites - we can't reverse these easily
+	if (typeof rewrites === 'function') {
+		// For function-based rewrites, we can't easily reverse the operation
+		// so we return the original path
+		return outputPath
+	}
+
+	// Handle object-based rewrites
+	if (rewrites && typeof rewrites === 'object') {
+		// First try exact reverse match (static rewrites)
+		for (const [source, target] of Object.entries(rewrites)) {
+			if (target === outputPath) {
+				return path.join(workDir, source)
+			}
+		}
+
+		console.log(rewrites)
+
+		// Try dynamic pattern reverse matching
+		for (const [sourcePattern, targetPattern] of Object.entries(rewrites)) {
+			// Skip if it's not a dynamic pattern (no : or *)
+			if (!targetPattern.includes(':') && !targetPattern.includes('*')) {
+				continue
+			}
+
+			try {
+				const matcher = match(targetPattern)
+				const result = matcher(outputPath)
+
+				if (result) {
+					// Compile the source pattern with matched parameters
+					const compileFn = compile(sourcePattern)
+					const resolvedSource = compileFn(result.params)
+					return path.join(workDir, resolvedSource)
+				}
+			} catch (_error) {
+				// Skip invalid patterns silently
+			}
+		}
+	}
+
+	// Return original path if no rewrite found
+	return path.join(workDir, outputPath)
 }

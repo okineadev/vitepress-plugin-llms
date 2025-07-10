@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import type { ViteDevServer } from 'vite'
 import type { Plugin } from 'vitepress'
 import mockedFs from '../mocks/fs'
@@ -24,18 +24,18 @@ describe('llmstxt plugin', () => {
 	let mockConfig: VitePressConfig
 	let mockServer: ViteDevServer
 
-	readFile.mockReturnValue(Promise.resolve(fakeMarkdownDocument))
-
 	beforeEach(() => {
 		// Reset mock call counts
+		access.mockReset()
 		mkdir.mockReset()
 		writeFile.mockReset()
+		readFile.mockReturnValue(Promise.resolve(fakeMarkdownDocument))
 
 		// Setup mock config
 		mockConfig = {
 			vitepress: {
-				outDir: 'dist',
-				srcDir: 'docs',
+				outDir: path.resolve('dist'),
+				srcDir: path.resolve('docs'),
 			},
 			build: {
 				ssr: false,
@@ -53,7 +53,7 @@ describe('llmstxt plugin', () => {
 		plugin = llmstxt()
 	})
 
-	afterAll(() => readFile.mockReset())
+	afterEach(() => readFile.mockReset())
 
 	describe('configureServer', () => {
 		it('should configure server middleware', () => {
@@ -228,8 +228,10 @@ describe('llmstxt plugin', () => {
 					...mockConfig,
 					vitepress: {
 						...mockConfig.vitepress,
-						rewrites: {
-							'docs/guide/index.md': 'guide.md',
+						userConfig: {
+							rewrites: {
+								'docs/guide/index.md': 'guide.md',
+							},
 						},
 					},
 				}
@@ -330,7 +332,7 @@ This is a test page.`
 			// @ts-ignore
 			await plugin[1].generateBundle()
 
-			expect(mkdir).toHaveBeenCalledWith('dist', { recursive: true })
+			expect(mkdir).toHaveBeenCalledWith(path.resolve('dist'), { recursive: true })
 		})
 
 		it('should process markdown files and generate output files', async () => {
@@ -433,7 +435,6 @@ This is a test page.`
 			const configWithBase = {
 				...mockConfig,
 				base: 'awesomeproject',
-
 				vitepress: {
 					...mockConfig.vitepress,
 				},
@@ -471,9 +472,11 @@ This is a test page.`
 					...mockConfig,
 					vitepress: {
 						...mockConfig.vitepress,
-						rewrites: {
-							'docs/guide/index.md': 'guide.md',
-							'docs/api/reference.md': 'api.md',
+						userConfig: {
+							rewrites: {
+								'docs/guide/index.md': 'guide.md',
+								'docs/api/reference.md': 'api.md',
+							},
 						},
 					},
 				}
@@ -586,6 +589,40 @@ This is a test page.`
 
 				expect(result).toContain('/guide.md')
 				expect(result).not.toContain('/guide/index.md')
+			})
+
+			it('can use `index.md` which is specified in `rewrites` rules', async () => {
+				const configWithRewrites = {
+					...mockConfig,
+					vitepress: {
+						...mockConfig.vitepress,
+						srcDir: path.resolve(mockConfig.vitepress.srcDir, '..'),
+						userConfig: {
+							rewrites: {
+								'otherdocs/index.md': 'index.md',
+							},
+						},
+					},
+				}
+
+				plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMFriendlyDocsForEachPage: false })
+				// @ts-ignore
+				plugin[1].configResolved(configWithRewrites)
+
+				// @ts-ignore
+				await plugin[0].transform(fakeMarkdownDocument, 'docs/page.md')
+				// @ts-ignore
+				await plugin[0].transform(fakeMarkdownDocument, 'otherdocs/page.md')
+				// @ts-ignore
+				await plugin[1].generateBundle()
+
+				console.log(readFile.mock.calls)
+
+				expect(readFile).toHaveBeenCalledTimes(3)
+
+				expect((readFile.mock.calls as unknown as string[][])[2][0]).toBe(
+					path.resolve('otherdocs', 'index.md'),
+				)
 			})
 		})
 

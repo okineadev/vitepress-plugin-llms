@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test'
 import path from 'node:path'
-import { cleanUrl, getDirectoriesAtDepths } from '@/utils/file-utils'
+import { getDirectoriesAtDepths } from '@/utils/file-utils'
+import { cleanUrl } from '@/utils/shared'
 import { generateLink } from '@/utils/template-utils'
 import { sampleDomain } from '../resources'
 

@@ -28,6 +28,9 @@
 		".": {
 			"import": "./dist/index.js",
 			"types": "./dist/index.d.ts"
+		},
+		"./vitepress-components/*.vue": {
+			"import": "./dist/vitepress-components/*.vue"
 		}
 	},
 	"scripts": {

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'bun:test'
 import { remark } from 'remark'
 // @ts-ignore
-import { remarkPlease, remarkReplaceImageUrls } from '@/markdown/remark-plugins'
+import remarkPlease from '../../../src/markdown/remark-plugins/remark-please'
 
 describe('remarkPlease', () => {
 	let remarkProcessor: typeof remark
@@ -80,15 +80,5 @@ describe('remarkPlease', () => {
 
 			expect(result).toBe('Keep this content\n')
 		})
-	})
-})
-
-describe('remarkReplaceImageUrls', () => {
-	it('replaces image links with hashed paths', async () => {
-		const processor = remark().use(
-			remarkReplaceImageUrls(new Map([['vs_code_proxy.png', 'assets/vs_code_proxy.hash.png']])),
-		)
-		const file = await processor.process('![alt](@/../assets/vs_code_proxy.png)')
-		expect(String(file)).toBe('![alt](/assets/vs_code_proxy.hash.png)\n')
 	})
 })

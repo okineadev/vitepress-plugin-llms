@@ -15,7 +15,9 @@ import { generateLLMsFullTxt } from '@/generator/llms-full-txt'
 import { generateLLMsTxt } from '@/generator/llms-txt'
 import { generateLLMFriendlyPages } from '@/generator/page-generator'
 import type { PreparedFile, VitePressConfig } from '@/internal-types'
-import { remarkPlease, remarkReplaceImageUrls } from '@/markdown/remark-plugins'
+import remarkPlease from '@/markdown/remark-plugins/remark-please'
+import remarkReplaceImageUrls from '@/markdown/remark-plugins/replace-image-urls'
+import remarkInclude from '@/markdown/remark-plugins/snippets'
 import type { CustomTemplateVariables, LlmstxtSettings } from '@/types.d'
 import { getDirectoriesAtDepths } from '@/utils/file-utils'
 import { getHumanReadableSizeOf } from '@/utils/helpers'
@@ -202,6 +204,13 @@ export async function generateBundle(
 
 			const markdownProcessor = remark()
 				.use(remarkFrontmatter)
+				.use(
+					remarkInclude({
+						srcDir: settings.workDir,
+						maxDepth: 10,
+						throwOnMissingFile: false,
+					}),
+				)
 				.use(remarkPlease('unwrap', 'llm-only'))
 				.use(remarkPlease('remove', 'llm-exclude'))
 				.use(remarkReplaceImageUrls(imageMap))

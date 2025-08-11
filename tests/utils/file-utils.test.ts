@@ -59,6 +59,15 @@ describe('cleanUrl', () => {
 		expect(cleanUrl('https://example.com/docs.v1/page.md')).toBe('https://example.com/docs.v1/page.md')
 		expect(cleanUrl('https://example.com/docs.v1.2/')).toBe('https://example.com/docs.v1.2')
 	})
+
+	it('normalizes index.md paths', () => {
+		expect(cleanUrl('guide/index.md')).toBe('guide.md')
+		expect(cleanUrl('docs/guide/index.md')).toBe('docs/guide.md')
+		expect(cleanUrl('index.md')).toBe('index.md')
+		expect(cleanUrl('https://example.com/guide/index.md')).toBe('https://example.com/guide.md')
+		expect(cleanUrl('https://example.com/docs/guide/index.md')).toBe('https://example.com/docs/guide.md')
+		expect(cleanUrl('https://example.com/index.md')).toBe('https://example.com/index.md')
+	})
 })
 
 describe('getDirectoriesAtDepths', () => {

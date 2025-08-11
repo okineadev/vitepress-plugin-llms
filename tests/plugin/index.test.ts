@@ -225,6 +225,23 @@ describe('llmstxt plugin', () => {
 				expect(result).toBeNull()
 			})
 
+			it('should handle index.md correctly in LLM hints', async () => {
+				const plugin = llmstxt({
+					injectLLMHint: true,
+					generateLLMFriendlyDocsForEachPage: true,
+				})
+
+				// @ts-ignore
+				plugin[1].configResolved(mockConfig)
+
+				// @ts-ignore
+				const result = await plugin[0].transform(fakeMarkdownDocument, 'docs/guide/index.md')
+
+				expect(result.code).toContain(
+					'Are you an LLM? You can read better optimized documentation at /guide.md for this page in Markdown format',
+				)
+			})
+
 			it('should handle rewrites correctly in LLM hints', async () => {
 				const configWithRewrites = {
 					...mockConfig,

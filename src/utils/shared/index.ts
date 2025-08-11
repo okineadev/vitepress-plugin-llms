@@ -34,6 +34,22 @@ export function cleanUrl(path: string): string {
 		return pathSegment
 	}
 
+	// Helper function to normalize index.md paths
+	const normalizeIndexMdPath = (pathSegment: string): string => {
+		// Normalize index.md paths (e.g., "guide/index.md" -> "guide.md")
+		if (pathSegment.endsWith('/index.md')) {
+			const parentPath = pathSegment.substring(0, pathSegment.length - '/index.md'.length)
+			return parentPath === '' ? '/index.md' : `${parentPath}.md`
+		}
+
+		// Handle root index case (both "index.md" and "/index.md")
+		if (pathSegment === 'index.md' || pathSegment === '/index.md') {
+			return pathSegment
+		}
+
+		return pathSegment
+	}
+
 	// Check if this looks like a URL with protocol
 	const protocolMatch = cleanedPath.match(/^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//)
 
@@ -49,8 +65,10 @@ export function cleanUrl(path: string): string {
 		const domainPart = cleanedPath.substring(0, pathStartIndex)
 		const pathPart = cleanedPath.substring(pathStartIndex)
 
-		return domainPart + removeHtmlExtension(pathPart)
+		const htmlCleanedPath = removeHtmlExtension(pathPart)
+		return domainPart + normalizeIndexMdPath(htmlCleanedPath)
 	}
 
-	return removeHtmlExtension(cleanedPath)
+	const htmlCleanedPath = removeHtmlExtension(cleanedPath)
+	return normalizeIndexMdPath(htmlCleanedPath)
 }

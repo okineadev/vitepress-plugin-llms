@@ -249,7 +249,8 @@ describe('llmstxt plugin', () => {
 						...mockConfig.vitepress,
 						userConfig: {
 							rewrites: {
-								'docs/guide/index.md': 'guide.md',
+								'docs/guide/src/index.md': 'guide/index.md',
+								'docs/guide/src/foo.md': 'guide/foo.md',
 							},
 						},
 					},
@@ -264,10 +265,15 @@ describe('llmstxt plugin', () => {
 				plugin[1].configResolved(configWithRewrites)
 
 				// @ts-ignore
-				const result = await plugin[0].transform(fakeMarkdownDocument, 'docs/guide/index.md')
-
-				expect(result.code).toContain(
+				const result1 = await plugin[0].transform(fakeMarkdownDocument, 'docs/guide/src/index.md')
+				expect(result1.code).toContain(
 					'Are you an LLM? You can read better optimized documentation at /guide.md for this page in Markdown format',
+				)
+
+				// @ts-ignore
+				const result2 = await plugin[0].transform(fakeMarkdownDocument, 'docs/guide/src/foo.md')
+				expect(result2.code).toContain(
+					'Are you an LLM? You can read better optimized documentation at /guide/foo.md for this page in Markdown format',
 				)
 			})
 

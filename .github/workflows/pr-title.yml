@@ -22,7 +22,7 @@ jobs:
           sparse-checkout: commitlint.config.ts
 
       - name: 📦 Install dependencies
-        run: npm install --global @commitlint/types @commitlint/config-conventional commitlint
+        run: npm install @commitlint/types @commitlint/config-conventional commitlint
 
       - name: 🔍 Check PR title with commitlint
         env:

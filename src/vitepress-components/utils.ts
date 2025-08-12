@@ -36,6 +36,17 @@ export function cleanUrl(url: string): string {
 	}
 }
 
+export function resolveMarkdownPageURL(url: string): string {
+	const cleanedURL = cleanUrl(url)
+
+	// If the URL is the root of the site, append 'index.md'
+	if (cleanedURL === window.location.origin) {
+		return `${cleanedURL}/index.md`
+	} else {
+		return `${cleanedURL}.md`
+	}
+}
+
 /**
  * Triggers a file download in the browser with the specified filename and content.
  *

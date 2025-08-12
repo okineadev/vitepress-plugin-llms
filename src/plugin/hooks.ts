@@ -117,7 +117,7 @@ export async function transform(
 	}
 
 	// Add markdown file path to our collection
-	if (!isMainPage) {
+	if (!isMainPage || !settings.excludeIndexPage) {
 		mdFiles.add(id)
 	}
 

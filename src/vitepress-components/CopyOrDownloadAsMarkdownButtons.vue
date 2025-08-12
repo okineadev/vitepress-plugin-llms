@@ -14,7 +14,7 @@
 <script setup lang="ts">
 /** biome-ignore-all lint/correctness/noUnusedVariables: cuz it Vue o((>ω< ))o */
 import { ref } from 'vue'
-import { cleanUrl, downloadFile } from './utils'
+import { downloadFile, resolveMarkdownPageURL } from './utils'
 
 //#region SVG Icons
 const iconCheck =
@@ -32,8 +32,7 @@ const currentURL = window.location.origin + window.location.pathname
 
 /** Copies markdown content from the current page to clipboard */
 function copyMarkdown() {
-	const url = `${cleanUrl(currentURL)}.md`
-	fetch(url)
+	fetch(resolveMarkdownPageURL(currentURL))
 		.then((response) => response.text())
 		.then((text) => navigator.clipboard.writeText(text))
 		.then(() => {
@@ -47,12 +46,11 @@ function copyMarkdown() {
 
 /** Downloads markdown content from the current page as a file */
 function downloadMarkdown() {
-	const cleanedUrl = cleanUrl(currentURL)
-	const url = `${cleanedUrl}.md`
-	fetch(url)
+	const markdownPageUrl = resolveMarkdownPageURL(currentURL)
+	fetch(markdownPageUrl)
 		.then((response) => response.text())
 		.then((text) => {
-			downloadFile(`${cleanedUrl.split('/').pop()}.md`, text, 'text/markdown')
+			downloadFile(markdownPageUrl, text, 'text/markdown')
 
 			downloaded.value = true
 			setTimeout(() => {

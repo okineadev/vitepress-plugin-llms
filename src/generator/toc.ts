@@ -118,7 +118,8 @@ async function processSidebarSection(
 							(item.base ?? section.base ?? base ?? '') + item.link,
 						)
 						const matchingFile = preparedFiles.find((file) => {
-							const relativePath = `/${transformToPosixPath(stripExtPosix(file.path))}`
+							const basePrefix = base.endsWith('/') ? base : `${base}/`
+							const relativePath = `${basePrefix}${transformToPosixPath(stripExtPosix(file.path))}`
 							return isPathMatch(relativePath, normalizedItemLink)
 						})
 

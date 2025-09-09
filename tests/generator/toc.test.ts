@@ -167,6 +167,16 @@ describe('generateTOC', () => {
 
 		expect(toc).toMatchSnapshot()
 	})
+
+	it('resolves paths with base options', async () => {
+		const toc = await generateTOC(preparedFilesWithCommonPrefixSample, {
+			outDir,
+			base: '/docs',
+			sidebarConfig: sampleObjectVitePressSidebarWithCommonPrefix,
+		})
+
+		expect(toc).toMatchSnapshot()
+	})
 })
 
 describe('generateTOCLink', () => {

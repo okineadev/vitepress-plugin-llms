@@ -77,3 +77,13 @@ exports[`generateTOC with directoryFilter should filter files by directory when 
 - [Some other section](/test/other.md)
 "
 `;
+
+exports[`generateTOC resolves paths with common prefixes correctly 2 1`] = `
+"
+"
+`;
+
+exports[`generateTOC resolves paths with base options 1`] = `
+"
+"
+`;

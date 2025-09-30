@@ -137,8 +137,8 @@ export function resolvePageURL(url: string): string {
 
 	// Only rewrite if ends with /index.md and is not just index.md
 	if (normalized.endsWith('/index.md') && normalized !== 'index.md') {
-		const newUrl = normalized.slice(0, -'/index.md'.length) + '.md'
-		return hasLeadingSlash ? '/' + newUrl : newUrl
+		const newUrl = `${normalized.slice(0, -'/index.md'.length)}.md`
+		return hasLeadingSlash ? `/${newUrl}` : newUrl
 	}
 	return url
 }

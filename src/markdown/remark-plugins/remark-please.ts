@@ -1,4 +1,3 @@
-import path from 'node:path'
 import type { Paragraph, Parent, Root } from 'mdast'
 import { type BuildVisitor, visit } from 'unist-util-visit'
 import { fullTagRegex, tagRegex } from '@/constants'
@@ -12,7 +11,7 @@ import type { NotUndefined } from '@/internal-types'
  *
  * @returns A function that can be used as a remark plugin
  */
-export function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
+function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 	return () =>
 		(tree: Root): Root => {
 			const ourFullTagRegex = fullTagRegex(tag)
@@ -112,21 +111,4 @@ export function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 		}
 }
 
-/**
- * A Remark plugin that replaces image URLs with their hashed equivalents.
- *
- * @param map - Map of original image file names to hashed file paths.
- * @returns A remark plugin that rewrites image URLs.
- */
-export function remarkReplaceImageUrls(map: Map<string, string>) {
-	return () =>
-		(tree: Root): void => {
-			visit(tree, 'image', (node) => {
-				const original = path.posix.basename(node.url)
-				const hashed = map.get(original)
-				if (hashed) {
-					node.url = `/${hashed}`
-				}
-			})
-		}
-}
+export default remarkPlease

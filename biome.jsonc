@@ -17,6 +17,9 @@
 		"rules": {
 			"complexity": {
 				"noBannedTypes": "warn"
+			},
+			"correctness": {
+				"useParseIntRadix": "off"
 			}
 		}
 	},
@@ -34,6 +37,19 @@
 				"rules": {
 					"correctness": {
 						"noUnusedImports": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["tests/**/*"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						// This rule is disabled because `@ts-ignore` is needed in tests when importing
+						// something from the `src/` folder, otherwise TS will complain about importing
+						// a file that is not included in `tsconfig.bun.json` 📜
+						"noTsIgnore": "off"
 					}
 				}
 			}

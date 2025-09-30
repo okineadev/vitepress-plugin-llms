@@ -8,14 +8,16 @@ import { remark } from 'remark'
 import remarkFrontmatter from 'remark-frontmatter'
 import { approximateTokenSize } from 'tokenx'
 import { remove } from 'unist-util-remove'
-// @ts-expect-error
+// @ts-expect-error Module '"vite"' declares 'OutputBundle' locally, but it is not exported. ts(2459)
 import type { OutputBundle } from 'vite'
 import { defaultLLMsTxtTemplate, fullTagRegex } from '@/constants'
 import { generateLLMsFullTxt } from '@/generator/llms-full-txt'
 import { generateLLMsTxt } from '@/generator/llms-txt'
 import { generateLLMFriendlyPages } from '@/generator/page-generator'
 import type { PreparedFile, VitePressConfig } from '@/internal-types'
-import { remarkPlease, remarkReplaceImageUrls } from '@/markdown/remark-plugins'
+import remarkPlease from '@/markdown/remark-plugins/remark-please'
+import remarkReplaceImageUrls from '@/markdown/remark-plugins/replace-image-urls'
+import remarkInclude from '@/markdown/remark-plugins/snippets'
 import type { CustomTemplateVariables, LlmstxtSettings } from '@/types.d'
 import { getDirectoriesAtDepths } from '@/utils/file-utils'
 import { getHumanReadableSizeOf } from '@/utils/helpers'
@@ -201,6 +203,7 @@ export async function generateBundle(
 
 			const markdownProcessor = remark()
 				.use(remarkFrontmatter)
+				.use(remarkInclude({ srcDir: settings.workDir }))
 				.use(remarkPlease('unwrap', 'llm-only'))
 				.use(remarkPlease('remove', 'llm-exclude'))
 				.use(remarkReplaceImageUrls(imageMap))
@@ -215,7 +218,15 @@ export async function generateBundle(
 				})
 			}
 
-			const processedMarkdown = matter(String(await markdownProcessor.process(content)))
+			const processedMarkdown = matter(
+				String(
+					await markdownProcessor.process({
+						cwd: settings.workDir,
+						path: file,
+						value: content,
+					}),
+				),
+			)
 
 			// Extract title from frontmatter or use the first heading
 			const title = extractTitle(processedMarkdown)?.trim() || 'Untitled'

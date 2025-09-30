@@ -587,7 +587,7 @@ This is a test page.`
 
 				expect(writeFile).toBeCalledTimes(1)
 
-				const result = writeFile.mock.calls[0][1]
+				const result = writeFile.mock.calls[0]?.[1]
 
 				expect(result).toContain('/guide.md')
 				expect(result).not.toContain('/guide/index.md')
@@ -620,7 +620,7 @@ This is a test page.`
 
 				expect(readFile).toHaveBeenCalledTimes(3)
 
-				expect((readFile.mock.calls as unknown as string[][])[2][0]).toBe(
+				expect((readFile.mock.calls as unknown as string[][])[2]?.[0]).toBe(
 					path.resolve('otherdocs', 'index.md'),
 				)
 			})

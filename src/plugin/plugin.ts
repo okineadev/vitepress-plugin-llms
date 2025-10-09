@@ -38,6 +38,7 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 		injectLLMHint: true,
 		workDir: undefined as unknown as string,
 		stripHTML: true,
+		includeDynamicRoutes: true,
 		experimental: {
 			depth: 1,
 			...userSettings.experimental,

@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import matter, { type GrayMatterFile, type Input } from 'gray-matter'
+import matter from 'gray-matter'
 import { millify } from 'millify'
 import { minimatch } from 'minimatch'
 import pc from 'picocolors'
@@ -19,6 +19,7 @@ import remarkPlease from '@/markdown/remark-plugins/remark-please'
 import remarkReplaceImageUrls from '@/markdown/remark-plugins/replace-image-urls'
 import remarkInclude from '@/markdown/remark-plugins/snippets'
 import type { CustomTemplateVariables, LlmstxtSettings } from '@/types.d'
+import { processDynamicRoutes, type ResolvedDynamicRoute } from '@/utils/dynamic-routes'
 import { getDirectoriesAtDepths } from '@/utils/file-utils'
 import { getHumanReadableSizeOf } from '@/utils/helpers'
 import log from '@/utils/logger'
@@ -68,7 +69,7 @@ export async function transform(
 		}
 	}
 
-	let modifiedContent: string | GrayMatterFile<Input> = content
+	let modifiedContent: string = content
 		// strip content between <llm-only> and </llm-only>
 		.replace(fullTagRegex('llm-only', 'g'), '')
 		// remove <llm-exclude> tags, keep the content
@@ -78,10 +79,6 @@ export async function transform(
 		settings.injectLLMHint &&
 		(settings.generateLLMFriendlyDocsForEachPage || settings.generateLLMsTxt || settings.generateLLMsFullTxt)
 	) {
-		// @ts-expect-error
-		matter.clearCache()
-		modifiedContent = matter(modifiedContent)
-
 		// Generate hint for LLMs
 		let llmHint = ''
 
@@ -113,14 +110,83 @@ export async function transform(
 			}
 		}
 
-		llmHint = `<div style="display: none;" hidden="true" aria-hidden="true">${llmHint}</div>\n\n`
+		if (llmHint) {
+			const llmHintDiv = `<div style="display: none;" hidden="true" aria-hidden="true">${llmHint}</div>`
 
-		modifiedContent = matter.stringify(llmHint + modifiedContent.content, modifiedContent.data)
+			// Check if content has VitePress param markers
+			const hasVPMarkers = modifiedContent.trim().startsWith('__VP_PARAMS_START')
+
+			if (hasVPMarkers) {
+				// Preserve VP markers at the very start
+				// Find the end of VP markers line
+				const vpMarkerEndIndex = modifiedContent.indexOf('__VP_PARAMS_END')
+				if (vpMarkerEndIndex !== -1) {
+					const vpMarkerLineEnd = modifiedContent.indexOf('\n', vpMarkerEndIndex)
+					if (vpMarkerLineEnd !== -1) {
+						const vpMarkers = modifiedContent.substring(0, vpMarkerLineEnd + 1)
+						const restOfContent = modifiedContent.substring(vpMarkerLineEnd + 1)
+
+						// Check if rest has frontmatter
+						const restTrimmed = restOfContent.trimStart()
+						if (restTrimmed.startsWith('---')) {
+							// Find end of frontmatter
+							const frontmatterEnd = restTrimmed.indexOf('\n---\n', 4)
+							if (frontmatterEnd !== -1) {
+								const frontmatter = restTrimmed.substring(0, frontmatterEnd + 5) // Include \n---\n
+								const bodyContent = restTrimmed.substring(frontmatterEnd + 5)
+								// Inject hint after frontmatter
+								modifiedContent = vpMarkers + frontmatter + llmHintDiv + '\n\n' + bodyContent
+							} else {
+								// Frontmatter not properly closed, inject after VP markers
+								modifiedContent = vpMarkers + llmHintDiv + '\n\n' + restOfContent
+							}
+						} else {
+							// No frontmatter, inject after VP markers
+							modifiedContent = vpMarkers + llmHintDiv + '\n\n' + restOfContent
+						}
+					}
+				}
+			} else {
+				// No VP markers, check for frontmatter
+				const trimmedContent = modifiedContent.trimStart()
+				if (trimmedContent.startsWith('---')) {
+					// Find end of frontmatter
+					const frontmatterEnd = trimmedContent.indexOf('\n---\n', 4)
+					if (frontmatterEnd !== -1) {
+						const frontmatter = trimmedContent.substring(0, frontmatterEnd + 5) // Include \n---\n
+						const bodyContent = trimmedContent.substring(frontmatterEnd + 5)
+						// Inject hint after frontmatter
+						modifiedContent = frontmatter + llmHintDiv + '\n\n' + bodyContent
+					} else {
+						// Frontmatter not properly closed, prepend hint
+						modifiedContent = llmHintDiv + '\n\n' + modifiedContent
+					}
+				} else {
+					// No frontmatter, prepend hint
+					modifiedContent = llmHintDiv + '\n\n' + modifiedContent
+				}
+			}
+		}
 	}
 
 	// Add markdown file path to our collection
+	// Skip template files and virtual files - they're processed via dynamicRoutes
 	if (!isMainPage || !settings.excludeIndexPage) {
-		mdFiles.add(id)
+		const filename = path.basename(id)
+		const hasTemplateSyntax = filename.includes('[') && filename.includes(']')
+
+		if (!hasTemplateSyntax) {
+			// Not a template file - check if it's a real file (not virtual)
+			try {
+				await fs.access(id)
+				// File exists, add it
+				mdFiles.add(id)
+			} catch {
+				// Virtual file from dynamic route resolution, skip
+				// These will be processed via config.vitepress.dynamicRoutes
+			}
+		}
+		// Template files are skipped - they'll be processed via dynamicRoutes
 	}
 
 	return modifiedContent !== orig ? { code: modifiedContent, map: null } : null
@@ -242,6 +308,32 @@ export async function generateBundle(
 			return { path: filePath, title, file: processedMarkdown }
 		}),
 	)
+
+	// Process dynamic routes from VitePress if enabled
+	if (settings.includeDynamicRoutes !== false) {
+		// @ts-expect-error dynamicRoutes exists but may not be in type definition
+		const dynamicRoutes = (config.vitepress?.dynamicRoutes || []) as ResolvedDynamicRoute[]
+
+		if (dynamicRoutes.length > 0) {
+			log.info(`Processing ${pc.bold(dynamicRoutes.length.toString())} dynamic routes`)
+
+			try {
+				const dynamicPreparedFiles = await processDynamicRoutes(dynamicRoutes, {
+					workDir: settings.workDir,
+					stripHTML: settings.stripHTML,
+					imageMap,
+					rewrites: config.vitepress.userConfig?.rewrites,
+				})
+
+				preparedFiles.push(...dynamicPreparedFiles)
+				log.success(
+					`Successfully processed ${pc.bold(dynamicPreparedFiles.length.toString())} dynamic routes`,
+				)
+			} catch (error) {
+				log.error(`Failed to process dynamic routes: ${(error as Error).message}`)
+			}
+		}
+	}
 
 	// Sort files by title for better organization
 	preparedFiles.sort((a, b) => a.title.localeCompare(b.title))

@@ -284,6 +284,24 @@ export interface LlmstxtSettings extends TemplateVariables {
 		  ) => DefaultTheme.Sidebar | undefined | Promise<DefaultTheme.Sidebar | undefined>)
 
 	/**
+	 * Whether to include VitePress dynamic routes in the generated LLM documentation.
+	 *
+	 * ---
+	 *
+	 * Dynamic routes are pages generated from templates with parameters (e.g., `packages/[pkg].md`).
+	 * When enabled, all resolved dynamic routes will be included in `llms.txt`, `llms-full.txt`,
+	 * and individual markdown files.
+	 *
+	 * This is useful for documentation that uses dynamic routes to generate pages from data sources
+	 * like APIs, databases, or CMS systems.
+	 *
+	 * @see {@link https://vitepress.dev/guide/routing#dynamic-routes} for more information about VitePress dynamic routes.
+	 *
+	 * @default true
+	 */
+	includeDynamicRoutes?: boolean
+
+	/**
 	 * 🧪 Experimental features that may change in future versions.
 	 *
 	 * @experimental

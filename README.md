@@ -212,6 +212,84 @@ Check out the Plugins API Guide for documentation about creating plugins.
 <llm-exclude>Note only for humans</llm-exclude>
 ```
 
+### 🔄 Dynamic Routes Support
+
+The plugin automatically supports VitePress [dynamic routes](https://vitepress.dev/guide/routing#dynamic-routes), which allow you to generate multiple pages from a single template using route parameters.
+
+**Dynamic routes are automatically included** in `llms.txt`, `llms-full.txt`, and as individual markdown files without any additional configuration!
+
+#### Example: Package Documentation
+
+Create a dynamic route template `packages/[pkg].md`:
+
+```markdown
+---
+title: "{{ $params.pkg }} Documentation"
+---
+
+# {{ $params.pkg }}
+
+Documentation for {{ $params.pkg }} package.
+```
+
+And a paths loader `packages/[pkg].paths.js`:
+
+```js
+export default {
+  paths() {
+    return [
+      { params: { pkg: 'vitepress' }},
+      { params: { pkg: 'vue' }},
+      { params: { pkg: 'vite' }}
+    ]
+  }
+}
+```
+
+This automatically generates:
+- ✅ `packages/vitepress.md` with title "vitepress"
+- ✅ `packages/vue.md` with title "vue"
+- ✅ `packages/vite.md` with title "vite"
+- ✅ All routes appear in `llms.txt` table of contents
+- ✅ Full content included in `llms-full.txt`
+
+#### CMS Integration
+
+Dynamic routes work great with CMS integration using the `content` property:
+
+```js
+export default {
+  async paths() {
+    const posts = await fetch('https://my-cms.com/api/posts').then(r => r.json())
+
+    return posts.map(post => ({
+      params: {
+        id: post.id,
+        title: post.title,
+        author: post.author
+      },
+      content: post.content // Raw Markdown or HTML from CMS
+    }))
+  }
+}
+```
+
+The plugin will:
+- ✅ Process all dynamically generated routes
+- ✅ Extract titles from params or content
+- ✅ Apply all markdown transformations (HTML stripping, llm-only tags, etc.)
+- ✅ Include routes in llms.txt with proper descriptions
+
+#### Disabling Dynamic Routes
+
+If you want to exclude dynamic routes from LLM documentation:
+
+```ts
+llmstxt({
+  includeDynamicRoutes: false
+})
+```
+
 ## 🚀 Why `vitepress-plugin-llms`?
 
 LLMs (Large Language Models) are great at processing text, but traditional documentation formats can be too heavy and cluttered. `vitepress-plugin-llms` generates raw Markdown documentation that LLMs can efficiently process
@@ -235,6 +313,7 @@ The file structure in `.vitepress/dist` folder will be as follows:
 - 🤖 An LLM-friendly version is generated for each page
 - 📝 Generates `llms.txt` with section links
 - 📖 Generates `llms-full.txt` with all content in one file
+- 🔄 Automatic support for VitePress dynamic routes and CMS integration
 
 ## 📖 [llmstxt.org](https://llmstxt.org/) Standard
 

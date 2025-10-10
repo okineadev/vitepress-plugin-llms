@@ -14,8 +14,8 @@ mock.module('node:fs/promises', () => ({
 
 import {
 	processDynamicRoute,
-	resolveDynamicRouteTitle,
 	type ResolvedDynamicRoute,
+	resolveDynamicRouteTitle,
 } from '@/utils/dynamic-routes'
 
 describe('resolveDynamicRouteTitle', () => {

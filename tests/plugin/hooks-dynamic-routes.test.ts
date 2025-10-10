@@ -184,7 +184,7 @@ describe('transform hook with VitePress dynamic routes', () => {
 			// When LLM hint is enabled, transform should modify the content
 			expect(result).not.toBeNull()
 
-			const code = result!.code
+			const code = result?.code
 
 			// Should contain LLM hint
 			expect(code).toContain('Are you an LLM?')
@@ -330,7 +330,7 @@ describe('transform hook with VitePress dynamic routes', () => {
 				}),
 			)
 
-			const processedMarkdown = matter(processedContent)
+			const _processedMarkdown = matter(processedContent)
 
 			// VP markers get escaped/corrupted by remark - this is the known issue!
 			// They become \_\_VP\_PARAMS\_START instead of __VP_PARAMS_START

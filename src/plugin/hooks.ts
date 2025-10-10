@@ -135,14 +135,14 @@ export async function transform(
 								const frontmatter = restTrimmed.substring(0, frontmatterEnd + 5) // Include \n---\n
 								const bodyContent = restTrimmed.substring(frontmatterEnd + 5)
 								// Inject hint after frontmatter
-								modifiedContent = vpMarkers + frontmatter + llmHintDiv + '\n\n' + bodyContent
+								modifiedContent = `${vpMarkers + frontmatter + llmHintDiv}\n\n${bodyContent}`
 							} else {
 								// Frontmatter not properly closed, inject after VP markers
-								modifiedContent = vpMarkers + llmHintDiv + '\n\n' + restOfContent
+								modifiedContent = `${vpMarkers + llmHintDiv}\n\n${restOfContent}`
 							}
 						} else {
 							// No frontmatter, inject after VP markers
-							modifiedContent = vpMarkers + llmHintDiv + '\n\n' + restOfContent
+							modifiedContent = `${vpMarkers + llmHintDiv}\n\n${restOfContent}`
 						}
 					}
 				}
@@ -156,14 +156,14 @@ export async function transform(
 						const frontmatter = trimmedContent.substring(0, frontmatterEnd + 5) // Include \n---\n
 						const bodyContent = trimmedContent.substring(frontmatterEnd + 5)
 						// Inject hint after frontmatter
-						modifiedContent = frontmatter + llmHintDiv + '\n\n' + bodyContent
+						modifiedContent = `${frontmatter + llmHintDiv}\n\n${bodyContent}`
 					} else {
 						// Frontmatter not properly closed, prepend hint
-						modifiedContent = llmHintDiv + '\n\n' + modifiedContent
+						modifiedContent = `${llmHintDiv}\n\n${modifiedContent}`
 					}
 				} else {
 					// No frontmatter, prepend hint
-					modifiedContent = llmHintDiv + '\n\n' + modifiedContent
+					modifiedContent = `${llmHintDiv}\n\n${modifiedContent}`
 				}
 			}
 		}

@@ -73,7 +73,7 @@ describe('generateTOC', () => {
 		expect(toc).toMatchSnapshot()
 	})
 
-	it('correctly generates TOC with links that is not in any section', async () => {
+	it('correctly generates TOC with links that are not in any section', async () => {
 		expect(
 			await generateTOC(preparedFilesSample.slice(1), {
 				outDir,

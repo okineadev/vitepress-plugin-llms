@@ -86,3 +86,14 @@ exports[`generateTOC with directoryFilter should filter files by directory when 
 - [Some other section](/test/other.md)
 "
 `;
+
+exports[`generateTOC correctly generates TOC with links that is not in any section 1`] = `
+"
+
+### Other
+
+- [Getting started](/test/getting-started.md): Instructions on how to get started with the tool
+- [Quickstart](/test/quickstart.md): Instructions for quick project initialization
+- [Some other section](/test/other.md)
+"
+`;

@@ -90,6 +90,11 @@ export const sampleObjectVitePressSidebarWithCommonPrefix: DefaultTheme.Sidebar 
 	],
 }
 
+export const sampleObjectVitePressSidebarWithoutSections: DefaultTheme.Sidebar = [
+	{ text: 'Getting Started', link: '/test/getting-started' },
+	{ text: 'Quickstart', link: '/test/quickstart' },
+]
+
 export const fooMdSample: PreparedFile = {
 	title: 'Title',
 	path: 'foo.md',

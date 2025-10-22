@@ -292,7 +292,6 @@ export async function generateBundle(
 						domain: settings.domain,
 						sidebar: resolvedSidebar,
 						linksExtension: !settings.generateLLMFriendlyDocsForEachPage ? '.html' : undefined,
-						base: config.base,
 						directoryFilter,
 					})
 

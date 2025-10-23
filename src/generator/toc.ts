@@ -131,7 +131,7 @@ async function processSidebarSection(
 							return generateTOCLink(matchingFile, domain, relativePath, linksExtension, base)
 						}
 
-						log.warn(`No matching file found for sidebar link: ${item.link}`)
+						log.warn(`No matching file found for sidebar link: ${item.link} (normalized: ${normalizedItemLink})`)
 						return null
 					}),
 			).then((items) => items.filter((item): item is string => item !== null)),

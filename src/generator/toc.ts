@@ -102,83 +102,81 @@ async function processSidebarSection(
 	depth = 3,
 	base = '',
 ): Promise<string> {
+	if (!section.items || !Array.isArray(section.items)) {
+		return ''
+	}
+
 	let sectionTOC = ''
 
 	// Process items in this section
-	if (section.items && Array.isArray(section.items)) {
-		const [linkItems, nestedSections] = await Promise.all([
-			Promise.all(
-				section.items
-					.filter(
-						(item): item is DefaultTheme.SidebarItem & { link: string } => typeof item.link === 'string',
-					)
-					.map(async (item) => {
-						// Normalize the link path for matching
-						const normalizedItemLink = normalizeLinkPath(
-							(item.base ?? section.base ?? base ?? '') + item.link,
-						)
-						const matchingFile = preparedFiles.find((file) => {
-							const basePrefix = base.endsWith('/') ? base : `${base}/`
-							const relativePath = `${basePrefix}${transformToPosixPath(stripExtPosix(file.path))}`
-							return isPathMatch(relativePath, normalizedItemLink)
-						})
+	const [linkItems, nestedSections] = await Promise.all([
+		Promise.all(
+			section.items
+				.filter((item): item is DefaultTheme.SidebarItem & { link: string } => typeof item.link === 'string')
+				.map(async (item) => {
+					// Normalize the link path for matching
+					const normalizedItemLink = normalizeLinkPath((item.base ?? section.base ?? base ?? '') + item.link)
+					const matchingFile = preparedFiles.find((file) => {
+						const basePrefix = base.endsWith('/') ? base : `${base}/`
+						const relativePath = `${basePrefix}${transformToPosixPath(stripExtPosix(file.path))}`
+						return isPathMatch(relativePath, normalizedItemLink)
+					})
 
-						if (matchingFile) {
-							const relativePath = matchingFile.path
-							return generateTOCLink(matchingFile, domain, relativePath, linksExtension, base)
-						}
-						return null
-					}),
-			).then((items) => items.filter((item): item is string => item !== null)),
+					if (matchingFile) {
+						const relativePath = matchingFile.path
+						return generateTOCLink(matchingFile, domain, relativePath, linksExtension, base)
+					}
+					return null
+				}),
+		).then((items) => items.filter((item): item is string => item !== null)),
 
-			Promise.all(
-				section.items
-					.filter(
-						(
-							item,
-						): item is DefaultTheme.SidebarItem & {
-							items: DefaultTheme.SidebarItem[]
-						} => Array.isArray(item.items) && item.items.length > 0,
-					)
-					.map((item) =>
-						processSidebarSection(
-							item,
-							preparedFiles,
-							outDir,
-							domain,
-							linksExtension,
-							// Increase depth for nested sections to maintain proper heading levels
-							depth + 1,
-							item.base ?? section.base ?? base ?? '',
-						),
+		Promise.all(
+			section.items
+				.filter(
+					(
+						item,
+					): item is DefaultTheme.SidebarItem & {
+						items: DefaultTheme.SidebarItem[]
+					} => Array.isArray(item.items) && item.items.length > 0,
+				)
+				.map((item) =>
+					processSidebarSection(
+						item,
+						preparedFiles,
+						outDir,
+						domain,
+						linksExtension,
+						// Increase depth for nested sections to maintain proper heading levels
+						depth + 1,
+						item.base ?? section.base ?? base ?? '',
 					),
-			),
-		])
+				),
+		),
+	])
 
-		// Filter out empty nested sections
-		const nonEmptyNestedSections = nestedSections.filter((section) => section.trim() !== '')
+	// Filter out empty nested sections
+	const nonEmptyNestedSections = nestedSections.filter((section) => section.trim() !== '')
 
-		// Check if we have any content before adding section header
-		const hasContent = linkItems.length > 0 || nonEmptyNestedSections.length > 0
+	// Check if we have any content before adding section header
+	const hasContent = linkItems.length > 0 || nonEmptyNestedSections.length > 0
 
-		// Only add section header if there's actual content
-		if (hasContent && section.text) {
-			sectionTOC += `${'#'.repeat(depth)} ${section.text}\n\n`
-		}
+	// Only add section header if there's actual content
+	if (hasContent && section.text) {
+		sectionTOC += `${'#'.repeat(depth)} ${section.text}\n\n`
+	}
 
-		if (linkItems.length > 0) {
-			sectionTOC += linkItems.join('')
-		}
+	if (linkItems.length > 0) {
+		sectionTOC += linkItems.join('')
+	}
 
-		// Add a blank line before nested sections if we have link items
-		if (linkItems.length > 0 && nonEmptyNestedSections.length > 0) {
-			sectionTOC += '\n'
-		}
+	// Add a blank line before nested sections if we have link items
+	if (linkItems.length > 0 && nonEmptyNestedSections.length > 0) {
+		sectionTOC += '\n'
+	}
 
-		// Add non-empty nested sections with appropriate spacing
-		if (nonEmptyNestedSections.length > 0) {
-			sectionTOC += nonEmptyNestedSections.join('\n')
-		}
+	// Add non-empty nested sections with appropriate spacing
+	if (nonEmptyNestedSections.length > 0) {
+		sectionTOC += nonEmptyNestedSections.join('\n')
 	}
 
 	return sectionTOC
@@ -272,8 +270,12 @@ export async function generateTOC(
 		// Process each top-level section in the flattened sidebar
 		if (flattenedSidebarConfig.length > 0) {
 			// Process sections in parallel
+			const sidebarSections = flattenedSidebarConfig.filter((section) => {
+				// Only process sections with items
+				return section.items && Array.isArray(section.items) && section.items.length > 0
+			})
 			const sectionResults = await Promise.all(
-				flattenedSidebarConfig.map((section) =>
+				sidebarSections.map((section) =>
 					processSidebarSection(section, filteredFiles, outDir, domain, linksExtension, 3, base),
 				),
 			)
@@ -281,7 +283,7 @@ export async function generateTOC(
 			tableOfContent += `${sectionResults.join('\n')}\n`
 
 			// Find files that didn't match any section
-			const allSidebarPaths = await collectPathsFromSidebarItems(flattenedSidebarConfig)
+			const allSidebarPaths = await collectPathsFromSidebarItems(sidebarSections)
 			const unsortedFiles = filteredFiles.filter((file) => {
 				const relativePath = `/${transformToPosixPath(stripExtPosix(file.path))}`
 				return !allSidebarPaths.some((sidebarPath: string) => isPathMatch(relativePath, sidebarPath))

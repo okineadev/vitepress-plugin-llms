@@ -89,7 +89,6 @@ exports[`generateTOC with directoryFilter should filter files by directory when 
 
 exports[`generateTOC correctly generates TOC with links that are not in any section 1`] = `
 "
-
 ### Other
 
 - [Getting started](/test/getting-started.md): Instructions on how to get started with the tool

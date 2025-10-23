@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
         with:
           sparse-checkout-cone-mode: false
           persist-credentials: true
@@ -29,12 +29,12 @@ jobs:
             src/
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@4a00331d4ecf79a214751520faf8e540e60c7567
+        uses: github/codeql-action/init@42642085de2a94da10d5b87c0c7b9f51e147aa1f
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@4a00331d4ecf79a214751520faf8e540e60c7567
+        uses: github/codeql-action/analyze@42642085de2a94da10d5b87c0c7b9f51e147aa1f
         with:
           category: "/language:${{matrix.language}}"

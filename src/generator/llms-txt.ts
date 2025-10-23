@@ -25,19 +25,13 @@ export interface GenerateLLMsTxtOptions {
 	templateVariables?: LlmstxtSettings['customTemplateVariables']
 
 	/** The VitePress configuration. */
-	vitepressConfig?: VitePressConfig['vitepress']['userConfig']
+	vitepressConfig: VitePressConfig['vitepress']['userConfig']
 
 	/** The base domain for the generated links. */
 	domain?: LlmstxtSettings['domain']
 
 	/** The link extension for generated links. */
 	linksExtension?: LinksExtension
-
-	/** The base URL path from VitePress config.
-	 *
-	 * {@link VitePressConfig.base}
-	 */
-	base?: VitePressConfig['base']
 
 	/** Optional sidebar configuration for organizing the TOC. */
 	sidebar?: DefaultTheme.Sidebar
@@ -67,7 +61,6 @@ export async function generateLLMsTxt(
 		domain,
 		sidebar,
 		directoryFilter,
-		base,
 	}: GenerateLLMsTxtOptions,
 ): Promise<string> {
 	// @ts-expect-error
@@ -104,7 +97,7 @@ export async function generateLLMsTxt(
 		domain,
 		sidebarConfig: sidebar || vitepressConfig?.themeConfig?.sidebar,
 		directoryFilter,
-		base,
+		base: vitepressConfig?.base,
 	})
 
 	return expandTemplate(LLMsTxtTemplate, templateVariables)

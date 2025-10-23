@@ -31,6 +31,21 @@ describe('generateLLMsTxt', () => {
 			}),
 		).toMatchSnapshot()
 	})
+
+	it('works correctly with base config of vitepress', async () => {
+		expect(
+			await generateLLMsTxt(preparedFilesSample.slice(1), {
+				indexMd: path.join(outDir, 'index.md'),
+				outDir: outDir,
+				LLMsTxtTemplate: defaultLLMsTxtTemplate,
+				templateVariables: {},
+				vitepressConfig: {
+					base: '/docs/',
+				},
+			}),
+		).toMatchSnapshot()
+	})
+
 	it('works correctly with a custom template', async () => {
 		expect(
 			await generateLLMsTxt(preparedFilesSample.slice(1), {

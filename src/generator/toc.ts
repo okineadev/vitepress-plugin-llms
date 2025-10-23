@@ -117,7 +117,7 @@ async function processSidebarSection(
 				.map(async (item) => {
 					// Normalize the link path for matching
 					const normalizedItemLink = normalizeLinkPath(
-						path.posix.join(...[base, item.base ?? section.base, item.link].filter((s): s is string => !!s)),
+						path.posix.join(base, item.base ?? section.base ?? '', item.link),
 					)
 					const matchingFile = preparedFiles.find((file) => {
 						const basePrefix = base.endsWith('/') ? base : `${base}/`

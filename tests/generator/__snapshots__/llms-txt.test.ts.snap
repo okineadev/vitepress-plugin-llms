@@ -13,6 +13,19 @@ exports[`generateLLMsTxt generates a \`llms.txt\` file 1`] = `
 "
 `;
 
+exports[`generateLLMsTxt works correctly with base config of vitepress 1`] = `
+"# Some cool tool
+
+> Blazing fast frontend tool
+
+## Table of Contents
+
+- [Getting started](/docs/test/getting-started.md): Instructions on how to get started with the tool
+- [Quickstart](/docs/test/quickstart.md): Instructions for quick project initialization
+- [Some other section](/docs/test/other.md)
+"
+`;
+
 exports[`generateLLMsTxt works correctly with a custom template 1`] = `
 "# Custom title
 
@@ -42,17 +55,4 @@ exports[`generateLLMsTxt works correctly with a custom template and variables 1`
 **{bar}**
 
 {zoo}"
-`;
-
-exports[`generateLLMsTxt works correctly with base config of vitepress 1`] = `
-"# Some cool tool
-
-> Blazing fast frontend tool
-
-## Table of Contents
-
-- [Getting started](/docs/test/getting-started.md): Instructions on how to get started with the tool
-- [Quickstart](/docs/test/quickstart.md): Instructions for quick project initialization
-- [Some other section](/docs/test/other.md)
-"
 `;

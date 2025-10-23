@@ -54,6 +54,16 @@ exports[`generateTOC appends the specified \`linksExtension\` to the generated l
 "
 `;
 
+exports[`generateTOC correctly generates TOC with links that are not in any section 1`] = `
+"
+### Other
+
+- [Getting started](/test/getting-started.md): Instructions on how to get started with the tool
+- [Quickstart](/test/quickstart.md): Instructions for quick project initialization
+- [Some other section](/test/other.md)
+"
+`;
+
 exports[`generateTOC resolves paths with common prefixes correctly 1`] = `
 "### Blog Started
 
@@ -68,6 +78,23 @@ exports[`generateTOC resolves paths with base options 1`] = `
 
 - [First version](/docs/blog/v1.md): Blazing fast frontend tool
 - [New features!](/docs/blog/v1.1.md): Instructions on how to get started with the tool
+
+"
+`;
+
+exports[`generateTOC resolves paths with base options and base sections 1`] = `
+"### Getting Started
+
+- [Getting started](/docs/test/getting-started.md): Instructions on how to get started with the tool
+- [Some cool tool](/docs/index.md): Blazing fast frontend tool
+
+### API Reference
+
+- [Some other section](/docs/test/other.md)
+
+### Tutorials
+
+- [Quickstart](/docs/test/quickstart.md): Instructions for quick project initialization
 
 "
 `;

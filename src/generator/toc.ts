@@ -3,6 +3,7 @@ import type { DefaultTheme } from 'vitepress'
 import type { LinksExtension, PreparedFile, VitePressConfig } from '@/internal-types'
 import type { LlmstxtSettings } from '@/types'
 import { stripExtPosix, transformToPosixPath } from '@/utils/file-utils'
+import log from '@/utils/logger'
 import { generateLink } from '@/utils/template-utils'
 
 /**
@@ -115,7 +116,7 @@ async function processSidebarSection(
 					.map(async (item) => {
 						// Normalize the link path for matching
 						const normalizedItemLink = normalizeLinkPath(
-							(item.base ?? section.base ?? base ?? '') + item.link,
+							[base, item.base ?? section.base, item.link].filter(Boolean).join(''),
 						)
 						const matchingFile = preparedFiles.find((file) => {
 							const basePrefix = base.endsWith('/') ? base : `${base}/`
@@ -127,6 +128,8 @@ async function processSidebarSection(
 							const relativePath = matchingFile.path
 							return generateTOCLink(matchingFile, domain, relativePath, linksExtension, base)
 						}
+
+						log.warn(`No matching file found for sidebar link: ${item.link}`)
 						return null
 					}),
 			).then((items) => items.filter((item): item is string => item !== null)),

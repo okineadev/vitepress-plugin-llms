@@ -10,6 +10,7 @@ import {
 	sampleObjectVitePressSidebar,
 	sampleObjectVitePressSidebarWithBase,
 	sampleObjectVitePressSidebarWithCommonPrefix,
+	sampleObjectVitePressSidebarWithoutSections,
 	sampleVitePressSidebar,
 } from '../resources'
 
@@ -70,6 +71,15 @@ describe('generateTOC', () => {
 		})
 
 		expect(toc).toMatchSnapshot()
+	})
+
+	it('correctly generates TOC with links that are not in any section', async () => {
+		expect(
+			await generateTOC(preparedFilesSample.slice(1), {
+				outDir,
+				sidebarConfig: sampleObjectVitePressSidebarWithoutSections,
+			}),
+		).toMatchSnapshot()
 	})
 
 	it('does not generate empty sections', async () => {

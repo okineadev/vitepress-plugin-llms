@@ -21,9 +21,7 @@ export async function configureDevServer(server: ViteDevServer, config: VitePres
 				res.end(content)
 				return
 			} catch (_error) {
-				// If file doesn't exist or can't be read, continue to next middleware
 				log.warn(`Failed to return ${pc.cyan(req.url)}: File not found`)
-				next()
 			}
 		}
 

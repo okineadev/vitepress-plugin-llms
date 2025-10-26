@@ -26,5 +26,6 @@
 			"enabled": false
 		}
 	],
+
 	"schedule": ["monthly"]
 }

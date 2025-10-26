@@ -257,7 +257,6 @@ This plugin follows the [llmstxt.org](https://llmstxt.org/) standard, which defi
 | [**node-llama-cpp**](https://node-llama-cpp.withcat.ai/) | [![Stars](https://img.shields.io/github/stars/withcatai/node-llama-cpp?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/withcatai/node-llama-cpp) | [llms.txt](https://node-llama-cpp.withcat.ai/llms.txt) | [llms-full.txt](https://node-llama-cpp.withcat.ai/llms-full.txt) |
 | [**GramIO**](https://gramio.dev/)                        |          [![Stars](https://img.shields.io/github/stars/gramiojs/gramio?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/gramiojs/gramio)          |        [llms.txt](https://gramio.dev/llms.txt)         |        [llms-full.txt](https://gramio.dev/llms-full.txt)         |
 
-
 ## ❤️ Support
 
 If you like this project, consider supporting it by starring ⭐ it on GitHub, sharing it with your friends, or [buying me a coffee ☕](https://github.com/sponsors/okineadev)

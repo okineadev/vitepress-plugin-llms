@@ -33,7 +33,7 @@ export async function transform(
 	content: string,
 	id: string,
 	settings: LlmstxtSettings & { ignoreFiles: string[]; workDir: string },
-	mdFiles: Set<string>,
+	mdFiles: Map<string, string>,
 	config: VitePressConfig,
 	// biome-ignore lint/suspicious/noExplicitAny: TODO: Fix type
 ): Promise<any> {
@@ -113,14 +113,14 @@ export async function transform(
 			}
 		}
 
-		llmHint = `<div style="display: none;" hidden="true" aria-hidden="true">${llmHint}</div>\n\n`
+		llmHint = `\n\n<div style="display: none;" hidden="true" aria-hidden="true">${llmHint}</div>`
 
-		modifiedContent = matter.stringify(llmHint + modifiedContent.content, modifiedContent.data)
+		modifiedContent = matter.stringify(modifiedContent.content + llmHint, modifiedContent.data)
 	}
 
 	// Add markdown file path to our collection
 	if (!isMainPage || !settings.excludeIndexPage) {
-		mdFiles.add(id)
+		mdFiles.set(id, content)
 	}
 
 	return modifiedContent !== orig ? { code: modifiedContent, map: null } : null
@@ -134,7 +134,7 @@ export async function generateBundle(
 	bundle: OutputBundle,
 	settings: LlmstxtSettings & { ignoreFiles: string[]; workDir: string },
 	config: VitePressConfig,
-	mdFiles: Set<string>,
+	mdFiles: Map<string, string>,
 	isSsrBuild: boolean,
 ): Promise<void> {
 	// Skip processing during SSR build
@@ -160,8 +160,7 @@ export async function generateBundle(
 		await fs.mkdir(outDir, { recursive: true })
 	}
 
-	const mdFilesList = Array.from(mdFiles)
-	const fileCount = mdFilesList.length
+	const fileCount = mdFiles.size
 
 	// Skip if no files found
 	if (fileCount === 0) {
@@ -192,14 +191,13 @@ export async function generateBundle(
 		}
 	}
 
+	const mdFilesList = Array.from(mdFiles)
 	const preparedFiles: PreparedFile[] = await Promise.all(
-		mdFilesList.map(async (file) => {
+		mdFilesList.map(async ([file, content]) => {
 			const resolvedOutFilePath = path.relative(
 				settings.workDir,
 				resolveOutputFilePath(file, settings.workDir, config.vitepress.userConfig?.rewrites),
 			)
-
-			const content = await fs.readFile(file, 'utf-8')
 
 			const markdownProcessor = remark()
 				.use(remarkFrontmatter)
@@ -217,6 +215,19 @@ export async function generateBundle(
 					}
 				})
 			}
+
+			// resolve params for dynamic routes
+			let params: Record<string, string> = {}
+
+			content = content.replace(/^__VP_PARAMS_START([\s\S]+?)__VP_PARAMS_END__/, (_, paramsString) => {
+				params = JSON.parse(paramsString)
+
+				return ''
+			})
+
+			Object.entries(params).forEach(([key, value]) => {
+				content = content.replace(`{{ $params.${key} }}`, value)
+			})
 
 			const processedMarkdown = matter(
 				String(
@@ -246,6 +257,7 @@ export async function generateBundle(
 	// Sort files by title for better organization
 	preparedFiles.sort((a, b) => a.title.localeCompare(b.title))
 
+	const mdFilesKeys = Array.from(mdFiles.keys())
 	const tasks: Promise<void>[] = []
 
 	if (settings.generateLLMsTxt) {
@@ -259,7 +271,7 @@ export async function generateBundle(
 
 		// Get directories at specified depths
 		const directories = getDirectoriesAtDepths(
-			mdFilesList,
+			mdFilesKeys,
 			settings.workDir,
 			settings.experimental?.depth ?? 1,
 		)
@@ -317,7 +329,7 @@ export async function generateBundle(
 	if (settings.generateLLMsFullTxt) {
 		// Get directories at specified depths for llms-full.txt as well
 		const directories = getDirectoriesAtDepths(
-			mdFilesList,
+			mdFilesKeys,
 			settings.workDir,
 			settings.experimental?.depth ?? 1,
 		)

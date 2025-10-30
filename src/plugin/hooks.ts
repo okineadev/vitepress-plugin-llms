@@ -225,9 +225,11 @@ export async function generateBundle(
 				return ''
 			})
 
-			Object.entries(params).forEach(([key, value]) => {
-				content = content.replace(`{{ $params.${key} }}`, value)
-			})
+			if (params && Object.keys(params).length > 0) {
+				content = content.replace(/\{\{\s*\$params\.([\s\S]+?)\s*\}\}/g, (_, paramKey) => {
+					return params[paramKey] ?? ''
+				})
+			}
 
 			const processedMarkdown = matter(
 				String(

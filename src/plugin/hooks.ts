@@ -114,9 +114,19 @@ export async function transform(
 			}
 		}
 
-		llmHint = `\n\n<div style="display: none;" hidden="true" aria-hidden="true">${llmHint}</div>`
-
-		modifiedContent = matter.stringify(modifiedContent.content + llmHint, modifiedContent.data)
+		// Insert llmHint at start or after __VP_PARAMS_END__ if present
+		if (llmHint) {
+			const hintBlock = `<div style="display: none;" hidden="true" aria-hidden="true">${llmHint}</div>\n`
+			let content = modifiedContent.content
+			const marker = '__VP_PARAMS_END__'
+			const idx = content.indexOf(marker)
+			if (idx !== -1) {
+				content = content.slice(0, idx + marker.length) + hintBlock + content.slice(idx + marker.length)
+			} else {
+				content = `${hintBlock}\n${content}`
+			}
+			modifiedContent = matter.stringify(content, modifiedContent.data)
+		}
 	}
 
 	// Add markdown file path to our collection

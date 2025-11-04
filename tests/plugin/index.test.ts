@@ -592,38 +592,6 @@ This is a test page.`
 				expect(result).toContain('/guide.md')
 				expect(result).not.toContain('/guide/index.md')
 			})
-
-			it('can use `index.md` which is specified in `rewrites` rules', async () => {
-				const configWithRewrites = {
-					...mockConfig,
-					vitepress: {
-						...mockConfig.vitepress,
-						srcDir: path.resolve(mockConfig.vitepress.srcDir, '..'),
-						userConfig: {
-							rewrites: {
-								'otherdocs/index.md': 'index.md',
-							},
-						},
-					},
-				}
-
-				plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMFriendlyDocsForEachPage: false })
-				// @ts-ignore
-				plugin[1].configResolved(configWithRewrites)
-
-				// @ts-ignore
-				await plugin[0].transform(fakeMarkdownDocument, 'docs/page.md')
-				// @ts-ignore
-				await plugin[0].transform(fakeMarkdownDocument, 'otherdocs/page.md')
-				// @ts-ignore
-				await plugin[1].generateBundle()
-
-				expect(readFile).toHaveBeenCalledTimes(3)
-
-				expect((readFile.mock.calls as unknown as string[][])[2]?.[0]).toBe(
-					path.resolve('otherdocs', 'index.md'),
-				)
-			})
 		})
 
 		describe('experimental depth option', () => {

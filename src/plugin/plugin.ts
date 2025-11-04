@@ -48,8 +48,8 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 	// Store the resolved Vite config
 	let config: VitePressConfig
 
-	// Set to store all markdown file paths
-	const mdFiles: Set<string> = new Set()
+	// Map to store all markdown files content
+	const mdFiles: Map<string, string> = new Map()
 
 	// Flag to identify which build we're in
 	let isSsrBuild = false

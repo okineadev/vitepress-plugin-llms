@@ -19,6 +19,7 @@ import remarkPlease from '@/markdown/remark-plugins/remark-please'
 import remarkReplaceImageUrls from '@/markdown/remark-plugins/replace-image-urls'
 import remarkInclude from '@/markdown/remark-plugins/snippets'
 import type { CustomTemplateVariables, LlmstxtSettings } from '@/types.d'
+import { processVPParams } from '@/utils/dynamic-routes'
 import { getDirectoriesAtDepths } from '@/utils/file-utils'
 import { getHumanReadableSizeOf } from '@/utils/helpers'
 import log from '@/utils/logger'
@@ -216,20 +217,7 @@ export async function generateBundle(
 				})
 			}
 
-			// resolve params for dynamic routes
-			let params: Record<string, string> = {}
-
-			content = content.replace(/^__VP_PARAMS_START([\s\S]+?)__VP_PARAMS_END__/, (_, paramsString) => {
-				params = JSON.parse(paramsString)
-
-				return ''
-			})
-
-			if (params && Object.keys(params).length > 0) {
-				content = content.replace(/\{\{\s*\$params\.([\s\S]+?)\s*\}\}/g, (_, paramKey) => {
-					return params[paramKey] ?? ''
-				})
-			}
+			content = processVPParams(content)
 
 			const processedMarkdown = matter(
 				String(

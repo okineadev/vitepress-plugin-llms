@@ -7,11 +7,11 @@ import {
 import { preparedFilesSample, sampleDomain } from '../resources'
 
 describe('generateLLMsFullTxt', () => {
-	it('generates a `llms-full.txt` file', async () => {
+	it.serial('generates a `llms-full.txt` file', async () => {
 		expect(await generateLLMsFullTxt(preparedFilesSample.slice(1), {})).toMatchSnapshot()
 	})
 
-	it('correctly attaches the domain to URLs in context', async () => {
+	it.serial('correctly attaches the domain to URLs in context', async () => {
 		expect(
 			await generateLLMsFullTxt(preparedFilesSample.slice(1), {
 				domain: sampleDomain,

@@ -32,7 +32,7 @@ describe('generateLLMsTxt', () => {
 		).toMatchSnapshot()
 	})
 
-	it('works correctly with base config of vitepress', async () => {
+	it.serial('works correctly with base config of vitepress', async () => {
 		expect(
 			await generateLLMsTxt(preparedFilesSample.slice(1), {
 				indexMd: path.join(outDir, 'index.md'),
@@ -46,7 +46,7 @@ describe('generateLLMsTxt', () => {
 		).toMatchSnapshot()
 	})
 
-	it('works correctly with a custom template', async () => {
+	it.serial('works correctly with a custom template', async () => {
 		expect(
 			await generateLLMsTxt(preparedFilesSample.slice(1), {
 				indexMd: path.join(outDir, 'index.md'),
@@ -57,7 +57,7 @@ describe('generateLLMsTxt', () => {
 			}),
 		).toMatchSnapshot()
 	})
-	it('works correctly with a custom template variables', async () => {
+	it.serial('works correctly with a custom template variables', async () => {
 		expect(
 			await generateLLMsTxt(preparedFilesSample, {
 				indexMd: path.join(outDir, 'index.md'),
@@ -69,7 +69,7 @@ describe('generateLLMsTxt', () => {
 		).toMatchSnapshot()
 	})
 
-	it('works correctly with a custom template and variables', async () => {
+	it.serial('works correctly with a custom template and variables', async () => {
 		expect(
 			await generateLLMsTxt(preparedFilesSample, {
 				indexMd: path.join(outDir, 'index.md'),

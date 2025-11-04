@@ -82,7 +82,7 @@ describe('llmstxt plugin', () => {
 		// Add these tests to the existing describe('transform', () => { ... }) block
 
 		describe('LLM hint injection', () => {
-			it('should inject LLM hint for main page when generateLLMsTxt is enabled', async () => {
+			it.serial('should inject LLM hint for main page when generateLLMsTxt is enabled', async () => {
 				const plugin = llmstxt({
 					injectLLMHint: true,
 					generateLLMsTxt: true,
@@ -397,41 +397,47 @@ This is a test page.`
 			)
 		})
 
-		it('does not add links with `.md` extension in `llms.txt` if `generateLLMFriendlyDocsForEachPage` option is disabled', async () => {
-			plugin = llmstxt({
-				generateLLMsFullTxt: false,
-				generateLLMFriendlyDocsForEachPage: false,
-			})
-			// @ts-ignore
-			plugin[1].configResolved(mockConfig)
-			await Promise.all([
+		it.serial(
+			'does not add links with `.md` extension in `llms.txt` if `generateLLMFriendlyDocsForEachPage` option is disabled',
+			async () => {
+				plugin = llmstxt({
+					generateLLMsFullTxt: false,
+					generateLLMFriendlyDocsForEachPage: false,
+				})
 				// @ts-ignore
-				plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
-			])
-			// @ts-ignore
-			await plugin[1].generateBundle()
-
-			expect(writeFile).toHaveBeenCalledTimes(1)
-			expect(writeFile.mock?.lastCall?.[1]).toMatchSnapshot()
-		})
-
-		it('does not add links with `.md` extension in `llms-full.txt` if `generateLLMFriendlyDocsForEachPage` option is disabled', async () => {
-			plugin = llmstxt({
-				generateLLMsTxt: false,
-				generateLLMFriendlyDocsForEachPage: false,
-			})
-			// @ts-ignore
-			plugin[1].configResolved(mockConfig)
-			await Promise.all([
+				plugin[1].configResolved(mockConfig)
+				await Promise.all([
+					// @ts-ignore
+					plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
+				])
 				// @ts-ignore
-				plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
-			])
-			// @ts-ignore
-			await plugin[1].generateBundle()
+				await plugin[1].generateBundle()
 
-			expect(writeFile).toHaveBeenCalledTimes(1)
-			expect(writeFile.mock?.lastCall?.[1]).toMatchSnapshot()
-		})
+				expect(writeFile).toHaveBeenCalledTimes(1)
+				expect(writeFile.mock?.lastCall?.[1]).toMatchSnapshot()
+			},
+		)
+
+		it.serial(
+			'does not add links with `.md` extension in `llms-full.txt` if `generateLLMFriendlyDocsForEachPage` option is disabled',
+			async () => {
+				plugin = llmstxt({
+					generateLLMsTxt: false,
+					generateLLMFriendlyDocsForEachPage: false,
+				})
+				// @ts-ignore
+				plugin[1].configResolved(mockConfig)
+				await Promise.all([
+					// @ts-ignore
+					plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
+				])
+				// @ts-ignore
+				await plugin[1].generateBundle()
+
+				expect(writeFile).toHaveBeenCalledTimes(1)
+				expect(writeFile.mock?.lastCall?.[1]).toMatchSnapshot()
+			},
+		)
 
 		it('should respect vitepress base option when generating output paths', async () => {
 			const configWithBase = {

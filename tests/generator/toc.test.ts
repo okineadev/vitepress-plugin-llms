@@ -34,7 +34,7 @@ describe('generateTOC', () => {
 		)
 	})
 
-	it('organizes TOC based on sidebar configuration', async () => {
+	it.serial('organizes TOC based on sidebar configuration', async () => {
 		const files = preparedFilesSample.slice(1)
 		const toc = await generateTOC(files, {
 			outDir,
@@ -44,7 +44,7 @@ describe('generateTOC', () => {
 		expect(toc).toMatchSnapshot()
 	})
 
-	it('handles object-based sidebar configuration correctly', async () => {
+	it.serial('handles object-based sidebar configuration correctly', async () => {
 		const files = preparedFilesSample.slice(1)
 		const toc = await generateTOC(files, {
 			outDir,
@@ -54,7 +54,7 @@ describe('generateTOC', () => {
 		expect(toc).toMatchSnapshot()
 	})
 
-	it('handles object-based sidebar with base options configuration correctly', async () => {
+	it.serial('handles object-based sidebar with base options configuration correctly', async () => {
 		const files = preparedFilesSample
 		const toc = await generateTOC(files, {
 			outDir,
@@ -64,7 +64,7 @@ describe('generateTOC', () => {
 		expect(toc).toMatchSnapshot()
 	})
 
-	it('appends the specified `linksExtension` to the generated links', async () => {
+	it.serial('appends the specified `linksExtension` to the generated links', async () => {
 		const toc = await generateTOC(preparedFilesSample.slice(1), {
 			outDir,
 			linksExtension: '.html',
@@ -73,7 +73,7 @@ describe('generateTOC', () => {
 		expect(toc).toMatchSnapshot()
 	})
 
-	it('correctly generates TOC with links that are not in any section', async () => {
+	it.serial('correctly generates TOC with links that are not in any section', async () => {
 		expect(
 			await generateTOC(preparedFilesSample.slice(1), {
 				outDir,
@@ -169,7 +169,7 @@ describe('generateTOC', () => {
 		expect(toc).toContain('### Test Section')
 	})
 
-	it('resolves paths with common prefixes correctly', async () => {
+	it.serial('resolves paths with common prefixes correctly', async () => {
 		const toc = await generateTOC(preparedFilesWithCommonPrefixSample, {
 			outDir,
 			sidebarConfig: sampleObjectVitePressSidebarWithCommonPrefix,
@@ -178,7 +178,7 @@ describe('generateTOC', () => {
 		expect(toc).toMatchSnapshot()
 	})
 
-	it('resolves paths with base options', async () => {
+	it.serial('resolves paths with base options', async () => {
 		const toc = await generateTOC(preparedFilesWithCommonPrefixSample, {
 			outDir,
 			base: '/docs',
@@ -188,7 +188,7 @@ describe('generateTOC', () => {
 		expect(toc).toMatchSnapshot()
 	})
 
-	it('resolves paths with base options and base sections', async () => {
+	it.serial('resolves paths with base options and base sections', async () => {
 		const toc = await generateTOC(preparedFilesSample, {
 			outDir,
 			base: '/docs',
@@ -241,7 +241,7 @@ describe('isPathMatch', () => {
 })
 
 describe('generateTOC with directoryFilter', () => {
-	it('should include all files when directoryFilter is "." (root)', async () => {
+	it.serial('should include all files when directoryFilter is "." (root)', async () => {
 		const result = await generateTOC(preparedFilesSample, {
 			outDir,
 			directoryFilter: '.',
@@ -249,7 +249,7 @@ describe('generateTOC with directoryFilter', () => {
 		expect(result).toMatchSnapshot()
 	})
 
-	it('should filter files by directory when directoryFilter is specified', async () => {
+	it.serial('should filter files by directory when directoryFilter is specified', async () => {
 		const result = await generateTOC(preparedFilesSample, {
 			outDir,
 			directoryFilter: 'test',

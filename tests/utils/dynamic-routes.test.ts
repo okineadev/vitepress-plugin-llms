@@ -1,16 +1,6 @@
-import { describe, expect, it, mock } from 'bun:test'
+import { describe, expect, it } from 'bun:test'
 import dedent from 'dedent'
 import matter from 'gray-matter'
-
-// Mock node:fs/promises before importing
-const mockReadFile = mock()
-
-mock.module('node:fs/promises', () => ({
-	default: {
-		readFile: mockReadFile,
-	},
-	readFile: mockReadFile,
-}))
 
 // @ts-ignore
 import { processVPParams } from '@/utils/dynamic-routes'

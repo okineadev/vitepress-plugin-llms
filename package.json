@@ -1,7 +1,7 @@
 {
 	"name": "vitepress-plugin-llms",
 	"description": "📜 A VitePress plugin for generating LLM-friendly documentation",
-	"version": "1.8.1",
+	"version": "1.9.0",
 	"license": "MIT",
 	"author": "Okinea Dev <hi@okinea.dev> (https://github.com/okineadev)",
 	"repository": {

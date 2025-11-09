@@ -85,7 +85,7 @@ function downloadMarkdown() {
 	transition: background 0.2s, border 0.2s;
 }
 .markdown-copy-buttons button:hover {
-	color: white;
+	color: var(--vp-c-neutral);
 }
 .markdown-copy-buttons img {
 	vertical-align: middle;

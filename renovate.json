@@ -13,20 +13,21 @@
 		{
 			"matchManagers": ["npm"],
 			"matchDepTypes": ["dependencies"],
-			"groupName": "deps",
-			"commitMessagePrefix": "chore(deps):",
-			"labels": ["📦 dependencies"]
+			"groupName": "dependencies",
+			"groupSlug": "deps",
+			"commitMessagePrefix": "chore(deps):"
 		},
 		{
 			"matchManagers": ["npm"],
 			"matchDepTypes": ["devDependencies"],
-			"groupName": "deps-dev",
-			"commitMessagePrefix": "chore(deps-dev):",
-			"labels": ["📦 dependencies"]
+			"groupName": "devDependencies",
+			"groupSlug": "deps-dev",
+			"commitMessagePrefix": "chore(deps-dev):"
 		},
 		{
 			"matchManagers": ["github-actions"],
-			"groupName": "github-actions",
+			"groupName": "GitHub Actions",
+			"groupSlug": "github-actions",
 			"commitMessagePrefix": "chore(actions):",
 			"labels": ["🔄 workflows"]
 		},

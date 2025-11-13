@@ -6,14 +6,28 @@ on:
   issues:
     types: [opened]
 
+# Minimal read permissions at workflow level
 permissions:
-  issues: write
-  pull-requests: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   label:
     name: is-sponsor-label
     runs-on: ubuntu-latest
+
+    concurrency:
+      group: label-sponsors-${{ github.event.number }}
+      cancel-in-progress: true
+
+    permissions:
+      contents: read
+      issues: write # Required to add labels to issues
+      pull-requests: write # Required to add labels to pull requests
+
     steps:
       - uses: JasonEtco/is-sponsor-label-action@565f3cb67b3518a8aae36c3f0bce9e8513430e84 # v2
         with:

@@ -5,14 +5,23 @@ on:
     types:
       - closed
 
+# Minimal read permissions at workflow level
 permissions:
   contents: read
-  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   thank-you:
+    name: Post thank you comment
     runs-on: ubuntu-latest
     if: ${{ github.event.pull_request.merged == true && github.event.pull_request.user.login != 'renovate[bot]' }}
+
+    permissions:
+      contents: read
+      pull-requests: write # Required to post comments on pull requests
 
     steps:
       - name: 🙏 Post Thank You Comment

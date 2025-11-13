@@ -15,6 +15,14 @@ on:
         default: false
         type: boolean
 
+# Minimal read permissions at workflow level
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     if: github.event.inputs.run-tests == 'true'
@@ -30,9 +38,9 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      id-token: write
-      contents: write
-      attestations: write
+      id-token: write # Required for OIDC authentication with NPM
+      contents: write # Required for creating tags and releases
+      attestations: write # Required for signing artifacts with GitHub attestations
 
     steps:
       - name: 🔐 Authentication for pushing to the main branch
@@ -70,7 +78,7 @@ jobs:
       - name: 📜 Generate changelog and create GitHub release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bunx gitpaper@^0.0.1 --release
+        run: bunx npx https://pkg.pr.new/gitpaper@e7cac21 --release
 
       - name: 📦 Publish to NPM Registry
         run: bunx npm@latest publish

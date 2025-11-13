@@ -1,13 +1,23 @@
-name: CodeQL
+name: CodeQL # zizmor: ignore[concurrency-limits]
 
 on: [workflow_dispatch]
+
+# Minimal read permissions
+permissions:
+  contents: read
 
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
+
+    concurrency:
+      group: codeql-${{ matrix.language }}-${{ github.ref }}
+      cancel-in-progress: true
+
     permissions:
-      security-events: write
+      contents: read
+      security-events: write # Required for uploading CodeQL security findings
 
     strategy:
       fail-fast: false
@@ -37,4 +47,4 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@42642085de2a94da10d5b87c0c7b9f51e147aa1f
         with:
-          category: "/language:${{matrix.language}}"
+          category: '/language:${{matrix.language}}'

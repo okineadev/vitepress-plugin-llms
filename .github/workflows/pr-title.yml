@@ -6,11 +6,19 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint-pr-title:
+    name: Lint PR title
     runs-on: ubuntu-latest
 
     if: ${{ (github.event.action == 'opened' || github.event.changes.title != null) && github.actor != 'renovate[bot]' }}
+
+    permissions:
+      contents: read
 
     steps:
       - name: 📥 Checkout

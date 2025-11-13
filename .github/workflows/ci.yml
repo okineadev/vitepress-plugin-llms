@@ -15,7 +15,7 @@ on:
       - bunfig.toml
       - cspell.yml
       - tsconfig*.json
-      - "!**/*.md"
+      - '!**/*.md'
 
   pull_request:
     paths:
@@ -30,7 +30,7 @@ on:
       - bunfig.toml
       - cspell.yml
       - tsconfig*.json
-      - "!**/*.md"
+      - '!**/*.md'
 
   workflow_dispatch:
     inputs:
@@ -41,8 +41,12 @@ on:
         required: false
 
 concurrency:
-  group: tests-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
+# Minimal permissions for the entire workflow
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -58,7 +62,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.repository.full_name == 'okineadev/vitepress-plugin-llms'
 
-    permissions: {}
+    # Read-only access to checkout code
+    permissions:
+      contents: read
 
     steps:
       - name: 📥 Checkout

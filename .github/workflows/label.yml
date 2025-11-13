@@ -5,16 +5,25 @@ name: 🔖 Labeler
 
 on: [pull_request_target] # zizmor: ignore[dangerous-triggers]
 
+# Minimal read permissions at workflow level
 permissions:
   contents: read
-  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   label:
+    name: Auto-label PR
     runs-on: ubuntu-latest
     if: ${{ github.actor != 'renovate[bot]' }}
+
+    permissions:
+      contents: read
+      pull-requests: write # Required to add labels to pull requests
 
     steps:
       - uses: actions/labeler@634933edcd8ababfe52f92936142cc22ac488b1b # v6.0.1
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          repo-token: '${{ secrets.GITHUB_TOKEN }}'

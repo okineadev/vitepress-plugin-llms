@@ -1,3 +1,5 @@
+name: Tests
+
 on:
   workflow_call:
     inputs:
@@ -7,6 +9,10 @@ on:
         default: false
 
 permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -18,9 +24,12 @@ jobs:
           - ubuntu-latest
           - ${{ inputs.run-on-windows && 'windows-latest' || '' }}
         exclude:
-          - os: ""
+          - os: ''
 
     runs-on: ${{ matrix.os }}
+
+    permissions:
+      contents: read
 
     steps:
       - name: 📥 Checkout
@@ -56,7 +65,7 @@ jobs:
           restore-keys: ${{ matrix.os }}-bun-cache-
 
       - name: 📦 Install dependencies
-        run: bun install --frozen-lockfile --prefer-offline --ignore-scripts
+        run: bun ci --prefer-offline --ignore-scripts
 
       - name: 🗞️ Lint
         run: bun run lint

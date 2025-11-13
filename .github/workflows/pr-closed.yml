@@ -5,9 +5,7 @@ on:
     types:
       - closed
 
-# Minimal read permissions at workflow level
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

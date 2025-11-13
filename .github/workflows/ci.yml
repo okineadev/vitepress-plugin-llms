@@ -44,14 +44,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-# Minimal permissions for the entire workflow
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   test:
-    permissions: {}
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    permissions:
+      contents: read
     uses: ./.github/workflows/tests.yml
     with:
       run-on-windows: ${{ inputs.run-on-windows || contains(github.event.head_commit.message, '[test windows]') }}
@@ -61,10 +60,6 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.event.repository.full_name == 'okineadev/vitepress-plugin-llms'
-
-    # Read-only access to checkout code
-    permissions:
-      contents: read
 
     steps:
       - name: 📥 Checkout

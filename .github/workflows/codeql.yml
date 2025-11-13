@@ -2,9 +2,7 @@ name: CodeQL # zizmor: ignore[concurrency-limits]
 
 on: [workflow_dispatch]
 
-# Minimal read permissions
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   analyze:

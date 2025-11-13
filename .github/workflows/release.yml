@@ -78,7 +78,7 @@ jobs:
       - name: 📜 Generate changelog and create GitHub release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bunx npx https://pkg.pr.new/gitpaper@e7cac21 --release
+        run: bunx gitpaper@^0.0.1 --release
 
       - name: 📦 Publish to NPM Registry
         run: bunx npm@latest publish

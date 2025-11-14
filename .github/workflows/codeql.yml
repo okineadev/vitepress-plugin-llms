@@ -37,12 +37,12 @@ jobs:
             src/
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@42642085de2a94da10d5b87c0c7b9f51e147aa1f
+        uses: github/codeql-action/init@85f1517bb46a9e4d5e1ad15a6ef251b3124ba42b
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@42642085de2a94da10d5b87c0c7b9f51e147aa1f
+        uses: github/codeql-action/analyze@85f1517bb46a9e4d5e1ad15a6ef251b3124ba42b
         with:
           category: '/language:${{matrix.language}}'

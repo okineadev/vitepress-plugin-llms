@@ -39,6 +39,7 @@ jobs:
           sparse-checkout-cone-mode: false
           # Download only the necessary files
           sparse-checkout: |
+            patches/
             src/
             tests/
             .gitignore

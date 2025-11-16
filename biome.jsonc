@@ -7,7 +7,6 @@
 	},
 	"files": {
 		"ignoreUnknown": true,
-		"experimentalScannerIgnores": ["**/bun.lock"],
 		"includes": ["**", "!**/bun.lock"]
 	},
 	"formatter": {

@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import matter from 'gray-matter'
-import type { Html, Root } from 'mdast'
+import type { Code, Root, RootContent } from 'mdast'
 import { fromMarkdown } from 'mdast-util-from-markdown'
 import { visit } from 'unist-util-visit'
 import type { VFile } from 'vfile'
@@ -12,13 +12,6 @@ interface IncludeOptions {
 	 * Source directory for resolving @ prefixed paths
 	 */
 	srcDir: string
-
-	/**
-	 * Whether to remove frontmatter from .md files
-	 *
-	 * @default true
-	 */
-	stripFrontmatter?: boolean
 }
 
 interface ProcessingOptions extends IncludeOptions {
@@ -152,13 +145,7 @@ function dedent(text: string): string {
 /**
  * Process includes recursively (VitePress algorithm)
  */
-function processIncludes({
-	srcDir,
-	content,
-	filePath,
-	includes,
-	stripFrontmatter,
-}: ProcessingOptions): string {
+function processIncludes({ srcDir, content, filePath, includes }: ProcessingOptions): string {
 	return content.replace(includesRE, (m: string, m1: string) => {
 		if (!m1.length) return m
 
@@ -207,14 +194,14 @@ function processIncludes({
 			}
 
 			// Strip frontmatter from .md files if no meta info present
-			if (!hasMeta && path.extname(includePath) === '.md' && stripFrontmatter) {
+			if (!hasMeta && path.extname(includePath) === '.md') {
 				content = matter(content).content
 			}
 
 			includes.push(includePath)
 
 			// Recursively process includes in the content
-			return processIncludes({ srcDir, content, filePath, includes, stripFrontmatter })
+			return processIncludes({ srcDir, content, filePath, includes })
 		} catch (_error) {
 			log.warn(`[remark-include] Include file not found: ${m1}`)
 
@@ -226,13 +213,9 @@ function processIncludes({
 /**
  * Process code snippets (VitePress <<< syntax)
  */
-function processSnippets({
-	srcDir,
-	content,
-	filePath,
-	includes,
-}: Omit<ProcessingOptions, 'stripFrontmatter'>): string {
-	return content.replace(snippetRE, (m: string, rawPath: string) => {
+function processSnippets({ srcDir, content, filePath, includes }: ProcessingOptions): Code | undefined {
+	let codeNode: Code | undefined
+	content.replace(snippetRE, (m: string, rawPath: string) => {
 		if (!rawPath.length) return m
 
 		// Handle @ prefix first, then parse the rest
@@ -251,16 +234,16 @@ function processSnippets({
 				throw new Error(`Snippet file not found: ${snippetPath}`)
 			}
 
-			let content = fs.readFileSync(snippetPath, 'utf-8').replace(/\r\n/g, '\n')
+			let codeContent = fs.readFileSync(snippetPath, 'utf-8').replace(/\r\n/g, '\n')
 
 			// Handle region selection
 			if (region) {
 				const regionName = region.slice(1)
-				const contentLines = content.split('\n')
+				const contentLines = codeContent.split('\n')
 				const regionData = findRegion(contentLines, regionName)
 
 				if (regionData) {
-					content = dedent(
+					codeContent = dedent(
 						contentLines
 							.slice(regionData.start, regionData.end)
 							.filter((l) => !(regionData.re.start.test(l) || regionData.re.end.test(l)))
@@ -271,25 +254,28 @@ function processSnippets({
 
 			includes.push(snippetPath)
 
-			// Create code block info string'
-			const info =
-				`${lang || extension}${lines && `{${lines}}`}${title && `[${title}]`}${attrs && ` ${attrs}`}`.trim()
+			const infoLang = lang || extension || null
+			const infoMeta =
+				`${lines && `{${lines}}`}${title && `[${title}]`}${attrs && ` ${attrs}`}`.trim() || null
 
-			return `\`\`\`${info}\n${content}\n\`\`\``
+			codeNode = {
+				type: 'code',
+				lang: infoLang,
+				meta: infoMeta,
+				value: codeContent,
+			}
 		} catch (_error) {
-			const errorMsg = `Snippet file not found: ${rawPath}`
-
-			log.warn(`[remark-include] ${errorMsg}`)
-
-			return m
+			log.warn(`[remark-include] Snippet file not found: ${rawPath}`)
 		}
+		return m
 	})
+	return codeNode
 }
 
 /**
  * Remark plugin for markdown file inclusion and code snippets (VitePress-style)
  */
-function remarkInclude({ srcDir, stripFrontmatter }: IncludeOptions) {
+function remarkInclude({ srcDir }: IncludeOptions) {
 	return () =>
 		(tree: Root, file: VFile): void => {
 			const includes: string[] = []
@@ -297,48 +283,41 @@ function remarkInclude({ srcDir, stripFrontmatter }: IncludeOptions) {
 			visit(tree, (node, index, parent) => {
 				if (!parent || typeof index !== 'number') return
 
-				// Process HTML nodes (where comments live)
-				if (node.type === 'html' && includesRE.test(node.value)) {
-					includesRE.lastIndex = 0
-					const processedValue = processIncludes({
-						srcDir,
-						content: node.value,
-						filePath: file.path,
-						includes,
-						stripFrontmatter,
-					})
+				const isIncludeNode = node.type === 'html' && includesRE.test(node.value)
+				const isSnippetNode = node.type === 'text' && snippetRE.test(node.value)
 
-					if (processedValue !== node.value) {
-						parent.children.splice(index, 1, ...fromMarkdown(processedValue).children)
+				if (isIncludeNode || isSnippetNode) {
+					let processedValue: Code | string | undefined
+
+					if (isIncludeNode) {
+						processedValue = processIncludes({
+							srcDir,
+							content: node.value,
+							filePath: file.path,
+							includes,
+						})
+					} else if (isSnippetNode) {
+						processedValue = processSnippets({
+							srcDir,
+							content: node.value,
+							filePath: file.path,
+							includes,
+						})
 					}
-				}
 
-				// Process text nodes for snippets
-				if (node.type === 'text' && snippetRE.test(node.value)) {
-					snippetRE.lastIndex = 0
-					const processedValue = processSnippets({
-						srcDir,
-						content: node.value,
-						filePath: file.path,
-						includes,
-					})
-
-					if (processedValue !== node.value) {
-						// Replace the text node with a code block
-						const newNode: Html = {
-							// raw paste
-							type: 'html',
-							value: processedValue,
+					if (processedValue) {
+						if (typeof processedValue === 'string') {
+							if (processedValue !== (node as { value: string }).value) {
+								parent.children.splice(index, 1, ...fromMarkdown(processedValue).children)
+							}
+						} else {
+							parent.children.splice(index, 1, processedValue as RootContent)
 						}
-						parent.children[index] = newNode
 					}
 				}
 			})
 
-			// Attach includes to file for dependency tracking (like VitePress)
-			if (file.data) {
-				file.data['includes'] = includes
-			}
+			if (file.data) file.data['includes'] = includes
 		}
 }
 

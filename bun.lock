@@ -40,6 +40,9 @@
     "esbuild",
     "@biomejs/biome",
   ],
+  "patchedDependencies": {
+    "mdast-util-to-markdown@2.1.2": "patches/mdast-util-to-markdown@2.1.2.patch",
+  },
   "packages": {
     "@algolia/abtesting": ["@algolia/abtesting@1.7.0", "", { "dependencies": { "@algolia/client-common": "5.41.0", "@algolia/requester-browser-xhr": "5.41.0", "@algolia/requester-fetch": "5.41.0", "@algolia/requester-node-http": "5.41.0" } }, "sha512-hOEItTFOvNLI6QX6TSGu7VE4XcUcdoKZT8NwDY+5mWwu87rGhkjlY7uesKTInlg6Sh8cyRkDBYRumxbkoBbBhA=="],
 

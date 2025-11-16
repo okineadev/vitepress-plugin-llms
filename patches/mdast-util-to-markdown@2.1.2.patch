@@ -1,0 +1,21 @@
+diff --git a/lib/handle/code.js b/lib/handle/code.js
+index 6807cb1bc34e742e993e3a27364408a7ca1ee5a5..43174757014dfe7ccd297bc8bf396edf59423ab6 100644
+--- a/lib/handle/code.js
++++ b/lib/handle/code.js
+@@ -46,15 +46,7 @@ export function code(node, _, state, info) {
+ 
+   if (node.lang && node.meta) {
+     const subexit = state.enter(`codeFencedMeta${suffix}`)
+-    value += tracker.move(' ')
+-    value += tracker.move(
+-      state.safe(node.meta, {
+-        before: value,
+-        after: '\n',
+-        encode: ['`'],
+-        ...tracker.current()
+-      })
+-    )
++    value += tracker.move(node.meta)
+     subexit()
+   }
+ 

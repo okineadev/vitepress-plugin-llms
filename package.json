@@ -78,5 +78,8 @@
 	"trustedDependencies": [
 		"@biomejs/biome",
 		"esbuild"
-	]
+	],
+	"patchedDependencies": {
+		"mdast-util-to-markdown@2.1.2": "patches/mdast-util-to-markdown@2.1.2.patch"
+	}
 }

@@ -4,37 +4,28 @@
 		"config:recommended",
 		"helpers:pinGitHubActionDigests",
 		"security:minimumReleaseAgeNpm",
-		":gitSignOff"
+		":gitSignOff",
+		":semanticCommits"
 	],
-	"commitMessageLowerCase": "auto",
-	"commitMessagePrefix": "chore(deps):",
 	"labels": ["📦 dependencies"],
+	"patch": { "enabled": false },
 	"packageRules": [
 		{
-			"matchManagers": ["npm"],
+			"matchManagers": ["bun"],
 			"matchDepTypes": ["dependencies"],
-			"groupName": "dependencies",
-			"groupSlug": "deps",
-			"commitMessagePrefix": "chore(deps):"
+			"groupName": "dependencies"
 		},
 		{
-			"matchManagers": ["npm"],
+			"matchManagers": ["bun"],
 			"matchDepTypes": ["devDependencies"],
 			"groupName": "devDependencies",
-			"groupSlug": "deps-dev",
 			"commitMessagePrefix": "chore(deps-dev):"
 		},
 		{
 			"matchManagers": ["github-actions"],
 			"groupName": "GitHub Actions",
-			"groupSlug": "github-actions",
 			"commitMessagePrefix": "chore(actions):",
 			"labels": ["🔄 workflows"]
-		},
-		{
-			"matchUpdateTypes": ["patch"],
-			"enabled": false,
-			"matchPackageNames": ["*"]
 		},
 		{
 			"matchPackageNames": ["@types/node", "bun-types", "vitepress"],

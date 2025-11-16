@@ -25,6 +25,8 @@ concurrency:
 jobs:
   test:
     if: github.event.inputs.run-tests == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/tests.yml
     with:
       run-on-windows: true

@@ -9,5 +9,5 @@ export default defineConfig({
 		splitting: true,
 	},
 	banner: '// Built with bunup (https://bunup.dev)',
-	plugins: [copy(['src/vitepress-components/*.vue'], 'dist/vitepress-components')],
+	plugins: [copy(['src/vitepress-components/*.vue']).to('vitepress-components')],
 })

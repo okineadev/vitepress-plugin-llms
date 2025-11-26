@@ -521,8 +521,10 @@ This is a test page.`
 					...mockConfig,
 					vitepress: {
 						...mockConfig.vitepress,
-						rewrites: {
-							'docs/guide/:path(.*)': 'guide/:path',
+						userConfig: {
+							rewrites: {
+								'docs/guide/:path(.*)': 'guide/:path',
+							},
 						},
 					},
 				}
@@ -547,8 +549,10 @@ This is a test page.`
 					...mockConfig,
 					vitepress: {
 						...mockConfig.vitepress,
-						rewrites: {
-							'docs/guide/index.md': 'guide.md',
+						userConfig: {
+							rewrites: {
+								'docs/guide/index.md': 'guide.md',
+							},
 						},
 					},
 				}
@@ -576,8 +580,10 @@ This is a test page.`
 					...mockConfig,
 					vitepress: {
 						...mockConfig.vitepress,
-						rewrites: {
-							'docs/guide/index.md': 'guide.md',
+						userConfig: {
+							rewrites: {
+								'docs/guide/index.md': 'guide.md',
+							},
 						},
 					},
 				}
@@ -598,6 +604,55 @@ This is a test page.`
 				expect(result).toContain('/guide.md')
 				expect(result).not.toContain('/guide/index.md')
 			})
+		})
+
+		it('should apply rewrites when rewrites is a function', async () => {
+			const configWithFunctionRewrites = {
+				...mockConfig,
+				vitepress: {
+					...mockConfig.vitepress,
+					userConfig: {
+						rewrites: (filepath: string) => {
+							if (filepath.endsWith('docs/guide/index.md')) return 'guide.md'
+							if (filepath.endsWith('docs/api/reference.md')) return 'api.md'
+							return filepath.replace(/^docs\//, '')
+						},
+					},
+				},
+			}
+
+			plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMsTxt: false })
+			// @ts-ignore
+			plugin[1].configResolved(configWithFunctionRewrites)
+
+			await Promise.all([
+				// @ts-ignore
+				plugin[0].transform(fakeMarkdownDocument, 'docs/guide/index.md'),
+				// @ts-ignore
+				plugin[0].transform(fakeMarkdownDocument, 'docs/api/reference.md'),
+				// @ts-ignore
+				plugin[0].transform(fakeMarkdownDocument, 'docs/otherdocs/page.md'),
+			])
+			// @ts-ignore
+			await plugin[1].generateBundle()
+
+			expect(writeFile).toHaveBeenCalledTimes(3)
+
+			expect(writeFile).nthCalledWith(
+				1,
+				path.resolve(mockConfig.vitepress.outDir, 'guide.md'),
+				'---\nurl: /guide.md\n---\n# Some cool stuff\n',
+			)
+			expect(writeFile).nthCalledWith(
+				2,
+				path.resolve(mockConfig.vitepress.outDir, 'api.md'),
+				'---\nurl: /api.md\n---\n# Some cool stuff\n',
+			)
+			expect(writeFile).nthCalledWith(
+				3,
+				path.resolve(mockConfig.vitepress.outDir, 'otherdocs', 'page.md'),
+				'---\nurl: /otherdocs/page.md\n---\n# Some cool stuff\n',
+			)
 		})
 
 		describe('experimental depth option', () => {

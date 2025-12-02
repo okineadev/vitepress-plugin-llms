@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { compile, match } from 'path-to-regexp'
+import { compile, match, parse } from 'path-to-regexp'
 import type { VitePressConfig } from '@/internal-types'
 
 /**
@@ -20,17 +20,18 @@ export function resolveOutputFilePath(
 	rewrites: VitePressConfig['rewrites'] = {},
 ): string {
 	let resolvedRewrite: string | undefined
+	const relativePath = path.relative(workDir, file)
 
 	// Handle function-based rewrites
 	if (typeof rewrites === 'function') {
-		const resolvedFilePath = rewrites(file)
+		const resolvedFilePath = rewrites(relativePath)
 		if (resolvedFilePath) resolvedRewrite = resolvedFilePath
 	}
 	// Handle object-based rewrites
 	else if (rewrites && typeof rewrites === 'object') {
 		// First try exact match (static rewrites)
-		if (file in rewrites) {
-			resolvedRewrite = rewrites[file]
+		if (relativePath in rewrites) {
+			resolvedRewrite = rewrites[relativePath]
 		} else {
 			// Try dynamic pattern matching
 			for (const [pattern, replacement] of Object.entries(rewrites)) {
@@ -41,11 +42,22 @@ export function resolveOutputFilePath(
 
 				try {
 					const matcher = match(pattern)
-					const result = matcher(file)
+					const result = matcher(relativePath)
 
 					if (result) {
+						// Adjusts compatibility with older versions (< v8) of path-to-regexp
+						const replacementPath = replacement.replace(/:([^/?]+)\*/g, '*$1').replace(/:([^/?]+)\+/g, '*$1')
+
+						for (const token of parse(replacementPath).tokens) {
+							if (token.type === 'wildcard') {
+								const param = result.params[token.name]
+								// Adjusts params to work with wildcards with only one position
+								result.params[token.name] = typeof param === 'string' ? [param] : param
+							}
+						}
+
 						// Compile the replacement pattern with matched parameters
-						const compileFn = compile(replacement)
+						const compileFn = compile(replacementPath)
 						resolvedRewrite = compileFn(result.params)
 						break
 					}

@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { compile, match, parse } from 'path-to-regexp'
+import { compile, match } from 'path-to-regexp'
 import type { VitePressConfig } from '@/internal-types'
 
 /**
@@ -45,19 +45,8 @@ export function resolveOutputFilePath(
 					const result = matcher(relativePath)
 
 					if (result) {
-						// Adjusts compatibility with older versions (< v8) of path-to-regexp
-						const replacementPath = replacement.replace(/:([^/?]+)\*/g, '*$1').replace(/:([^/?]+)\+/g, '*$1')
-
-						for (const token of parse(replacementPath).tokens) {
-							if (token.type === 'wildcard') {
-								const param = result.params[token.name]
-								// Adjusts params to work with wildcards with only one position
-								result.params[token.name] = typeof param === 'string' ? [param] : param
-							}
-						}
-
 						// Compile the replacement pattern with matched parameters
-						const compileFn = compile(replacementPath)
+						const compileFn = compile(replacement)
 						resolvedRewrite = compileFn(result.params)
 						break
 					}

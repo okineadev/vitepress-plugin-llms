@@ -35,7 +35,7 @@
 	},
 	"scripts": {
 		"lint:tsc": "tsc --noEmit -p tsconfig.node.json",
-		"lint:biome": "biome check",
+		"lint:biome": "if [ -n \"$CI\" ]; then biome ci; else biome check; fi",
 		"lint:spell": "cspell --gitignore .",
 		"lint": "bun run lint:tsc && bun run lint:biome && bun run lint:spell",
 		"format": "biome format --write",

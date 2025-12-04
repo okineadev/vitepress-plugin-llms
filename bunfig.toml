@@ -4,5 +4,6 @@ bun = true
 [loader]
 ".md" = "text"
 
-# [test]
+[test]
+preload = "console-fail-test/setup.mjs"
 # coverage = true

@@ -52,7 +52,7 @@
 		"mdast-util-from-markdown": "^2.0.2",
 		"millify": "^6.1.0",
 		"minimatch": "^10.0.3",
-		"path-to-regexp": "^8.3.0",
+		"path-to-regexp": "^6.3.0",
 		"picocolors": "^1.1.1",
 		"pretty-bytes": "^7.0.1",
 		"remark": "^15.0.1",

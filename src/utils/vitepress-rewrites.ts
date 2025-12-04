@@ -20,17 +20,18 @@ export function resolveOutputFilePath(
 	rewrites: VitePressConfig['rewrites'] = {},
 ): string {
 	let resolvedRewrite: string | undefined
+	const relativePath = path.relative(workDir, file)
 
 	// Handle function-based rewrites
 	if (typeof rewrites === 'function') {
-		const resolvedFilePath = rewrites(file)
+		const resolvedFilePath = rewrites(relativePath)
 		if (resolvedFilePath) resolvedRewrite = resolvedFilePath
 	}
 	// Handle object-based rewrites
 	else if (rewrites && typeof rewrites === 'object') {
 		// First try exact match (static rewrites)
-		if (file in rewrites) {
-			resolvedRewrite = rewrites[file]
+		if (relativePath in rewrites) {
+			resolvedRewrite = rewrites[relativePath]
 		} else {
 			// Try dynamic pattern matching
 			for (const [pattern, replacement] of Object.entries(rewrites)) {
@@ -41,7 +42,7 @@ export function resolveOutputFilePath(
 
 				try {
 					const matcher = match(pattern)
-					const result = matcher(file)
+					const result = matcher(relativePath)
 
 					if (result) {
 						// Compile the replacement pattern with matched parameters

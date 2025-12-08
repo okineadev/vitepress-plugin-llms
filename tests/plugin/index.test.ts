@@ -25,6 +25,7 @@ describe('llmstxt plugin', () => {
 	let plugin: [Plugin, Plugin]
 	let mockConfig: VitePressConfig
 	let mockServer: ViteDevServer
+	let workDir: string
 
 	beforeEach(() => {
 		// Reset mock call counts
@@ -53,6 +54,7 @@ describe('llmstxt plugin', () => {
 
 		// Initialize plugin
 		plugin = llmstxt()
+		workDir = path.resolve(mockConfig.vitepress.srcDir)
 	})
 
 	afterEach(() => readFile.mockReset())
@@ -482,8 +484,8 @@ This is a test page.`
 						...mockConfig.vitepress,
 						userConfig: {
 							rewrites: {
-								'docs/guide/index.md': 'guide.md',
-								'docs/api/reference.md': 'api.md',
+								'guide/index.md': 'guide.md',
+								'api/reference.md': 'api.md',
 							},
 						},
 					},
@@ -495,9 +497,9 @@ This is a test page.`
 
 				await Promise.all([
 					// @ts-ignore
-					plugin[0].transform(fakeMarkdownDocument, 'docs/guide/index.md'),
+					plugin[0].transform(fakeMarkdownDocument, path.resolve(workDir, 'guide/index.md')),
 					// @ts-ignore
-					plugin[0].transform(fakeMarkdownDocument, 'docs/api/reference.md'),
+					plugin[0].transform(fakeMarkdownDocument, path.resolve(workDir, 'api/reference.md')),
 				])
 				// @ts-ignore
 				await plugin[1].generateBundle()
@@ -613,8 +615,8 @@ This is a test page.`
 					...mockConfig.vitepress,
 					userConfig: {
 						rewrites: (filepath: string) => {
-							if (filepath.endsWith('docs/guide/index.md')) return 'guide.md'
-							if (filepath.endsWith('docs/api/reference.md')) return 'api.md'
+							if (filepath.endsWith('guide/index.md')) return 'guide.md'
+							if (filepath.endsWith('api/reference.md')) return 'api.md'
 							return filepath.replace(/^docs\//, '')
 						},
 					},
@@ -627,11 +629,11 @@ This is a test page.`
 
 			await Promise.all([
 				// @ts-ignore
-				plugin[0].transform(fakeMarkdownDocument, 'docs/guide/index.md'),
+				plugin[0].transform(fakeMarkdownDocument, path.resolve(workDir, 'guide/index.md')),
 				// @ts-ignore
-				plugin[0].transform(fakeMarkdownDocument, 'docs/api/reference.md'),
+				plugin[0].transform(fakeMarkdownDocument, path.resolve(workDir, 'api/reference.md')),
 				// @ts-ignore
-				plugin[0].transform(fakeMarkdownDocument, 'docs/otherdocs/page.md'),
+				plugin[0].transform(fakeMarkdownDocument, path.resolve(workDir, 'otherdocs/page.md')),
 			])
 			// @ts-ignore
 			await plugin[1].generateBundle()

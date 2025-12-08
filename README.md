@@ -123,51 +123,17 @@ And the link in the generated `llms.txt` will display the page description:
 - [Tailwind v4](/docs/tailwind-v4.md): How to use shadcn-vue with Tailwind v4.
 ```
 
-### Plugin Settings
+### Plugin Configuration
 
 <!-- markdownlint-capture -->
 <!-- markdownlint-disable no-inline-html -->
 
-See <a href="src/types.d.ts">`src/types.d.ts`</a> or <a href="https://deepwiki.com/okineadev/vitepress-plugin-llms"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki" align="center"/></a>
+> [!NOTE]
+> In most cases you **don't need** any additional configuration because **everything works out of the box**, but if you do need to customize it, please see your IDE hints or see <a href="src/types.d.ts">`src/types.d.ts`</a> or <a href="https://deepwiki.com/okineadev/vitepress-plugin-llms"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki" align="center"/></a>
 
 <!-- markdownlint-restore -->
 
-#### Example Configuration
-
-Here is an example of how to configure the plugin with custom settings:
-
-```ts
-import { defineConfig } from 'vitepress'
-import llmstxt from 'vitepress-plugin-llms'
-
-export default defineConfig({
-  vite: {
-    plugins: [
-      llmstxt({
-        generateLLMsFullTxt: false,
-        ignoreFiles: ['sponsors/*'],
-        customLLMsTxtTemplate: `# {title}\n\n{foo}`,
-        title: 'Awesome tool',
-        customTemplateVariables: {
-          foo: 'bar'
-        },
-        experimental: {
-          depth: 2 // Generate llms.txt and llms-full.txt in root and first-level subdirectories
-        }
-      })
-    ]
-  }
-})
-```
-
-This configuration does the following:
-
-- `generateLLMsFullTxt: false`: Disables the generation of the `llms-full.txt` file.
-- `ignoreFiles: ['sponsors/*']`: Ignores all files in the `sponsors` directory.
-- `customLLMsTxtTemplate`: Uses a custom template for the `llms.txt` file.
-- `title`: Sets a custom header in `llms.txt`, for your custom variables use `customTemplateVariables`.
-- `customTemplateVariables`: Sets custom variables for the template, replaces `{foo}` with `bar`.
-- `experimental: { depth: 2 }`: Generates both `llms.txt` and `llms-full.txt` files in the root directory and all first-level subdirectories, with each directory containing only files from that specific directory and its subdirectories.
+### Extended markup for content management
 
 #### Embedding content specifically for LLMs with `<llm-only>` tag
 

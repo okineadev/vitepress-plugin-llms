@@ -5,5 +5,5 @@ bun = true
 ".md" = "text"
 
 [test]
-preload = "console-fail-test/setup.mjs"
+preload = "console-fail-test/setup"
 # coverage = true

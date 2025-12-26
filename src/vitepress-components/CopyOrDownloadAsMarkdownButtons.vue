@@ -6,7 +6,7 @@
 				<!-- Main button -->
 				<div class="dropdown-trigger">
 					<!-- Copy area -->
-					<button class="copypage" @click="copyAsMarkdown">
+					<button class="copy-page" @click="copyAsMarkdown">
 						<span v-html="copied ? iconCheck : iconCopy" class="icon"></span>
 						<span class="label">
 							{{ copied ? 'Copied' : 'Copy page' }}
@@ -51,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+/** biome-ignore-all lint/correctness/noUnusedVariables: Biome doesn't support Vue well yet */
 import { onMounted, onUnmounted, ref } from 'vue'
 
 import iconChatGPT from './icons/chatgpt.svg?raw'
@@ -107,7 +108,9 @@ function copyAsMarkdown() {
 		.then((text) => navigator.clipboard.writeText(text))
 		.then(() => {
 			copied.value = true
-			setTimeout(() => (copied.value = false), 2000)
+			setTimeout(() => {
+				copied.value = false
+			}, 2000)
 		})
 		.catch((e) => console.error('❌ Error:', e))
 
@@ -133,7 +136,9 @@ function downloadMarkdown() {
 			const filename = resolveMarkdownPageURL(currentURL).split('/').pop() || 'page.md'
 			downloadFile(filename, text, 'text/markdown')
 			downloaded.value = true
-			setTimeout(() => (downloaded.value = false), 2000)
+			setTimeout(() => {
+				downloaded.value = false
+			}, 2000)
 		})
 		.catch((e) => console.error('❌ Error:', e))
 }
@@ -182,7 +187,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 	overflow: hidden;
 }
 
-.copypage {
+.copy-page {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -290,14 +295,14 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 	}
 
 	/* Hover zones */
-	.copypage:hover,
+	.copy-page:hover,
 	.chevron-wrapper:hover,
 	.download-btn:hover {
 		background: var(--vp-c-bg-soft);
 	}
 
 	.dropdown-trigger,
-	.copypage,
+	.copy-page,
 	.chevron-wrapper,
 	.dropdown-item,
 	.dropdown-item .icon.external,

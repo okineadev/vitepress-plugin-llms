@@ -27,3 +27,4 @@ ignorePaths:
   - tests/**/__snapshots__/
   - cspell.yml
   - LICENSE
+  - '*.svg'

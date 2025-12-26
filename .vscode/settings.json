@@ -2,7 +2,7 @@
 	// Formatter settings
 	"editor.defaultFormatter": "biomejs.biome",
 	"[json]": { "editor.defaultFormatter": "biomejs.biome" },
-	"[markdown][yaml][github-actions-workflow]": { "editor.defaultFormatter": "esbenp.prettier-vscode" }, // spellchecker:ignore esbenp
+	"[markdown][yaml][github-actions-workflow][vue]": { "editor.defaultFormatter": "esbenp.prettier-vscode" }, // spellchecker:ignore esbenp
 
 	"editor.codeActionsOnSave": {
 		"source.organizeImports.biome": "explicit",

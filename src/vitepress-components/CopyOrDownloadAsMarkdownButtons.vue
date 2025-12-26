@@ -1,93 +1,338 @@
 <template>
 	<div class="markdown-copy-buttons">
 		<div class="markdown-copy-buttons-inner">
-			<button ref="copyBtn" class="copy" @click="copyMarkdown">
-				<span v-html="copied ? iconCheck : iconCopy"></span> Copy as Markdown
-			</button>
-			<button ref="downloadBtn" class="download" @click="downloadMarkdown">
-				<span v-html="downloaded ? iconCheck : iconDownload"></span> Download as Markdown
+			<div class="dropdown-container" ref="dropdownContainer">
+				<!-- Main button -->
+				<!-- Main button -->
+				<div class="dropdown-trigger">
+					<!-- Copy area -->
+					<button class="copypage" @click="copyAsMarkdown">
+						<span v-html="copied ? iconCheck : iconCopy" class="icon"></span>
+						<span class="label">
+							{{ copied ? 'Copied' : 'Copy page' }}
+						</span>
+					</button>
+
+					<span class="divider"></span>
+
+					<!-- Chevron area -->
+					<button class="chevron-wrapper" @click.stop="toggleDropdown">
+						<span v-html="iconChevron" class="icon chevron" :class="{ open: isOpen }"></span>
+					</button>
+				</div>
+
+				<!-- Dropdown -->
+				<div v-if="isRendered" ref="dropdownMenu" class="dropdown-menu" :class="{ open: isOpen }">
+					<button class="dropdown-item" @click="viewAsMarkdown">
+						<span v-html="iconMarkdown" class="icon"></span>
+						View as Markdown
+						<span v-html="iconExternal" class="icon external"></span>
+					</button>
+
+					<button
+						v-for="provider in aiProviders"
+						:key="provider.name"
+						class="dropdown-item"
+						@click="openInAI(provider)"
+					>
+						<span v-html="provider.icon" class="icon"></span>
+						Open in {{ provider.name }}
+						<span v-html="iconExternal" class="icon external"></span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Download button -->
+			<button class="download-btn" @click="downloadMarkdown">
+				<span v-html="downloaded ? iconCheck : iconDownload" class="icon"></span>
 			</button>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-/** biome-ignore-all lint/correctness/noUnusedVariables: cuz it Vue o((>ω< ))o */
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
+
+import iconChatGPT from './icons/chatgpt.svg?raw'
+import iconCheck from './icons/check.svg?raw'
+import iconChevron from './icons/chevron.svg?raw'
+import iconClaude from './icons/claude.svg?raw'
+import iconCopy from './icons/copy.svg?raw'
+import iconDownload from './icons/download.svg?raw'
+import iconExternal from './icons/external.svg?raw'
+import iconMarkdown from './icons/markdown.svg?raw'
+
 import { downloadFile, resolveMarkdownPageURL } from './utils'
 
-//#region SVG Icons
-const iconCheck =
-	'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>'
-const iconCopy =
-	'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-icon lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>'
-const iconDownload =
-	'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download-icon lucide-download"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>'
-//#endregion
+const aiProviders = [
+	{ name: 'ChatGPT', icon: iconChatGPT, url: 'https://chatgpt.com/?hints=search&prompt=' },
+	{ name: 'Claude', icon: iconClaude, url: 'https://claude.ai/new?q=' },
+]
 
+const isOpen = ref(false)
 const copied = ref(false)
 const downloaded = ref(false)
+const dropdownContainer = ref<HTMLElement | null>(null)
+const isRendered = ref(false)
+const dropdownMenu = ref<HTMLElement | null>(null)
+
+function toggleDropdown() {
+	if (isOpen.value) {
+		// close
+		isOpen.value = false
+
+		const el = dropdownMenu.value
+		if (!el) return
+
+		const onEnd = () => {
+			isRendered.value = false
+			el.removeEventListener('transitionend', onEnd)
+		}
+
+		el.addEventListener('transitionend', onEnd)
+	} else {
+		// open
+		isRendered.value = true
+		requestAnimationFrame(() => {
+			isOpen.value = true
+		})
+	}
+}
 
 const currentURL = window.location.origin + window.location.pathname
 
-/** Copies markdown content from the current page to clipboard */
-function copyMarkdown() {
+function copyAsMarkdown() {
 	fetch(resolveMarkdownPageURL(currentURL))
-		.then((response) => response.text())
+		.then((r) => r.text())
 		.then((text) => navigator.clipboard.writeText(text))
 		.then(() => {
 			copied.value = true
-			setTimeout(() => {
-				copied.value = false
-			}, 2000)
+			setTimeout(() => (copied.value = false), 2000)
 		})
-		.catch((error) => console.error('❌ Error copying markdown:', error))
+		.catch((e) => console.error('❌ Error:', e))
+
+	isOpen.value = false
 }
 
-/** Downloads markdown content from the current page as a file */
+function viewAsMarkdown() {
+	window.open(resolveMarkdownPageURL(currentURL), '_blank')
+	isOpen.value = false
+}
+
+function openInAI(provider: (typeof aiProviders)[0]) {
+	const markdownUrl = resolveMarkdownPageURL(currentURL)
+	const prompt = `Read from ${markdownUrl} so I can ask questions about it.`
+	window.open(provider.url + encodeURIComponent(prompt), '_blank')
+	isOpen.value = false
+}
+
 function downloadMarkdown() {
-	const markdownPageUrl = resolveMarkdownPageURL(currentURL)
-	fetch(markdownPageUrl)
-		.then((response) => response.text())
+	fetch(resolveMarkdownPageURL(currentURL))
+		.then((r) => r.text())
 		.then((text) => {
-			const filename = markdownPageUrl.split('/').pop() || 'page.md'
+			const filename = resolveMarkdownPageURL(currentURL).split('/').pop() || 'page.md'
 			downloadFile(filename, text, 'text/markdown')
-
 			downloaded.value = true
-			setTimeout(() => {
-				downloaded.value = false
-			}, 2000)
+			setTimeout(() => (downloaded.value = false), 2000)
 		})
-		.catch((error) => console.error('❌ Error downloading markdown:', error))
+		.catch((e) => console.error('❌ Error:', e))
 }
+
+function handleClickOutside(event: MouseEvent) {
+	if (dropdownContainer.value && !dropdownContainer.value.contains(event.target as Node)) {
+		isOpen.value = false
+	}
+}
+
+onMounted(() => document.addEventListener('click', handleClickOutside))
+onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 </script>
 
 <style scoped>
+/* =========================
+   Layout
+========================= */
+
 .markdown-copy-buttons {
 	width: 100%;
 	display: flex;
-	justify-content: flex-start;
-	align-items: center;
 	margin-bottom: 16px;
 }
+
 .markdown-copy-buttons-inner {
 	margin: 16px 0;
 	display: flex;
-	gap: 12px;
+	gap: 8px;
+	position: relative;
 }
-.markdown-copy-buttons button {
+
+.dropdown-container {
+	position: relative;
+}
+
+.dropdown-trigger {
+	display: flex;
+	align-items: stretch;
+	background: transparent;
+	border: 1px solid var(--vp-c-divider);
 	border-radius: 6px;
+	color: var(--vp-c-text-1);
 	font-size: 14px;
-	cursor: pointer;
+	padding: 0;
+	overflow: hidden;
+}
+
+.copypage {
 	display: flex;
 	align-items: center;
-	gap: 6px;
-	transition: background 0.2s, border 0.2s;
+	gap: 8px;
+	padding: 8px 16px;
+	cursor: pointer;
+	white-space: nowrap;
+	background: transparent;
+	border: none;
 }
-.markdown-copy-buttons button:hover {
-	color: var(--vp-c-neutral);
+
+.label {
+	white-space: nowrap;
 }
-.markdown-copy-buttons img {
-	vertical-align: middle;
+
+.divider {
+	width: 1px;
+	height: 25px;
+	align-self: center;
+	background: var(--vp-c-divider);
+	opacity: 0.6;
+}
+
+.chevron-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 12px;
+	cursor: pointer;
+	background: transparent;
+	border: none;
+}
+
+.dropdown-menu {
+	position: absolute;
+	top: calc(100% + 4px);
+	left: 0;
+	min-width: 240px;
+	background: var(--vp-c-bg-elv);
+	border: 1px solid var(--vp-c-divider);
+	border-radius: 8px;
+	overflow: hidden;
+	z-index: 100;
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+
+	opacity: 0;
+	transform: translateY(-6px) scale(0.96);
+	pointer-events: none;
+}
+
+.dropdown-menu.open {
+	opacity: 1;
+	transform: translateY(0) scale(1);
+	pointer-events: auto;
+}
+
+.dropdown-item {
+	position: relative;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 16px;
+	background: transparent;
+	border: none;
+	color: var(--vp-c-text-1);
+	font-size: 14px;
+	cursor: pointer;
+	text-align: left;
+}
+
+.dropdown-item .icon.external {
+	margin-left: auto;
+	opacity: 0.6;
+}
+
+.download-btn {
+	display: flex;
+	align-items: center;
+	padding: 8px 12px;
+	background: transparent;
+	border: 1px solid var(--vp-c-divider);
+	border-radius: 6px;
+	color: var(--vp-c-text-1);
+	cursor: pointer;
+}
+
+.icon {
+	width: 18px;
+	height: 18px;
+}
+
+.chevron.open {
+	transform: rotate(180deg);
+}
+
+.dropdown-item:hover .icon.external {
+	opacity: 1;
+	transform: translateX(2px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.dropdown-menu {
+		transition: opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1), transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+		transform-origin: top;
+	}
+
+	/* Hover zones */
+	.copypage:hover,
+	.chevron-wrapper:hover,
+	.download-btn:hover {
+		background: var(--vp-c-bg-soft);
+	}
+
+	.dropdown-trigger,
+	.copypage,
+	.chevron-wrapper,
+	.dropdown-item,
+	.dropdown-item .icon.external,
+	.download-btn {
+		transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	.dropdown-trigger:hover,
+	.download-btn:hover {
+		border-color: var(--vp-c-brand-1);
+		transform: translateY(-1px);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	}
+
+	.dropdown-item::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 0;
+		height: 100%;
+		background: var(--vp-c-brand-1);
+		transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	.dropdown-item:hover {
+		padding-left: 20px;
+	}
+
+	.dropdown-item:hover::before {
+		width: 3px;
+	}
+
+	.chevron {
+		transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+	}
 }
 </style>

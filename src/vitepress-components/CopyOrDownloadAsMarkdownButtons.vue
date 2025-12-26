@@ -154,10 +154,6 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 </script>
 
 <style scoped>
-/* =========================
-   Layout
-========================= */
-
 .markdown-copy-buttons {
 	width: 100%;
 	display: flex;

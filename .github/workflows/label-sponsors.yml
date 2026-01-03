@@ -15,7 +15,7 @@ permissions: {}
 jobs:
   label:
     name: is-sponsor-label
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     concurrency:
       group: label-sponsors-${{ github.event.number }}

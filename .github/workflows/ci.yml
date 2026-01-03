@@ -60,7 +60,7 @@ jobs:
   pkg-pr-new:
     name: ⚡ pkg.pr.new
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     if: github.event.repository.full_name == 'okineadev/vitepress-plugin-llms'
 
     steps:

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
-import { resolvePageURL } from '../../src/utils/vitepress-rewrites'
-import { resolveMarkdownPageURL } from '../../src/vitepress-components/utils'
+import { resolvePageURL } from '@/utils/vitepress-rewrites'
+import { resolveMarkdownPageURL } from '@/vitepress-components/utils'
 
 describe('resolvePageURL', () => {
 	it('returns the same for index.md', () => {

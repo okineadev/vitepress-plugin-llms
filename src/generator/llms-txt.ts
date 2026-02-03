@@ -15,9 +15,6 @@ export interface GenerateLLMsTxtOptions {
 	/** Path to the main documentation file `index.md`.*/
 	indexMd: string
 
-	/** The output directory for the files. */
-	outDir: string
-
 	/** Template to use for generating `llms.txt`. */
 	LLMsTxtTemplate?: LlmstxtSettings['customLLMsTxtTemplate']
 
@@ -54,7 +51,6 @@ export async function generateLLMsTxt(
 	preparedFiles: PreparedFile[],
 	{
 		indexMd,
-		outDir,
 		LLMsTxtTemplate = defaultLLMsTxtTemplate,
 		templateVariables = {},
 		vitepressConfig,
@@ -64,38 +60,42 @@ export async function generateLLMsTxt(
 	}: GenerateLLMsTxtOptions,
 ): Promise<string> {
 	// @ts-expect-error
+	// oxlint-disable-next-line typescript/no-unsafe-call
 	matter.clearCache()
 
 	const indexMdContent = await fs.readFile(indexMd, 'utf-8')
 	const indexMdFile = matter(indexMdContent)
 
 	templateVariables.title ??=
-		indexMdFile.data?.['hero']?.name ||
-		indexMdFile.data?.['title'] ||
-		vitepressConfig?.title ||
-		vitepressConfig?.titleTemplate ||
-		extractTitle(indexMdFile) ||
+		// oxlint-disable-next-line typescript/no-unsafe-member-access
+		indexMdFile.data?.['hero']?.name ??
+		indexMdFile.data?.['title'] ??
+		vitepressConfig?.title ??
+		vitepressConfig?.titleTemplate ??
+		extractTitle(indexMdFile) ??
 		'LLMs Documentation'
 
 	templateVariables.description ??=
-		indexMdFile.data?.['hero']?.text ||
-		vitepressConfig?.description ||
-		indexMdFile?.data?.['description'] ||
+		// oxlint-disable-next-line typescript/no-unsafe-member-access
+		indexMdFile.data?.['hero']?.text ??
+		vitepressConfig?.description ??
+		indexMdFile?.data?.['description'] ??
 		indexMdFile.data?.['titleTemplate']
 
-	if (templateVariables.description) {
+	if (typeof templateVariables.description === 'string') {
 		templateVariables.description = `> ${templateVariables.description}`
 	}
 
 	templateVariables.details ??=
-		indexMdFile.data?.['hero']?.tagline ||
-		indexMdFile.data?.['tagline'] ||
-		(!templateVariables.description && 'This file contains links to all documentation sections.')
+		// oxlint-disable-next-line typescript/no-unsafe-member-access
+		indexMdFile.data?.['hero']?.tagline ??
+		indexMdFile.data?.['tagline'] ??
+		(templateVariables.description === undefined && 'This file contains links to all documentation sections.')
 
 	templateVariables.toc ??= await generateTOC(preparedFiles, {
-		outDir,
 		domain,
-		sidebarConfig: sidebar || vitepressConfig?.themeConfig?.sidebar,
+		// oxlint-disable-next-line typescript/no-unsafe-member-access
+		sidebarConfig: sidebar ?? (vitepressConfig?.themeConfig?.sidebar as DefaultTheme.Sidebar),
 		directoryFilter,
 		base: vitepressConfig?.base,
 	})

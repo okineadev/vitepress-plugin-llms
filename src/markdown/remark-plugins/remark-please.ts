@@ -39,7 +39,7 @@ function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 					}
 					if (intent === 'unwrap') {
 						const match = node.value.match(ourFullTagRegex)
-						if (match?.[1]) {
+						if (typeof match?.[1] === 'string') {
 							// Replace the node with its inner content
 							node.value = match[1].trim()
 						}
@@ -53,7 +53,11 @@ function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 					let closeIndex = index + 1
 					while (closeIndex < parent.children.length) {
 						const closeNode = parent.children[closeIndex]
-						if (closeNode && closeNode.type === 'html' && tagRegex(tag, 'closed').test(closeNode.value)) {
+						if (
+							closeNode !== undefined &&
+							closeNode.type === 'html' &&
+							tagRegex(tag, 'closed').test(closeNode.value)
+						) {
 							break
 						}
 						closeIndex++
@@ -63,6 +67,7 @@ function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 						if (intent === 'remove') {
 							// Remove all nodes from opening to closing tag (inclusive)
 							parent.children.splice(index, closeIndex - index + 1)
+							// oxlint-disable-next-line max-depth
 							if (parent.type === 'paragraph' && parent.children.length === 0) {
 								emptyParagraphs.add({ node: parent, parent })
 							}
@@ -82,8 +87,10 @@ function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 
 			// First mark paragraphs that were emptied during tag removal
 			for (const { node, parent } of emptyParagraphs) {
-				const index = parent.children.indexOf(node)
+				// oxlint-disable-next-line typescript/no-unsafe-call typescript/no-unsafe-member-access
+				const index = parent.children.indexOf(node) as number
 				if (index !== -1) {
+					// oxlint-disable-next-line typescript/no-unsafe-assignment
 					paragraphsToRemove.push({ index, parent })
 				}
 			}

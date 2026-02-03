@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'bun:test'
 import { remark } from 'remark'
+// oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 // @ts-ignore
 import remarkPlease from '@/markdown/remark-plugins/remark-please'
 

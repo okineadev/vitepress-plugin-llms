@@ -10,6 +10,7 @@ mock.module('node:fs/promises', () => mockedFs)
 
 import {
 	generateLLMFriendlyPages,
+	// oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 	// @ts-ignore
 } from '@/generator/page-generator'
 

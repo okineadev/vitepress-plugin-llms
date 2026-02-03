@@ -4,6 +4,7 @@ import { describe, expect, it } from 'bun:test'
 import path from 'node:path'
 import { getDirectoriesAtDepths } from '@/utils/file-utils'
 import { generateLink } from '@/utils/template-utils'
+// oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 // @ts-ignore
 import { cleanUrl } from '@/vitepress-components/utils'
 import { sampleDomain } from '../resources'

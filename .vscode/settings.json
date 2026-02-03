@@ -1,13 +1,13 @@
 {
 	// Formatter settings
-	"editor.defaultFormatter": "biomejs.biome",
-	"[json]": { "editor.defaultFormatter": "biomejs.biome" },
-	"[markdown][yaml][github-actions-workflow][vue]": { "editor.defaultFormatter": "esbenp.prettier-vscode" }, // spellchecker:ignore esbenp
+	"editor.defaultFormatter": "oxc.oxc-vscode",
+
+	"oxc.typeAware": true,
+
+	"typescript.experimental.useTsgo": true,
 
 	"editor.codeActionsOnSave": {
-		"source.organizeImports.biome": "explicit",
-		"source.fixAll.biome": "explicit"
-		// "quickfix.biome": "explicit"
+		"source.fixAll.oxc": "always"
 	},
 
 	// Read-only files
@@ -15,9 +15,6 @@
 		"bun.lock": true,
 		"tests/__snapshots__/**/*.snap": true
 	},
-
-	// Use local TypeScript version
-	"typescript.tsdk": "./node_modules/typescript/lib",
 
 	"material-icon-theme.files.associations": {
 		"bunup.config.ts": "bun",
@@ -30,7 +27,6 @@
 	},
 
 	"yaml.schemas": {
-		// Use the local cspell schema  from `node_modules` for `cspell.yml` configuration
 		"./node_modules/@cspell/cspell-types/cspell.schema.json": "cspell.yml"
-	}
+	},
 }

@@ -23,10 +23,7 @@ const PLUGIN_NAME = packageName
  */
 export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 	// Create a settings object with defaults explicitly merged
-	const settings: Omit<LlmstxtSettings, 'ignoreFiles' | 'workDir'> & {
-		ignoreFiles: string[]
-		workDir: string
-	} = {
+	const settings: Required<LlmstxtSettings> = {
 		generateLLMsTxt: true,
 		generateLLMsFullTxt: true,
 		generateLLMFriendlyDocsForEachPage: true,
@@ -43,7 +40,7 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 			...userSettings.experimental,
 		},
 		...userSettings,
-	}
+	} as Required<LlmstxtSettings>
 
 	// Store the resolved Vite config
 	let config: VitePressConfig
@@ -60,7 +57,7 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 			name: `${PLUGIN_NAME}:llm-tags`,
 
 			/** Processes each Markdown file */
-			async transform(content, id) {
+			transform(content, id) {
 				return transform(content, id, settings, mdFiles, config)
 			},
 		},
@@ -85,7 +82,7 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 				}
 
 				// Detect if this is the SSR build
-				isSsrBuild = !!resolvedConfig.build?.ssr
+				isSsrBuild = Boolean(resolvedConfig.build?.ssr)
 
 				log.info(
 					`${pc.bold(PLUGIN_NAME)} initialized ${isSsrBuild ? pc.dim('(SSR build)') : pc.dim('(client build)')} with workDir: ${pc.cyan(settings.workDir)}`,

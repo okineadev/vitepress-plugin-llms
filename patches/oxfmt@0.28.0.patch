@@ -1,0 +1,38 @@
+diff --git a/dist/cli.js b/dist/cli.js
+index a72632e8d815c06e698836ffed0854057e6c81d9..d05cc46a2bc17d245a37f705f44121fd7aac7119 100644
+--- a/dist/cli.js
++++ b/dist/cli.js
+@@ -18,14 +18,14 @@ async function disposeExternalFormatter() {
+ }
+ async function formatEmbeddedCode(options, parserName, code) {
+ 	return pool.run({
+-		options,
++		options: toPlainOptions(options),
+ 		code,
+ 		parserName
+ 	}, { name: "formatEmbeddedCode" });
+ }
+ async function formatFile(options, parserName, fileName, code) {
+ 	return pool.run({
+-		options,
++		options: toPlainOptions(options),
+ 		code,
+ 		fileName,
+ 		parserName
+@@ -39,6 +39,16 @@ async function sortTailwindClasses(filepath, options, classes) {
+ 	}, { name: "sortTailwindClasses" });
+ }
+ 
++function toPlainOptions(options) {
++  // now bun napi value could not cloned
++  // but for Web Workers in Bun, structuredClone used.
++  // https://github.com/oven-sh/bun/issues/25658
++  if (globalThis.Bun) {
++    return {...options}
++  }
++  return options
++}
++
+ //#endregion
+ //#region src-js/cli.ts
+ (async () => {

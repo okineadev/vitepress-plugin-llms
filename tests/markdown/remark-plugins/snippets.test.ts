@@ -20,6 +20,7 @@ mock.module('node:fs', () => ({
 import path from 'node:path'
 import dedent from 'dedent'
 // Import after mocking
+// oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 // @ts-ignore
 import remarkInclude from '@/markdown/remark-plugins/snippets'
 

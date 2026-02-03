@@ -6,10 +6,9 @@ import { minimatch } from 'minimatch'
 import pc from 'picocolors'
 import { remark } from 'remark'
 import remarkFrontmatter from 'remark-frontmatter'
-import { approximateTokenSize } from 'tokenx'
+import { estimateTokenCount } from 'tokenx'
 import { remove } from 'unist-util-remove'
-// @ts-expect-error Module '"vite"' declares 'OutputBundle' locally, but it is not exported. ts(2459)
-import type { OutputBundle } from 'vite'
+import type { OutputBundle } from 'rollup'
 import { defaultLLMsTxtTemplate, fullTagRegex } from '@/constants'
 import { generateLLMsFullTxt } from '@/generator/llms-full-txt'
 import { generateLLMsTxt } from '@/generator/llms-txt'
@@ -23,6 +22,7 @@ import { processVPParams } from '@/utils/dynamic-routes'
 import { getDirectoriesAtDepths } from '@/utils/file-utils'
 import { getHumanReadableSizeOf } from '@/utils/helpers'
 import log from '@/utils/logger'
+import type { DefaultTheme } from 'vitepress'
 import { extractTitle } from '@/utils/markdown'
 import { expandTemplate } from '@/utils/template-utils'
 import { resolveOutputFilePath, resolvePageURL, resolveSourceFilePath } from '@/utils/vitepress-rewrites'
@@ -33,10 +33,10 @@ import { resolveOutputFilePath, resolvePageURL, resolveSourceFilePath } from '@/
 export async function transform(
 	content: string,
 	id: string,
-	settings: LlmstxtSettings & { ignoreFiles: string[]; workDir: string },
+	settings: Required<LlmstxtSettings> & { ignoreFiles: string[]; workDir: string },
 	mdFiles: Map<string, string>,
 	config: VitePressConfig,
-	// biome-ignore lint/suspicious/noExplicitAny: TODO: Fix type
+	// TODO: Fix type
 ): Promise<any> {
 	const orig = content
 
@@ -55,7 +55,7 @@ export async function transform(
 	// Apply ignore rules, but skip them for main page
 	if (settings.ignoreFiles?.length) {
 		const shouldIgnore = await Promise.all(
-			settings.ignoreFiles.map(async (pattern) => {
+			settings.ignoreFiles.map((pattern) => {
 				if (typeof pattern === 'string') {
 					return minimatch(path.relative(settings.workDir, id), pattern)
 				}
@@ -80,6 +80,7 @@ export async function transform(
 		(settings.generateLLMFriendlyDocsForEachPage || settings.generateLLMsTxt || settings.generateLLMsFullTxt)
 	) {
 		// @ts-expect-error
+		// oxlint-disable-next-line typescript/no-unsafe-call
 		matter.clearCache()
 		modifiedContent = matter(modifiedContent)
 
@@ -105,13 +106,10 @@ export async function transform(
 			if (notices.length > 0) {
 				llmHint = `Are you an LLM? View ${notices.join(', or ')}`
 			}
-		} else {
-			// Regular page
-			if (settings.generateLLMFriendlyDocsForEachPage) {
-				const mdUrl = `${basePath}/${currentUrl}`
-				// TODO: Add some useful metadata like tokens count or size in kilobytes
-				llmHint = `Are you an LLM? You can read better optimized documentation at ${mdUrl} for this page in Markdown format`
-			}
+		} else if (settings.generateLLMFriendlyDocsForEachPage) {
+			const mdUrl = `${basePath}/${currentUrl}`
+			// TODO: Add some useful metadata like tokens count or size in kilobytes
+			llmHint = `Are you an LLM? You can read better optimized documentation at ${mdUrl} for this page in Markdown format`
 		}
 
 		// Insert llmHint at start or after __VP_PARAMS_END__ if present
@@ -120,10 +118,10 @@ export async function transform(
 			let content = modifiedContent.content
 			const marker = '__VP_PARAMS_END__'
 			const idx = content.indexOf(marker)
-			if (idx !== -1) {
-				content = content.slice(0, idx + marker.length) + hintBlock + content.slice(idx + marker.length)
-			} else {
+			if (idx === -1) {
 				content = `${hintBlock}\n${content}`
+			} else {
+				content = content.slice(0, idx + marker.length) + hintBlock + content.slice(idx + marker.length)
 			}
 			modifiedContent = matter.stringify(content, modifiedContent.data)
 		}
@@ -134,7 +132,7 @@ export async function transform(
 		mdFiles.set(id, content)
 	}
 
-	return modifiedContent !== orig ? { code: modifiedContent, map: null } : null
+	return modifiedContent === orig ? null : { code: modifiedContent, map: null }
 }
 
 /**
@@ -143,7 +141,7 @@ export async function transform(
  */
 export async function generateBundle(
 	bundle: OutputBundle,
-	settings: LlmstxtSettings & { ignoreFiles: string[]; workDir: string },
+	settings: Required<LlmstxtSettings> & { ignoreFiles: string[]; workDir: string },
 	config: VitePressConfig,
 	mdFiles: Map<string, string>,
 	isSsrBuild: boolean,
@@ -158,7 +156,8 @@ export async function generateBundle(
 	// in order to process files from content loaders used in the sidebar function
 	const resolvedSidebar =
 		settings.sidebar instanceof Function
-			? await settings.sidebar(config?.vitepress?.userConfig?.themeConfig?.sidebar)
+			? // oxlint-disable-next-line typescript/no-unsafe-member-access
+				await settings.sidebar(config?.vitepress?.userConfig?.themeConfig?.sidebar as DefaultTheme.Sidebar)
 			: settings.sidebar
 
 	const outDir = config.vitepress?.outDir ?? 'dist'
@@ -184,19 +183,10 @@ export async function generateBundle(
 	log.info(`Processing ${pc.bold(fileCount.toString())} markdown files from ${pc.cyan(settings.workDir)}`)
 
 	const imageMap = new Map<string, string>()
-	if (bundle) {
+	if (typeof bundle === 'object') {
 		for (const asset of Object.values(bundle)) {
-			if (
-				asset &&
-				typeof asset === 'object' &&
-				'type' in asset &&
-				asset.type === 'asset' &&
-				'fileName' in asset &&
-				typeof asset.fileName === 'string' &&
-				/(png|jpe?g|gif|svg|webp)$/i.test(path.extname(asset.fileName))
-			) {
-				// @ts-expect-error
-				const name = path.posix.basename(asset.name || asset.fileName)
+			if (/(png|jpe?g|gif|svg|webp)$/i.test(path.extname(asset.fileName))) {
+				const name = path.posix.basename(asset.fileName)
 				imageMap.set(name, asset.fileName)
 			}
 		}
@@ -240,7 +230,7 @@ export async function generateBundle(
 			)
 
 			// Extract title from frontmatter or use the first heading
-			const title = extractTitle(processedMarkdown)?.trim() || 'Untitled'
+			const title = extractTitle(processedMarkdown)?.trim() ?? 'Untitled'
 
 			const filePath =
 				path.basename(resolvedOutFilePath) === 'index.md' &&
@@ -297,13 +287,12 @@ export async function generateBundle(
 							settings.workDir,
 							resolveSourceFilePath('index.md', settings.workDir, config.vitepress.userConfig?.rewrites),
 						),
-						outDir: settings.workDir,
-						LLMsTxtTemplate: settings.customLLMsTxtTemplate || defaultLLMsTxtTemplate,
+						LLMsTxtTemplate: settings.customLLMsTxtTemplate ?? defaultLLMsTxtTemplate,
 						templateVariables,
 						vitepressConfig: config?.vitepress?.userConfig,
 						domain: settings.domain,
 						sidebar: resolvedSidebar,
-						linksExtension: !settings.generateLLMFriendlyDocsForEachPage ? '.html' : undefined,
+						linksExtension: settings.generateLLMFriendlyDocsForEachPage === false ? '.html' : undefined,
 						directoryFilter,
 					})
 
@@ -314,7 +303,7 @@ export async function generateBundle(
 							'Generated {file} (~{tokens} tokens, {size}) with {fileCount} documentation links',
 							{
 								file: pc.cyan(outputFileName),
-								tokens: pc.bold(millify(approximateTokenSize(llmsTxt))),
+								tokens: pc.bold(millify(estimateTokenCount(llmsTxt))),
 								size: pc.bold(getHumanReadableSizeOf(llmsTxt)),
 								fileCount: pc.bold(fileCount.toString()),
 							},
@@ -352,7 +341,7 @@ export async function generateBundle(
 
 					const llmsFullTxt = await generateLLMsFullTxt(preparedFiles, {
 						domain: settings.domain,
-						linksExtension: !settings.generateLLMFriendlyDocsForEachPage ? '.html' : undefined,
+						linksExtension: settings.generateLLMFriendlyDocsForEachPage === false ? '.html' : undefined,
 						base: config.base,
 						directoryFilter,
 					})
@@ -363,7 +352,7 @@ export async function generateBundle(
 					log.success(
 						expandTemplate('Generated {file} (~{tokens} tokens, {size}) with {fileCount} markdown files', {
 							file: pc.cyan(outputFileName),
-							tokens: pc.bold(millify(approximateTokenSize(llmsFullTxt))),
+							tokens: pc.bold(millify(estimateTokenCount(llmsFullTxt))),
 							size: pc.bold(getHumanReadableSizeOf(llmsFullTxt)),
 							fileCount: pc.bold(fileCount.toString()),
 						}),
@@ -377,7 +366,7 @@ export async function generateBundle(
 		tasks.push(generateLLMFriendlyPages(preparedFiles, outDir, settings.domain, config.base))
 	}
 
-	if (tasks.length) {
+	if (tasks.length > 0) {
 		await Promise.all(tasks)
 	}
 }

@@ -16,6 +16,7 @@ export function copyOrDownloadAsMarkdownButtons(
 	md: MarkdownIt,
 	componentName = 'CopyOrDownloadAsMarkdownButtons',
 ): void {
+	// oxlint-disable-next-line typescript/no-unsafe-assignment
 	const orig = md.renderer.render.bind(md.renderer)
 
 	md.renderer.render = (tokens, options, env) => {
@@ -34,6 +35,7 @@ export function copyOrDownloadAsMarkdownButtons(
 			}
 		}
 
+		// oxlint-disable-next-line typescript/no-unsafe-call typescript/no-unsafe-return
 		return orig(tokens, options, env)
 	}
 }

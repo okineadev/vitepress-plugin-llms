@@ -11,6 +11,7 @@ const { readFile } = mockedFs.default
 
 import {
 	generateLLMsTxt,
+	// oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 	// @ts-ignore
 } from '@/generator/llms-txt'
 import { fakeCustomLlmsTxtTemplate, outDir, preparedFilesSample } from '../resources'
@@ -24,7 +25,6 @@ describe('generateLLMsTxt', () => {
 		expect(
 			await generateLLMsTxt(preparedFilesSample.slice(1), {
 				indexMd: path.join(outDir, 'index.md'),
-				outDir: outDir,
 				LLMsTxtTemplate: defaultLLMsTxtTemplate,
 				templateVariables: {},
 				vitepressConfig: {},
@@ -36,7 +36,6 @@ describe('generateLLMsTxt', () => {
 		expect(
 			await generateLLMsTxt(preparedFilesSample.slice(1), {
 				indexMd: path.join(outDir, 'index.md'),
-				outDir: outDir,
 				LLMsTxtTemplate: defaultLLMsTxtTemplate,
 				templateVariables: {},
 				vitepressConfig: {
@@ -50,7 +49,6 @@ describe('generateLLMsTxt', () => {
 		expect(
 			await generateLLMsTxt(preparedFilesSample.slice(1), {
 				indexMd: path.join(outDir, 'index.md'),
-				outDir: path.join(outDir),
 				LLMsTxtTemplate: fakeCustomLlmsTxtTemplate,
 				templateVariables: {},
 				vitepressConfig: {},
@@ -61,7 +59,6 @@ describe('generateLLMsTxt', () => {
 		expect(
 			await generateLLMsTxt(preparedFilesSample, {
 				indexMd: path.join(outDir, 'index.md'),
-				outDir: outDir,
 				LLMsTxtTemplate: defaultLLMsTxtTemplate,
 				templateVariables: { title: 'foo', description: 'bar', toc: 'zoo' },
 				vitepressConfig: {},
@@ -73,7 +70,6 @@ describe('generateLLMsTxt', () => {
 		expect(
 			await generateLLMsTxt(preparedFilesSample, {
 				indexMd: path.join(outDir, 'index.md'),
-				outDir: outDir,
 				LLMsTxtTemplate: '# {foo}\n\n**{bar}**\n\n{zoo}',
 				templateVariables: { title: 'foo', description: 'bar', toc: 'zoo' },
 				vitepressConfig: {},

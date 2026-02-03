@@ -11,7 +11,8 @@ on:
       - .gitignore
       - bunup.config.ts
       - package.json
-      - biome.jsonc
+      - .oxfmtrc.json
+      - .oxlintrc.json
       - bun.lock
       - bunfig.toml
       - cspell.yml
@@ -27,7 +28,8 @@ on:
       - .gitignore
       - bunup.config.ts
       - package.json
-      - biome.jsonc
+      - .oxfmtrc.json
+      - .oxlintrc.json
       - bun.lock
       - bunfig.toml
       - cspell.yml

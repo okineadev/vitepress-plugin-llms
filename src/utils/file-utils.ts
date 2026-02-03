@@ -31,6 +31,7 @@ export const stripExt = (filepath: string, usePosix = false): string => {
 	const ext = path.extname(file)
 	const base = contentFileExts.has(ext) ? path.basename(file, ext) : file
 
+	// oxlint-disable-next-line typescript/unbound-method
 	const joinFn = usePosix ? path.posix.join : path.join
 
 	return joinFn(dir, base)
@@ -49,7 +50,8 @@ export const stripExtPosix = (filepath: string): string => stripExt(filepath, tr
  * transformToPosixPath('foo\\bar\\baz.md') // Returns 'foo/bar/baz.md'
  * ```
  */
-export const transformToPosixPath = (filepath: string): string => filepath.replace(/\\/g, '/')
+// oxlint-disable-next-line typescript/no-unsafe-return typescript/no-unsafe-call
+export const transformToPosixPath = (filepath: string): string => filepath.replaceAll('\\', '/')
 
 /**
  * Gets all directories at specific depths relative to the base directory.
@@ -68,10 +70,8 @@ export function getDirectoriesAtDepths(
 	depth: number
 	relativePath: string
 }> {
-	const directories = new Set<string>()
-
 	// Always include root directory
-	directories.add(baseDir)
+	const directories = new Set<string>([baseDir])
 
 	for (const file of files) {
 		const relativePath = path.relative(baseDir, file)

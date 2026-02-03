@@ -3,7 +3,7 @@ const removeHtmlExtension = (pathSegment: string): string => {
 	const lastDotIndex = pathSegment.lastIndexOf('.')
 
 	if (lastDotIndex > lastSlashIndex && lastDotIndex !== -1 && pathSegment.endsWith('.html')) {
-		return pathSegment.substring(0, lastDotIndex)
+		return pathSegment.slice(0, lastDotIndex)
 	}
 
 	return pathSegment
@@ -29,11 +29,11 @@ export function cleanUrl(url: string): string {
 
 	const pathnameWithoutTrailingSlash = pathname.replace(/\/+$/, '')
 
-	if (pathname.length) {
+	if (pathname.length > 0) {
 		return origin + removeHtmlExtension(pathnameWithoutTrailingSlash)
-	} else {
-		return origin
 	}
+		return origin
+	
 }
 
 export function resolveMarkdownPageURL(url: string): string {
@@ -42,9 +42,9 @@ export function resolveMarkdownPageURL(url: string): string {
 	// If the URL is the root of the site, append 'index.md'
 	if (cleanedURL === window.location.origin) {
 		return `${cleanedURL}/index.md`
-	} else {
-		return `${cleanedURL}.md`
 	}
+		return `${cleanedURL}.md`
+	
 }
 
 /**

@@ -1,5 +1,4 @@
 // spell-checker:words awesomeproject myproject otherdocs
-
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import type { ViteDevServer } from 'vite'
 import type { Plugin } from 'vitepress'
@@ -14,6 +13,8 @@ mock.module('node:fs/promises', () => mockedFs)
 import path from 'node:path'
 import type { VitePressConfig } from '@/internal-types'
 // Import the module under test AFTER mocking its dependencies
+
+// oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 // @ts-ignore
 import { llmstxt } from '@/plugin/plugin'
 
@@ -57,7 +58,7 @@ describe('llmstxt plugin', () => {
 
 	describe('configureServer', () => {
 		it('should configure server middleware', () => {
-			// @ts-ignore
+			// @ts-expect-error
 			plugin[1].configureServer(mockServer)
 			const spyMiddlewaresUse = spyOn(mockServer.middlewares, 'use')
 			expect(spyMiddlewaresUse).toHaveBeenCalled()
@@ -66,13 +67,13 @@ describe('llmstxt plugin', () => {
 
 	describe('transform', () => {
 		it('should collect markdown files', async () => {
-			// @ts-ignore
+			// @ts-expect-error
 			const result = await plugin[0].transform(fakeMarkdownDocument, 'docs/test.md')
 			expect(result).toBeNull()
 		})
 
 		it('should not collect non-markdown files', async () => {
-			// @ts-ignore
+			// @ts-expect-error
 			const result = await plugin[0].transform(fakeMarkdownDocument, 'docs/test.ts')
 			expect(result).toBeNull()
 		})
@@ -88,10 +89,10 @@ describe('llmstxt plugin', () => {
 					generateLLMFriendlyDocsForEachPage: false,
 				})
 
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 
-				// @ts-ignore
+				// @ts-expect-error
 				const result = await plugin[0].transform(fakeMarkdownDocument, 'docs/index.md')
 
 				expect(result).not.toBeNull()
@@ -106,10 +107,10 @@ describe('llmstxt plugin', () => {
 					generateLLMFriendlyDocsForEachPage: false,
 				})
 
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 
-				// @ts-ignore
+				// @ts-expect-error
 				const result = await plugin[0].transform(fakeMarkdownDocument, 'docs/index.md')
 
 				expect(result).not.toBeNull()
@@ -124,10 +125,10 @@ describe('llmstxt plugin', () => {
 					generateLLMFriendlyDocsForEachPage: false,
 				})
 
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 
-				// @ts-ignore
+				// @ts-expect-error
 				const result = await plugin[0].transform(fakeMarkdownDocument, 'docs/index.md')
 
 				expect(result).not.toBeNull()
@@ -144,10 +145,10 @@ describe('llmstxt plugin', () => {
 					generateLLMFriendlyDocsForEachPage: true,
 				})
 
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 
-				// @ts-ignore
+				// @ts-expect-error
 				const result = await plugin[0].transform(fakeMarkdownDocument, 'docs/test.md')
 
 				expect(result).not.toBeNull()
@@ -169,18 +170,18 @@ describe('llmstxt plugin', () => {
 					generateLLMFriendlyDocsForEachPage: true,
 				})
 
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(configWithBase)
 
 				// Test main page
-				// @ts-ignore
+				// @ts-expect-error
 				const mainResult = await plugin[0].transform(fakeMarkdownDocument, 'docs/index.md')
 				expect(mainResult.code).toContain(
 					'Are you an LLM? View /myproject/llms.txt for optimized Markdown documentation',
 				)
 
 				// Test regular page
-				// @ts-ignore
+				// @ts-expect-error
 				const pageResult = await plugin[0].transform(fakeMarkdownDocument, 'docs/test.md')
 				expect(pageResult.code).toContain(
 					'Are you an LLM? You can read better optimized documentation at /myproject/test.md for this page in Markdown format',
@@ -195,10 +196,10 @@ describe('llmstxt plugin', () => {
 					generateLLMFriendlyDocsForEachPage: true,
 				})
 
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 
-				// @ts-ignore
+				// @ts-expect-error
 				const result = await plugin[0].transform(fakeMarkdownDocument, 'docs/index.md')
 
 				// Should return null since no content modification occurred
@@ -213,10 +214,10 @@ describe('llmstxt plugin', () => {
 					generateLLMFriendlyDocsForEachPage: false,
 				})
 
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 
-				// @ts-ignore
+				// @ts-expect-error
 				const result = await plugin[0].transform(fakeMarkdownDocument, 'docs/index.md')
 
 				// Should return null since no LLM hint should be generated
@@ -241,10 +242,10 @@ describe('llmstxt plugin', () => {
 					generateLLMFriendlyDocsForEachPage: true,
 				})
 
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(configWithRewrites)
 
-				// @ts-ignore
+				// @ts-expect-error
 				const result = await plugin[0].transform(fakeMarkdownDocument, 'docs/guide/index.md')
 
 				expect(result.code).toContain(
@@ -267,10 +268,10 @@ This is a test page.`
 					generateLLMFriendlyDocsForEachPage: true,
 				})
 
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 
-				// @ts-ignore
+				// @ts-expect-error
 				const result = await plugin[0].transform(contentWithFrontmatter, 'docs/test.md')
 
 				expect(result.code).toContain('---')
@@ -292,18 +293,18 @@ This is a test page.`
 					generateLLMFriendlyDocsForEachPage: true,
 				})
 
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(configWithRootBase)
 
 				// Test main page
-				// @ts-ignore
+				// @ts-expect-error
 				const mainResult = await plugin[0].transform(fakeMarkdownDocument, 'docs/index.md')
 				expect(mainResult.code).toContain(
 					'Are you an LLM? View /llms.txt for optimized Markdown documentation',
 				)
 
 				// Test regular page
-				// @ts-ignore
+				// @ts-expect-error
 				const pageResult = await plugin[0].transform(fakeMarkdownDocument, 'docs/test.md')
 				expect(pageResult.code).toContain(
 					'Are you an LLM? You can read better optimized documentation at /test.md for this page in Markdown format',
@@ -315,21 +316,21 @@ This is a test page.`
 	describe('generateBundle', () => {
 		it('should skip processing in SSR build', () => {
 			const ssrConfig = { ...mockConfig, build: { ssr: true } }
-			// @ts-ignore
+			// @ts-expect-error
 			plugin[1].configResolved(ssrConfig)
-			// @ts-ignore
+			// @ts-expect-error
 			plugin[1].generateBundle()
 			expect(writeFile).not.toHaveBeenCalled()
 		})
 
 		it('should create output directory if it does not exist', async () => {
-			access.mockImplementationOnce(async () => {
+			access.mockImplementationOnce(() => {
 				throw new Error()
 			})
 
-			// @ts-ignore
+			// @ts-expect-error
 			plugin[1].configResolved(mockConfig)
-			// @ts-ignore
+			// @ts-expect-error
 			await plugin[1].generateBundle()
 
 			expect(mkdir).toHaveBeenCalledWith(path.resolve('dist'), { recursive: true })
@@ -337,17 +338,17 @@ This is a test page.`
 
 		it('should process markdown files and generate output files', async () => {
 			plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMsTxt: false })
-			// @ts-ignore
+			// @ts-expect-error
 			plugin[1].configResolved(mockConfig)
 			await Promise.all([
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[0].transform(fakeMarkdownDocument, 'docs/test/test.md'),
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[0].transform(fakeMarkdownDocument, 'docs/guide/index.md'),
 			])
-			// @ts-ignore
+			// @ts-expect-error
 			await plugin[1].generateBundle()
 
 			// Verify that files were written
@@ -375,15 +376,15 @@ This is a test page.`
 				generateLLMsTxt: false,
 				ignoreFiles: ['test/*.md'],
 			})
-			// @ts-ignore
+			// @ts-expect-error
 			plugin[1].configResolved(mockConfig)
 			await Promise.all([
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[0].transform(fakeMarkdownDocument, 'docs/test/test.md'),
 			])
-			// @ts-ignore
+			// @ts-expect-error
 			await plugin[1].generateBundle()
 
 			// Verify that only non-ignored files were written
@@ -402,13 +403,11 @@ This is a test page.`
 					generateLLMsFullTxt: false,
 					generateLLMFriendlyDocsForEachPage: false,
 				})
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
-				await Promise.all([
-					// @ts-ignore
-					plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
-				])
-				// @ts-ignore
+				// @ts-expect-error
+				await plugin[0].transform(fakeMarkdownDocument, 'docs/test.md')
+				// @ts-expect-error
 				await plugin[1].generateBundle()
 
 				expect(writeFile).toHaveBeenCalledTimes(1)
@@ -423,13 +422,11 @@ This is a test page.`
 					generateLLMsTxt: false,
 					generateLLMFriendlyDocsForEachPage: false,
 				})
-				// @ts-ignore
-				plugin[1].configResolved(mockConfig)
-				await Promise.all([
-					// @ts-ignore
-					plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
-				])
-				// @ts-ignore
+				// @ts-expect-error
+				await plugin[1].configResolved(mockConfig)
+				// @ts-expect-error
+				await plugin[0].transform(fakeMarkdownDocument, 'docs/test.md')
+				// @ts-expect-error
 				await plugin[1].generateBundle()
 
 				expect(writeFile).toHaveBeenCalledTimes(1)
@@ -447,15 +444,15 @@ This is a test page.`
 			}
 
 			plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMsTxt: false })
-			// @ts-ignore
+			// @ts-expect-error
 			plugin[1].configResolved(configWithBase)
 			await Promise.all([
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[0].transform(fakeMarkdownDocument, 'docs/guide/index.md'),
 			])
-			// @ts-ignore
+			// @ts-expect-error
 			await plugin[1].generateBundle()
 
 			// Should generate files with correct url frontmatter including base
@@ -488,16 +485,16 @@ This is a test page.`
 				}
 
 				plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMsTxt: false })
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(configWithRewrites)
 
 				await Promise.all([
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, path.resolve(workDir, 'guide/index.md')),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, path.resolve(workDir, 'api/reference.md')),
 				])
-				// @ts-ignore
+				// @ts-expect-error
 				await plugin[1].generateBundle()
 
 				expect(writeFile).toHaveBeenCalledTimes(2)
@@ -528,12 +525,12 @@ This is a test page.`
 				}
 
 				plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMsTxt: false })
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(configWithWildcardRewrites)
 
-				// @ts-ignore
+				// @ts-expect-error
 				await plugin[0].transform(fakeMarkdownDocument, 'docs/guide/installation.md')
-				// @ts-ignore
+				// @ts-expect-error
 				await plugin[1].generateBundle()
 
 				expect(writeFile).toHaveBeenCalledWith(
@@ -556,12 +553,12 @@ This is a test page.`
 				}
 
 				plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMsTxt: false })
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(configWithRewrites)
 
-				// @ts-ignore
+				// @ts-expect-error
 				await plugin[0].transform(fakeMarkdownDocument, 'docs/other/page.md')
-				// @ts-ignore
+				// @ts-expect-error
 				await plugin[1].generateBundle()
 
 				expect(writeFile).toHaveBeenCalledTimes(1)
@@ -587,12 +584,12 @@ This is a test page.`
 				}
 
 				plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMFriendlyDocsForEachPage: false })
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(configWithRewrites)
 
-				// @ts-ignore
+				// @ts-expect-error
 				await plugin[0].transform(fakeMarkdownDocument, 'docs/guide/index.md')
-				// @ts-ignore
+				// @ts-expect-error
 				await plugin[1].generateBundle()
 
 				expect(writeFile).toBeCalledTimes(1)
@@ -620,18 +617,18 @@ This is a test page.`
 			}
 
 			plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMsTxt: false })
-			// @ts-ignore
+			// @ts-expect-error
 			plugin[1].configResolved(configWithFunctionRewrites)
 
 			await Promise.all([
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[0].transform(fakeMarkdownDocument, path.resolve(workDir, 'guide/index.md')),
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[0].transform(fakeMarkdownDocument, path.resolve(workDir, 'api/reference.md')),
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[0].transform(fakeMarkdownDocument, path.resolve(workDir, 'otherdocs/page.md')),
 			])
-			// @ts-ignore
+			// @ts-expect-error
 			await plugin[1].generateBundle()
 
 			expect(writeFile).toHaveBeenCalledTimes(3)
@@ -660,17 +657,17 @@ This is a test page.`
 					generateLLMFriendlyDocsForEachPage: false,
 					experimental: { depth: 1 },
 				})
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 				await Promise.all([
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/guide/test.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/api/reference.md'),
 				])
-				// @ts-ignore
+				// @ts-expect-error
 				await plugin[1].generateBundle()
 
 				// Should only generate root llms.txt
@@ -685,19 +682,19 @@ This is a test page.`
 					generateLLMFriendlyDocsForEachPage: false,
 					experimental: { depth: 2 },
 				})
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 				await Promise.all([
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/guide/test.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/api/reference.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/api/advanced/config.md'),
 				])
-				// @ts-ignore
+				// @ts-expect-error
 				await plugin[1].generateBundle()
 
 				// Should generate root llms.txt + subdirectory llms.txt files
@@ -714,21 +711,21 @@ This is a test page.`
 					generateLLMFriendlyDocsForEachPage: false,
 					experimental: { depth: 3 },
 				})
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 				await Promise.all([
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/guide/test.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/api/reference.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/api/advanced/config.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/api/advanced/nested/deep.md'),
 				])
-				// @ts-ignore
+				// @ts-expect-error
 				await plugin[1].generateBundle()
 
 				// Should generate files at root, first-level, and second-level directories
@@ -746,17 +743,17 @@ This is a test page.`
 					generateLLMFriendlyDocsForEachPage: false,
 					experimental: { depth: 2 },
 				})
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 				await Promise.all([
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/root-file.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/guide/getting-started.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/api/reference.md'),
 				])
-				// @ts-ignore
+				// @ts-expect-error
 				await plugin[1].generateBundle()
 
 				expect(writeFile).toHaveBeenCalledTimes(3)
@@ -791,17 +788,17 @@ This is a test page.`
 					generateLLMFriendlyDocsForEachPage: false,
 					experimental: { depth: 2 },
 				})
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 				await Promise.all([
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/root-file.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/guide/getting-started.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/api/reference.md'),
 				])
-				// @ts-ignore
+				// @ts-expect-error
 				await plugin[1].generateBundle()
 
 				// Should generate 6 files: 3 llms.txt + 3 llms-full.txt (root, guide, api)
@@ -825,17 +822,17 @@ This is a test page.`
 					generateLLMFriendlyDocsForEachPage: false,
 					experimental: { depth: 2 },
 				})
-				// @ts-ignore
+				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 				await Promise.all([
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/root-file.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/guide/getting-started.md'),
-					// @ts-ignore
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/api/reference.md'),
 				])
-				// @ts-ignore
+				// @ts-expect-error
 				await plugin[1].generateBundle()
 
 				expect(writeFile).toHaveBeenCalledTimes(3)

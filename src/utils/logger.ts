@@ -13,28 +13,36 @@ const log = {
 	 *
 	 * @param message - The message to log.
 	 */
-	info: (message: string): void => console.log(`${logPrefix}  ${message}`),
+	info: (message: string): void => {
+		console.log(`${logPrefix}  ${message}`)
+	},
 
 	/**
 	 * Logs a success message to the console.
 	 *
 	 * @param message - The message to log.
 	 */
-	success: (message: string): void => console.log(`${logPrefix}${pc.green('✓')} ${message}`),
+	success: (message: string): void => {
+		console.log(`${logPrefix}${pc.green('✓')} ${message}`)
+	},
 
 	/**
 	 * Logs a warning message to the console.
 	 *
 	 * @param message - The message to log.
 	 */
-	warn: (message: string): void => console.warn(`${logPrefix}${pc.yellow('⚠')} ${pc.yellow(message)}`),
+	warn: (message: string): void => {
+		console.warn(`${logPrefix}${pc.yellow('⚠')} ${pc.yellow(message)}`)
+	},
 
 	/**
 	 * Logs an error message to the console.
 	 *
 	 * @param message - The message to log.
 	 */
-	error: (message: string): void => console.error(`${logPrefix}${pc.red('✗')} ${pc.red(message)}`),
+	error: (message: string): void => {
+		console.error(`${logPrefix}${pc.red('✗')} ${pc.red(message)}`)
+	},
 }
 
 export default log

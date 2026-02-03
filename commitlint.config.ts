@@ -13,12 +13,18 @@ const COMMITLINT_HELP_URL =
  * @returns A tuple where the first element is a boolean indicating
  * if the rule passed, and the second is an optional error message.
  */
+// oxlint-disable-next-line require-await
 const subjectLowercaseFirst: Rule = async (parsed: Commit) => {
 	// Find the first alphabetic character
-	const match = parsed.subject.match(/[a-z]/i)
-	const firstLetter = match[0]
-	if (match && firstLetter === firstLetter.toUpperCase()) {
-		return [false, 'Subject must start with a lowercase letter']
+	if (typeof parsed.subject === 'string' && parsed.subject.length === 0) {
+		const match = parsed.subject.match(/[a-z]/i)
+
+		if (match) {
+			const firstLetter = match[0]
+
+			if (firstLetter !== firstLetter.toLowerCase())
+				return [false, 'Subject must start with a lowercase letter']
+		}
 	}
 	return [true]
 }

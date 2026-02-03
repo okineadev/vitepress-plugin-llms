@@ -45,7 +45,8 @@ jobs:
             .gitignore
             bunup.config.ts
             package.json
-            biome.jsonc
+            .oxfmtrc.json
+            .oxlintrc.json
             bun.lock
             bunfig.toml
             cspell.yml
@@ -69,7 +70,9 @@ jobs:
         run: bun ci --prefer-offline --ignore-scripts
 
       - name: 🗞️ Lint
-        run: bun run lint
+        run: |
+          bun run lint
+          bun run format:check
 
       - name: 🗞️ Run Woke linter
         uses: get-woke/woke-action@b2ec032c4a2c912142b38a6a453ad62017813ed0 # v0

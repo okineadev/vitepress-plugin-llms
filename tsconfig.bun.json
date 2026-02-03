@@ -2,6 +2,7 @@
 	"extends": "./tsconfig.base.json",
 	"compilerOptions": {
 		"composite": true,
+		"lib": ["DOM"],
 		"types": ["bun-types"]
 	},
 

@@ -81,7 +81,7 @@ const markers = [
 
 function rawPathToToken(rawPath: string) {
 	const [filepath = '', extension = '', region = '', lines = '', lang = '', attrs = '', title = ''] = (
-		rawPathRegexp.exec(rawPath) || []
+		rawPathRegexp.exec(rawPath) ?? []
 	).slice(1)
 
 	return { filepath, extension, region, lines, lang, attrs, title }
@@ -117,8 +117,8 @@ function findRegion(lines: string[], regionName: string) {
 		// Check for an end marker for the same region
 		const endRegion = chosen.re.end.exec(lines[i] as unknown as string)?.[1]
 		// Allow empty region name on the end marker as a fallback
-		if (endRegion === regionName || endRegion === '') {
-			if (--counter === 0) return { ...chosen, end: i }
+		if ((endRegion === regionName || endRegion === '') && --counter === 0) {
+			return { ...chosen, end: i }
 		}
 	}
 
@@ -147,14 +147,14 @@ function dedent(text: string): string {
  */
 function processIncludes({ srcDir, content, filePath, includes }: ProcessingOptions): string {
 	return content.replace(includesRE, (m: string, m1: string) => {
-		if (!m1.length) return m
+		if (m1.length === 0) return m
 
 		const range = m1.match(rangeRE)
 		const region = m1.match(regionRE)
-		const hasMeta = !!(region || range)
+		const hasMeta = !!(region ?? range)
 
 		if (hasMeta) {
-			const len = (region?.[0].length || 0) + (range?.[0].length || 0)
+			const len = (region?.[0].length ?? 0) + (range?.[0].length ?? 0)
 			m1 = m1.slice(0, -len) // remove meta info from the include path
 		}
 
@@ -189,7 +189,12 @@ function processIncludes({ srcDir, content, filePath, includes }: ProcessingOpti
 				const [, startLine, endLine] = range
 				const lines = content.split(/\r?\n/)
 				content = lines
-					.slice(startLine ? parseInt(startLine) - 1 : undefined, endLine ? parseInt(endLine) : undefined)
+					.slice(
+						// oxlint-disable-next-line typescript/strict-boolean-expressions
+						startLine ? parseInt(startLine, 10) - 1 : undefined,
+						// oxlint-disable-next-line typescript/strict-boolean-expressions
+						endLine ? parseInt(endLine, 10) : undefined,
+					)
 					.join('\n')
 			}
 
@@ -202,7 +207,7 @@ function processIncludes({ srcDir, content, filePath, includes }: ProcessingOpti
 
 			// Recursively process includes in the content
 			return processIncludes({ srcDir, content, filePath, includes })
-		} catch (_error) {
+		} catch {
 			log.warn(`[remark-include] Include file not found: ${m1}`)
 
 			return m // silently ignore error if file is not present
@@ -216,7 +221,7 @@ function processIncludes({ srcDir, content, filePath, includes }: ProcessingOpti
 function processSnippets({ srcDir, content, filePath, includes }: ProcessingOptions): Code | undefined {
 	let codeNode: Code | undefined
 	content.replace(snippetRE, (m: string, rawPath: string) => {
-		if (!rawPath.length) return m
+		if (rawPath.length === 0) return m
 
 		// Handle @ prefix first, then parse the rest
 		const cleanPath = rawPath.trim()
@@ -234,7 +239,8 @@ function processSnippets({ srcDir, content, filePath, includes }: ProcessingOpti
 				throw new Error(`Snippet file not found: ${snippetPath}`)
 			}
 
-			let codeContent = fs.readFileSync(snippetPath, 'utf-8').replace(/\r\n/g, '\n')
+			// oxlint-disable-next-line typescript/no-unsafe-call
+			let codeContent = fs.readFileSync(snippetPath, 'utf-8').replaceAll('\r\n', '\n') as string
 
 			// Handle region selection
 			if (region) {
@@ -264,7 +270,7 @@ function processSnippets({ srcDir, content, filePath, includes }: ProcessingOpti
 				meta: infoMeta,
 				value: codeContent,
 			}
-		} catch (_error) {
+		} catch {
 			log.warn(`[remark-include] Snippet file not found: ${rawPath}`)
 		}
 		return m
@@ -281,7 +287,7 @@ function remarkInclude({ srcDir }: IncludeOptions) {
 			const includes: string[] = []
 
 			visit(tree, (node, index, parent) => {
-				if (!parent || typeof index !== 'number') return
+				if (parent === undefined || typeof index !== 'number') return
 
 				const isIncludeNode = node.type === 'html' && includesRE.test(node.value)
 				const isSnippetNode = node.type === 'text' && snippetRE.test(node.value)
@@ -305,7 +311,7 @@ function remarkInclude({ srcDir }: IncludeOptions) {
 						})
 					}
 
-					if (processedValue) {
+					if (processedValue !== undefined) {
 						if (typeof processedValue === 'string') {
 							if (processedValue !== (node as { value: string }).value) {
 								parent.children.splice(index, 1, ...fromMarkdown(processedValue).children)
@@ -317,6 +323,7 @@ function remarkInclude({ srcDir }: IncludeOptions) {
 				}
 			})
 
+			// oxlint-disable-next-line typescript/strict-boolean-expressions
 			if (file.data) file.data['includes'] = includes
 		}
 }

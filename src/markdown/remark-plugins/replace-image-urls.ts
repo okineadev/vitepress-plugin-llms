@@ -14,7 +14,7 @@ function remarkReplaceImageUrls(map: Map<string, string>) {
 			visit(tree, 'image', (node) => {
 				const original = path.posix.basename(node.url)
 				const hashed = map.get(original)
-				if (hashed) {
+				if (hashed !== undefined) {
 					node.url = `/${hashed}`
 				}
 			})

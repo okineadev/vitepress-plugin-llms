@@ -15,8 +15,8 @@
 		"emitDeclarationOnly": true,
 		"forceConsistentCasingInFileNames": true,
 		"noImplicitAny": true,
+		"strictNullChecks": true,
 
-		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./src/*"]
 		}

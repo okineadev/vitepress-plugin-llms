@@ -6,11 +6,17 @@ words:
   - millify
   - frontmatter
   - tokenx
+  - oxlint
+  - oxfmt
 
 overrides:
   - filename: '**/package.json'
     words:
       - Okinea
+      - tsgolint
+  - filename: patches/oxfmt@0.28.0.patch.md
+    words:
+      - morlay
 
 languageSettings:
   - languageId: markdown

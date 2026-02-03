@@ -51,7 +51,6 @@
 </template>
 
 <script setup lang="ts">
-/** biome-ignore-all lint/correctness/noUnusedVariables: Biome doesn't support Vue well yet */
 import { onMounted, onUnmounted, ref } from 'vue'
 
 import iconChatGPT from './icons/chatgpt.svg?raw'

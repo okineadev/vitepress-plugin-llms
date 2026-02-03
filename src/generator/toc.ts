@@ -23,7 +23,7 @@ export const generateTOCLink = (
 	extension?: LinksExtension,
 	base?: string,
 ) => {
-	const description: string = file.file.data['description']
+	const description: string = file.file.data['description'] as string
 	return `- [${file.title}](${generateLink(stripExtPosix(relativePath), domain, extension ?? '.md', base)})${description ? `: ${description.trim()}` : ''}\n`
 }
 
@@ -33,12 +33,12 @@ export const generateTOCLink = (
  * @param items - Array of sidebar items to process.
  * @returns Array of paths collected from the sidebar items.
  */
-async function collectPathsFromSidebarItems(items: DefaultTheme.SidebarItem[], base = ''): Promise<string[]> {
+function collectPathsFromSidebarItems(items: DefaultTheme.SidebarItem[], base = ''): Promise<string[]> {
 	return Promise.all(
 		items.map(async (item) => {
 			const paths: string[] = []
 
-			if (item.link) {
+			if (typeof item.link === 'string') {
 				paths.push((item.base ?? base) + item.link)
 			}
 
@@ -97,7 +97,6 @@ export function isPathMatch(filePath: string, sidebarPath: string): boolean {
 async function processSidebarSection(
 	section: DefaultTheme.SidebarItem,
 	preparedFiles: PreparedFile[],
-	outDir: string,
 	domain?: LlmstxtSettings['domain'],
 	linksExtension?: LinksExtension,
 	depth = 3,
@@ -114,7 +113,7 @@ async function processSidebarSection(
 		Promise.all(
 			section.items
 				.filter((item): item is DefaultTheme.SidebarItem & { link: string } => typeof item.link === 'string')
-				.map(async (item) => {
+				.map((item) => {
 					// Normalize the link path for matching
 					const normalizedItemLink = normalizeLinkPath(
 						path.posix.join(base, item.base ?? section.base ?? '', item.link),
@@ -150,7 +149,6 @@ async function processSidebarSection(
 					processSidebarSection(
 						item,
 						preparedFiles,
-						outDir,
 						domain,
 						linksExtension,
 						// Increase depth for nested sections to maintain proper heading levels
@@ -168,7 +166,7 @@ async function processSidebarSection(
 	const hasContent = linkItems.length > 0 || nonEmptyNestedSections.length > 0
 
 	// Only add section header if there's actual content
-	if (hasContent && section.text) {
+	if (hasContent && section.text !== undefined) {
 		sectionTOC += `${'#'.repeat(depth)} ${section.text}\n\n`
 	}
 
@@ -214,9 +212,6 @@ function flattenSidebarConfig(sidebarConfig: DefaultTheme.Sidebar): DefaultTheme
  * Options for generating a Table of Contents (TOC).
  */
 export interface GenerateTOCOptions {
-	/** The VitePress output directory. */
-	outDir: string
-
 	/** Optional domain to prefix URLs with. */
 	domain?: LlmstxtSettings['domain']
 
@@ -255,19 +250,20 @@ export async function generateTOC(
 	preparedFiles: PreparedFile[],
 	options: GenerateTOCOptions,
 ): Promise<string> {
-	const { outDir, domain, sidebarConfig, linksExtension, base, directoryFilter } = options
+	const { domain, sidebarConfig, linksExtension, base, directoryFilter } = options
 	let tableOfContent = ''
 
 	// Filter files by directory if directoryFilter is provided
-	const filteredFiles = directoryFilter
-		? directoryFilter === '.'
-			? preparedFiles // Root directory includes all files
-			: preparedFiles.filter((file) => {
-					const normalizedPath = transformToPosixPath(file.path)
-					const normalizedFilter = transformToPosixPath(directoryFilter)
-					return normalizedPath.startsWith(`${normalizedFilter}/`) || normalizedPath === normalizedFilter
-				})
-		: preparedFiles
+	const filteredFiles =
+		typeof directoryFilter === 'string'
+			? directoryFilter === '.'
+				? preparedFiles // Root directory includes all files
+				: preparedFiles.filter((file) => {
+						const normalizedPath = transformToPosixPath(file.path)
+						const normalizedFilter = transformToPosixPath(directoryFilter)
+						return normalizedPath.startsWith(`${normalizedFilter}/`) || normalizedPath === normalizedFilter
+					})
+			: preparedFiles
 
 	// If sidebar configuration exists
 	if (sidebarConfig) {
@@ -279,11 +275,11 @@ export async function generateTOC(
 			// Process sections in parallel
 			const sidebarSections = flattenedSidebarConfig.filter((section) => {
 				// Only process sections with items
-				return section.items && Array.isArray(section.items) && section.items.length > 0
+				return typeof section.items === 'object' && Array.isArray(section.items) && section.items.length > 0
 			})
 			const sectionResults = await Promise.all(
 				sidebarSections.map((section) =>
-					processSidebarSection(section, filteredFiles, outDir, domain, linksExtension, 3, base),
+					processSidebarSection(section, filteredFiles, domain, linksExtension, 3, base),
 				),
 			)
 
@@ -300,13 +296,13 @@ export async function generateTOC(
 			if (unsortedFiles.length > 0) {
 				tableOfContent += '### Other\n\n'
 
-				const tocEntries: string[] = []
-				await Promise.all(
-					unsortedFiles.map(async (file) => {
+				const tocEntries = await Promise.all(
+					unsortedFiles.map((file) => {
 						const relativePath = file.path
-						tocEntries.push(generateTOCLink(file, domain, relativePath, linksExtension, base))
+						return generateTOCLink(file, domain, relativePath, linksExtension, base)
 					}),
 				)
+
 				tableOfContent += tocEntries.join('')
 			}
 
@@ -318,7 +314,7 @@ export async function generateTOC(
 	// Process remaining files in parallel
 	if (filteredFiles.length > 0) {
 		const tocEntries = await Promise.all(
-			filteredFiles.map(async (file) => {
+			filteredFiles.map((file) => {
 				const relativePath = file.path
 				return generateTOCLink(file, domain, relativePath, linksExtension, base)
 			}),

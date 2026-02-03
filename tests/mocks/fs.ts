@@ -8,9 +8,9 @@ import fakeMarkdownDocument from '../test-assets/markdown-document.md'
  */
 export const mockedFs = {
 	default: {
-		access: mock(async (): Promise<void> => undefined),
+		access: mock((): Promise<void> => Promise.resolve()),
 		mkdir: mock(),
-		readFile: mock(async (): Promise<string> => fakeMarkdownDocument),
+		readFile: mock((): Promise<string> => Promise.resolve(fakeMarkdownDocument)),
 		writeFile: mock(),
 	},
 }

@@ -41,18 +41,20 @@ export async function generateLLMsFullTxt(
 	const { domain, linksExtension, base, directoryFilter } = options
 
 	// Filter files by directory if directoryFilter is provided
-	const filteredFiles = directoryFilter
-		? directoryFilter === '.'
-			? preparedFiles // Root directory includes all files
-			: preparedFiles.filter((file) => {
-					const relativePath = file.path
-					return relativePath.startsWith(directoryFilter + path.sep) || relativePath === directoryFilter
-				})
-		: preparedFiles
+	const filteredFiles =
+		typeof directoryFilter === 'string'
+			? directoryFilter === '.'
+				? preparedFiles // Root directory includes all files
+				: preparedFiles.filter((file) => {
+						const relativePath = file.path
+						return relativePath.startsWith(directoryFilter + path.sep) || relativePath === directoryFilter
+					})
+			: preparedFiles
 
 	const fileContents = await Promise.all(
-		filteredFiles.map(async (file) => {
+		filteredFiles.map((file) => {
 			// file.path is already relative to outDir, so use it directly
+			// oxlint-disable-next-line typescript/no-unsafe-argument
 			const metadata = generateMetadata(file.file, {
 				domain,
 				filePath: file.path,

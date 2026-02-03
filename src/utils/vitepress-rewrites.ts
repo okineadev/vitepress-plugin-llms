@@ -33,7 +33,7 @@ export function resolveOutputFilePath(
 		if (resolvedFilePath) resolvedRewrite = resolvedFilePath
 	}
 	// Handle object-based rewrites
-	else if (rewrites && typeof rewrites === 'object') {
+	else if (Object.keys(rewrites).length > 0) {
 		// First try exact match (static rewrites)
 		if (relativePath in rewrites) {
 			resolvedRewrite = rewrites[relativePath]
@@ -49,13 +49,14 @@ export function resolveOutputFilePath(
 					const matcher = match(pattern)
 					const result = matcher(relativePath)
 
-					if (result) {
+					// oxlint-disable-next-line max-depth
+					if (typeof result === 'object' && result !== null && 'params' in result) {
 						// Compile the replacement pattern with matched parameters
 						const compileFn = compile(replacement)
 						resolvedRewrite = compileFn(result.params)
 						break
 					}
-				} catch (_error) {
+				} catch {
 					// Skip invalid patterns silently
 				}
 			}
@@ -63,7 +64,7 @@ export function resolveOutputFilePath(
 	}
 
 	// Return resolved path or original file path
-	if (resolvedRewrite) {
+	if (resolvedRewrite !== undefined) {
 		return path.join(workDir, resolvedRewrite)
 	}
 
@@ -92,7 +93,7 @@ export function resolveSourceFilePath(
 	}
 
 	// Handle object-based rewrites
-	if (rewrites && typeof rewrites === 'object') {
+	if (Object.keys(rewrites).length > 0) {
 		// First try exact reverse match (static rewrites)
 		for (const [source, target] of Object.entries(rewrites)) {
 			if (target === outputPath) {
@@ -111,13 +112,13 @@ export function resolveSourceFilePath(
 				const matcher = match(targetPattern)
 				const result = matcher(outputPath)
 
-				if (result) {
+				if (typeof result === 'object' && result !== null && 'params' in result) {
 					// Compile the source pattern with matched parameters
 					const compileFn = compile(sourcePattern)
 					const resolvedSource = compileFn(result.params)
 					return path.join(workDir, resolvedSource)
 				}
-			} catch (_error) {
+			} catch {
 				// Skip invalid patterns silently
 			}
 		}

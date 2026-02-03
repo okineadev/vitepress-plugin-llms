@@ -40,7 +40,7 @@ export interface VitePressConfig extends Omit<UserConfig, keyof ResolvedConfig>,
 }
 
 /** Represents the link extension options for generated links. */
-export type LinksExtension = string | '.md' | '.html'
+export type LinksExtension = '.md' | '.html'
 
 export type NotUndefined<T> = {
 	[K in keyof T]-?: Exclude<T[K], undefined>

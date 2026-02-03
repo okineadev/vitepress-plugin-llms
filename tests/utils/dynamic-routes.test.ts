@@ -2,6 +2,7 @@ import { describe, expect, it } from 'bun:test'
 import dedent from 'dedent'
 import matter from 'gray-matter'
 
+// oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 // @ts-ignore
 import { processVPParams } from '@/utils/dynamic-routes'
 

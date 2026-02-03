@@ -2,6 +2,7 @@ import { describe, expect, it } from 'bun:test'
 
 import {
 	generateLLMsFullTxt,
+	// oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 	// @ts-ignore
 } from '@/generator/llms-full-txt'
 import { preparedFilesSample, sampleDomain } from '../resources'

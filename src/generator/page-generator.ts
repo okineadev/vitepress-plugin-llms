@@ -30,6 +30,7 @@ export async function generateLLMFriendlyPages(
 				targetPath,
 				matter.stringify(
 					mdFile.content,
+					// oxlint-disable-next-line typescript/no-unsafe-argument
 					generateMetadata(mdFile, {
 						domain,
 						filePath: file.path,

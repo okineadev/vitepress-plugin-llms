@@ -40,9 +40,10 @@ export function replaceTemplateVariable(
 	value: string | undefined,
 	fallback?: string,
 ): string {
-	return content.replace(templateVariable(variable), (_, prefix) => {
-		const val = value?.length ? value : fallback?.length ? fallback : ''
-		return val ? `${prefix ? '\n\n' : ''}${val}` : ''
+	return content.replace(templateVariable(variable), (_, prefix: string) => {
+		const val = value !== undefined && value.length > 0 ? value : (fallback ?? '')
+
+		return val.length > 0 ? `${prefix ? '\n\n' : ''}${val}` : ''
 	})
 }
 
@@ -85,8 +86,11 @@ export const generateLink = (
 	base?: VitePressConfig['base'],
 ): string =>
 	expandTemplate('{domain}/{base}{path}{extension}', {
-		domain: domain || '',
-		base: base ? `${base.slice(base.startsWith('/') ? 1 : 0) + (!base.endsWith('/') ? '/' : '')}` : '',
+		domain: domain ?? '',
+		base:
+			base !== undefined && base.length > 0
+				? `${base.slice(base.startsWith('/') ? 1 : 0) + (base.endsWith('/') ? '' : '/')}`
+				: '',
 		path: transformToPosixPath(urlPath),
 		extension: extension,
 	})
@@ -128,6 +132,8 @@ export function generateMetadata(
 ): { url: string; description?: string } {
 	return {
 		url: generateLink(stripExtPosix(filePath), domain, linksExtension ?? '.md', base),
-		...(sourceFile.data?.['description'] && { description: sourceFile.data['description'] }),
-	}
+		...(typeof sourceFile.data?.['description'] === 'string' && {
+			description: sourceFile.data['description'],
+		}),
+	} as ReturnType<typeof generateMetadata>
 }

@@ -1,3 +1,7 @@
 {
-	"recommendations": ["biomejs.biome", "github.vscode-github-actions", "davidanson.vscode-markdownlint"]
+	"recommendations": [
+		"github.vscode-github-actions",
+		"davidanson.vscode-markdownlint",
+		"oxc.oxc-vscode"
+	]
 }

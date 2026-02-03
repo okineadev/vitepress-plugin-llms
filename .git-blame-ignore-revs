@@ -1,2 +1,4 @@
 # chore(formatting): set max line width to `110`
 3244253b2ebc368e6afaa67a93a930191e77553e
+# chore(formatting): format everything with `oxfmt`
+1f99ab806fd418a2594b8f537f7384a7e4025de6

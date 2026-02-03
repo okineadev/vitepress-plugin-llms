@@ -4,16 +4,12 @@ import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:te
 import type { ViteDevServer } from 'vite'
 import type { Plugin } from 'vitepress'
 import mockedFs from '../mocks/fs'
-import mockedLogger from '../mocks/utils/logger'
 
 import fakeMarkdownDocument from '../test-assets/markdown-document.md'
 
 const { access, mkdir, writeFile, readFile } = mockedFs.default
 
 mock.module('node:fs/promises', () => mockedFs)
-
-// Mock the logger to prevent logs in tests
-mock.module('@/utils/logger', () => mockedLogger)
 
 import path from 'node:path'
 import type { VitePressConfig } from '@/internal-types'

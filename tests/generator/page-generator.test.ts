@@ -1,13 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import path from 'node:path'
+import type { PreparedFile } from '@/internal-types'
 import mockedFs from '../mocks/fs'
-import mockedLogger from '../mocks/utils/logger'
 import { outDir, preparedFilesSample } from '../resources'
 
 const { mkdir, writeFile } = mockedFs.default
 
 mock.module('node:fs/promises', () => mockedFs)
-mock.module('@/utils/logger', () => mockedLogger)
 
 import {
 	generateLLMFriendlyPages,
@@ -27,8 +26,8 @@ describe('generateLLMFriendlyPages', () => {
 		expect(mkdir).toHaveBeenCalledTimes(preparedFiles.length)
 		expect(writeFile).toHaveBeenCalledTimes(preparedFiles.length)
 
-		const firstCallArgs = writeFile.mock.calls[0]
-		expect(firstCallArgs[0]).toBe(path.resolve(outDir, preparedFiles[0].path))
+		const firstCallArgs = writeFile.mock.calls[0] as [string, string]
+		expect(firstCallArgs[0]).toBe(path.resolve(outDir, (preparedFiles[0] as PreparedFile).path))
 		expect(firstCallArgs[1]).toContain("url: 'https://example.com/test/getting-started.md'")
 	})
 })

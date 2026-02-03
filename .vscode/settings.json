@@ -17,7 +17,7 @@
 	},
 
 	// Use local TypeScript version
-	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.tsdk": "./node_modules/typescript/lib",
 
 	"material-icon-theme.files.associations": {
 		"bunup.config.ts": "bun",
@@ -31,6 +31,6 @@
 
 	"yaml.schemas": {
 		// Use the local cspell schema  from `node_modules` for `cspell.yml` configuration
-		"./node_modules/@cspell/cspell-types/cspell.schema.json": ["cspell.yml"]
+		"./node_modules/@cspell/cspell-types/cspell.schema.json": "cspell.yml"
 	}
 }

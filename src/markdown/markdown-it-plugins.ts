@@ -25,7 +25,9 @@ export function copyOrDownloadAsMarkdownButtons(
 		for (let i = 0; i < len; i++) {
 			const open = tokens[i]
 			if (open?.tag === 'h1' && open.type === 'heading_open') {
-				const closeIndex = tokens.findIndex((t, j) => j > i && t.tag === 'h1' && t.type === 'heading_close')
+				const closeIndex = tokens.findIndex(
+					(t, j) => j > i && t.tag === 'h1' && t.type === 'heading_close',
+				)
 				if (closeIndex !== -1) {
 					const htmlToken = new Token('html_block', '', 0)
 					htmlToken.content = `<${componentName} />`

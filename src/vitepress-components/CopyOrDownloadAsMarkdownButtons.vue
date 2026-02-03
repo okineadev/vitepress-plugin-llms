@@ -3,7 +3,6 @@
 		<div class="markdown-copy-buttons-inner">
 			<div class="dropdown-container" ref="dropdownContainer">
 				<!-- Main button -->
-				<!-- Main button -->
 				<div class="dropdown-trigger">
 					<!-- Copy area -->
 					<button class="copy-page" @click="copyAsMarkdown">
@@ -285,7 +284,9 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 
 @media (prefers-reduced-motion: no-preference) {
 	.dropdown-menu {
-		transition: opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1), transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+		transition:
+			opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+			transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 		transform-origin: top;
 	}
 

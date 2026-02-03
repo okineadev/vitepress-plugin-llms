@@ -32,8 +32,7 @@ export function cleanUrl(url: string): string {
 	if (pathname.length > 0) {
 		return origin + removeHtmlExtension(pathnameWithoutTrailingSlash)
 	}
-		return origin
-	
+	return origin
 }
 
 export function resolveMarkdownPageURL(url: string): string {
@@ -43,8 +42,7 @@ export function resolveMarkdownPageURL(url: string): string {
 	if (cleanedURL === window.location.origin) {
 		return `${cleanedURL}/index.md`
 	}
-		return `${cleanedURL}.md`
-	
+	return `${cleanedURL}.md`
 }
 
 /**

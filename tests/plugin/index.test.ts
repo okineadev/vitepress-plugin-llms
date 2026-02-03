@@ -114,7 +114,9 @@ describe('llmstxt plugin', () => {
 				const result = await plugin[0].transform(fakeMarkdownDocument, 'docs/index.md')
 
 				expect(result).not.toBeNull()
-				expect(result.code).toContain('Are you an LLM? View /llms-full.txt for full documentation bundle')
+				expect(result.code).toContain(
+					'Are you an LLM? View /llms-full.txt for full documentation bundle',
+				)
 			})
 
 			it('should inject LLM hint for main page when both generateLLMsTxt and generateLLMsFullTxt are enabled', async () => {
@@ -734,7 +736,9 @@ This is a test page.`
 				expect(calls.some((filepath) => filepath.endsWith(path.join('dist/llms.txt')))).toBe(true) // root
 				expect(calls.some((filepath) => filepath.endsWith(path.join('guide/llms.txt')))).toBe(true)
 				expect(calls.some((filepath) => filepath.endsWith(path.join('api/llms.txt')))).toBe(true)
-				expect(calls.some((filepath) => filepath.endsWith(path.join('api', 'advanced/llms.txt')))).toBe(true)
+				expect(
+					calls.some((filepath) => filepath.endsWith(path.join('api', 'advanced/llms.txt'))),
+				).toBe(true)
 			})
 
 			it('should filter content correctly for each directory level', async () => {
@@ -760,7 +764,8 @@ This is a test page.`
 
 				// Check that root llms.txt contains all files
 				const rootLlmsTxt = writeFile.mock.calls.find(
-					(call) => call[0] === path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'llms.txt'),
+					(call) =>
+						call[0] === path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'llms.txt'),
 				)?.[1] as string
 				expect(rootLlmsTxt).toContain('root-file')
 				expect(rootLlmsTxt).toContain('getting-started')
@@ -768,7 +773,9 @@ This is a test page.`
 
 				// Check that guide llms.txt only contains guide files
 				const guideLlmsTxt = writeFile.mock.calls.find(
-					(call) => call[0] === path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'guide/llms.txt'),
+					(call) =>
+						call[0] ===
+						path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'guide/llms.txt'),
 				)?.[1] as string
 				expect(guideLlmsTxt).toContain('getting-started')
 				expect(guideLlmsTxt).not.toContain('root-file')
@@ -776,7 +783,8 @@ This is a test page.`
 
 				// Check that api llms.txt only contains api files
 				const apiLlmsTxt = writeFile.mock.calls.find(
-					(call) => call[0] === path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'api/llms.txt'),
+					(call) =>
+						call[0] === path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'api/llms.txt'),
 				)?.[1] as string
 				expect(apiLlmsTxt).toContain('reference')
 				expect(apiLlmsTxt).not.toContain('root-file')
@@ -811,9 +819,15 @@ This is a test page.`
 				expect(calls.some((filepath) => filepath.endsWith(path.join('api/llms.txt')))).toBe(true)
 
 				// Check llms-full.txt files
-				expect(calls.some((filepath) => filepath.endsWith(path.join('dist', 'llms-full.txt')))).toBe(true) // root
-				expect(calls.some((filepath) => filepath.endsWith(path.join('guide', 'llms-full.txt')))).toBe(true)
-				expect(calls.some((filepath) => filepath.endsWith(path.join('api', 'llms-full.txt')))).toBe(true)
+				expect(calls.some((filepath) => filepath.endsWith(path.join('dist', 'llms-full.txt')))).toBe(
+					true,
+				) // root
+				expect(calls.some((filepath) => filepath.endsWith(path.join('guide', 'llms-full.txt')))).toBe(
+					true,
+				)
+				expect(calls.some((filepath) => filepath.endsWith(path.join('api', 'llms-full.txt')))).toBe(
+					true,
+				)
 			})
 
 			it('should filter llms-full.txt content correctly for each directory', async () => {
@@ -839,7 +853,8 @@ This is a test page.`
 
 				// Check that root llms-full.txt contains all files
 				const rootLlmsFullTxt = writeFile.mock.calls.find(
-					(call) => call[0] === path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'llms-full.txt'),
+					(call) =>
+						call[0] === path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'llms-full.txt'),
 				)?.[1] as string
 				expect(rootLlmsFullTxt).toContain('root-file')
 				expect(rootLlmsFullTxt).toContain('getting-started')
@@ -848,7 +863,8 @@ This is a test page.`
 				// Check that guide llms-full.txt only contains guide files
 				const guideLlmsFullTxt = writeFile.mock.calls.find(
 					(call) =>
-						call[0] === path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'guide', 'llms-full.txt'),
+						call[0] ===
+						path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'guide', 'llms-full.txt'),
 				)?.[1] as string
 				expect(guideLlmsFullTxt).toContain('getting-started')
 				expect(guideLlmsFullTxt).not.toContain('root-file')
@@ -857,7 +873,8 @@ This is a test page.`
 				// Check that api llms-full.txt only contains api files
 				const apiLlmsFullTxt = writeFile.mock.calls.find(
 					(call) =>
-						call[0] === path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'api', 'llms-full.txt'),
+						call[0] ===
+						path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'api', 'llms-full.txt'),
 				)?.[1] as string
 				expect(apiLlmsFullTxt).toContain('reference')
 				expect(apiLlmsFullTxt).not.toContain('root-file')

@@ -90,7 +90,8 @@ export async function generateLLMsTxt(
 		// oxlint-disable-next-line typescript/no-unsafe-member-access
 		indexMdFile.data?.['hero']?.tagline ??
 		indexMdFile.data?.['tagline'] ??
-		(templateVariables.description === undefined && 'This file contains links to all documentation sections.')
+		(templateVariables.description === undefined &&
+			'This file contains links to all documentation sections.')
 
 	templateVariables.toc ??= await generateTOC(preparedFiles, {
 		domain,

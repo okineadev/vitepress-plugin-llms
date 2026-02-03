@@ -1,11 +1,11 @@
 📝 docs:
-- changed-files:
-  - any-glob-to-any-file: '*.md'
+  - changed-files:
+      - any-glob-to-any-file: '*.md'
 
 ✨ enhancement:
-- changed-files:
-  - any-glob-to-any-file: ['src/**/*']
+  - changed-files:
+      - any-glob-to-any-file: ['src/**/*']
 
 🔄 workflows:
-- changed-files:
-  - any-glob-to-any-file: ['.github/workflows/*', '.github/labeler.yml']
+  - changed-files:
+      - any-glob-to-any-file: ['.github/workflows/*', '.github/labeler.yml']

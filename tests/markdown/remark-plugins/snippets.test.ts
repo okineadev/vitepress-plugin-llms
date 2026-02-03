@@ -419,7 +419,10 @@ function multiply(a, b) {
 		`)
 
 		// Check that relative path was resolved correctly
-		expect(mockReadFileSync).toHaveBeenCalledWith(expect.stringMatching(/relative[/\\]example\.js$/), 'utf-8')
+		expect(mockReadFileSync).toHaveBeenCalledWith(
+			expect.stringMatching(/relative[/\\]example\.js$/),
+			'utf-8',
+		)
 	})
 
 	it('should handle different file extensions', async () => {

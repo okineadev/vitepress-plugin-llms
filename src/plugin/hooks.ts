@@ -77,7 +77,9 @@ export async function transform(
 
 	if (
 		settings.injectLLMHint &&
-		(settings.generateLLMFriendlyDocsForEachPage || settings.generateLLMsTxt || settings.generateLLMsFullTxt)
+		(settings.generateLLMFriendlyDocsForEachPage ||
+			settings.generateLLMsTxt ||
+			settings.generateLLMsFullTxt)
 	) {
 		// @ts-expect-error
 		// oxlint-disable-next-line typescript/no-unsafe-call
@@ -121,7 +123,8 @@ export async function transform(
 			if (idx === -1) {
 				content = `${hintBlock}\n${content}`
 			} else {
-				content = content.slice(0, idx + marker.length) + hintBlock + content.slice(idx + marker.length)
+				content =
+					content.slice(0, idx + marker.length) + hintBlock + content.slice(idx + marker.length)
 			}
 			modifiedContent = matter.stringify(content, modifiedContent.data)
 		}
@@ -157,7 +160,9 @@ export async function generateBundle(
 	const resolvedSidebar =
 		settings.sidebar instanceof Function
 			? // oxlint-disable-next-line typescript/no-unsafe-member-access
-				await settings.sidebar(config?.vitepress?.userConfig?.themeConfig?.sidebar as DefaultTheme.Sidebar)
+				await settings.sidebar(
+					config?.vitepress?.userConfig?.themeConfig?.sidebar as DefaultTheme.Sidebar,
+				)
 			: settings.sidebar
 
 	const outDir = config.vitepress?.outDir ?? 'dist'
@@ -285,14 +290,19 @@ export async function generateBundle(
 					const llmsTxt = await generateLLMsTxt(preparedFiles, {
 						indexMd: path.resolve(
 							settings.workDir,
-							resolveSourceFilePath('index.md', settings.workDir, config.vitepress.userConfig?.rewrites),
+							resolveSourceFilePath(
+								'index.md',
+								settings.workDir,
+								config.vitepress.userConfig?.rewrites,
+							),
 						),
 						LLMsTxtTemplate: settings.customLLMsTxtTemplate ?? defaultLLMsTxtTemplate,
 						templateVariables,
 						vitepressConfig: config?.vitepress?.userConfig,
 						domain: settings.domain,
 						sidebar: resolvedSidebar,
-						linksExtension: settings.generateLLMFriendlyDocsForEachPage === false ? '.html' : undefined,
+						linksExtension:
+							settings.generateLLMFriendlyDocsForEachPage === false ? '.html' : undefined,
 						directoryFilter,
 					})
 
@@ -331,7 +341,9 @@ export async function generateBundle(
 					const directoryFilter = isRoot ? '.' : directory.relativePath
 
 					// Determine output path
-					const outputFileName = isRoot ? 'llms-full.txt' : path.join(directory.relativePath, 'llms-full.txt')
+					const outputFileName = isRoot
+						? 'llms-full.txt'
+						: path.join(directory.relativePath, 'llms-full.txt')
 					const llmsFullTxtPath = path.resolve(outDir, outputFileName)
 
 					// Create directory if needed
@@ -341,7 +353,8 @@ export async function generateBundle(
 
 					const llmsFullTxt = await generateLLMsFullTxt(preparedFiles, {
 						domain: settings.domain,
-						linksExtension: settings.generateLLMFriendlyDocsForEachPage === false ? '.html' : undefined,
+						linksExtension:
+							settings.generateLLMFriendlyDocsForEachPage === false ? '.html' : undefined,
 						base: config.base,
 						directoryFilter,
 					})
@@ -350,12 +363,15 @@ export async function generateBundle(
 					await fs.writeFile(llmsFullTxtPath, llmsFullTxt, 'utf-8')
 
 					log.success(
-						expandTemplate('Generated {file} (~{tokens} tokens, {size}) with {fileCount} markdown files', {
-							file: pc.cyan(outputFileName),
-							tokens: pc.bold(millify(estimateTokenCount(llmsFullTxt))),
-							size: pc.bold(getHumanReadableSizeOf(llmsFullTxt)),
-							fileCount: pc.bold(fileCount.toString()),
-						}),
+						expandTemplate(
+							'Generated {file} (~{tokens} tokens, {size}) with {fileCount} markdown files',
+							{
+								file: pc.cyan(outputFileName),
+								tokens: pc.bold(millify(estimateTokenCount(llmsFullTxt))),
+								size: pc.bold(getHumanReadableSizeOf(llmsFullTxt)),
+								fileCount: pc.bold(fileCount.toString()),
+							},
+						),
 					)
 				})(),
 			),

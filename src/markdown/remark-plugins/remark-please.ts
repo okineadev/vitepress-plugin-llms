@@ -102,7 +102,9 @@ function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 				const firstChild = node.children[0]
 				const isEmpty =
 					node.children.length === 0 ||
-					(node.children.length === 1 && firstChild?.type === 'text' && firstChild.value.trim() === '')
+					(node.children.length === 1 &&
+						firstChild?.type === 'text' &&
+						firstChild.value.trim() === '')
 
 				if (isEmpty) {
 					paragraphsToRemove.push({ index, parent })

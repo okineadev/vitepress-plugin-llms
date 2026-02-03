@@ -1,7 +1,16 @@
 {
 	"name": "vitepress-plugin-llms",
-	"description": "📜 A VitePress plugin for generating LLM-friendly documentation",
 	"version": "1.10.0",
+	"description": "📜 A VitePress plugin for generating LLM-friendly documentation",
+	"keywords": [
+		"ai",
+		"documentation",
+		"llms",
+		"plugin",
+		"vite-plugin",
+		"vitepress",
+		"vitepress-plugin"
+	],
 	"license": "MIT",
 	"author": "Okinea Dev <hi@okinea.dev> (https://github.com/okineadev)",
 	"repository": {
@@ -9,26 +18,17 @@
 		"url": "git+https://github.com/okineadev/vitepress-plugin-llms.git"
 	},
 	"funding": "https://github.com/sponsors/okineadev",
-	"keywords": [
-		"vitepress",
-		"plugin",
-		"vite-plugin",
-		"vitepress-plugin",
-		"llms",
-		"documentation",
-		"ai"
-	],
-	"type": "module",
 	"files": [
 		"dist/",
 		"patches/mdast-util-to-markdown@*.patch"
 	],
-	"types": "./dist/index.d.ts",
+	"type": "module",
 	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
 	"exports": {
 		".": {
-			"import": "./dist/index.js",
-			"types": "./dist/index.d.ts"
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
 		},
 		"./vitepress-components/*.vue": {
 			"import": "./dist/vitepress-components/*.vue"
@@ -80,11 +80,11 @@
 		"typescript": "^5.9.3",
 		"vitepress": "1.4.1"
 	},
-	"trustedDependencies": [
-		"esbuild"
-	],
 	"patchedDependencies": {
 		"mdast-util-to-markdown@2.1.2": "patches/mdast-util-to-markdown@2.1.2.patch",
 		"oxfmt@0.28.0": "patches/oxfmt@0.28.0.patch"
-	}
+	},
+	"trustedDependencies": [
+		"esbuild"
+	]
 }

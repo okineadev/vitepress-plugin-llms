@@ -47,7 +47,10 @@ export async function generateLLMsFullTxt(
 				? preparedFiles // Root directory includes all files
 				: preparedFiles.filter((file) => {
 						const relativePath = file.path
-						return relativePath.startsWith(directoryFilter + path.sep) || relativePath === directoryFilter
+						return (
+							relativePath.startsWith(directoryFilter + path.sep) ||
+							relativePath === directoryFilter
+						)
 					})
 			: preparedFiles
 

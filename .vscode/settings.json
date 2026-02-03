@@ -28,5 +28,5 @@
 
 	"yaml.schemas": {
 		"./node_modules/@cspell/cspell-types/cspell.schema.json": "cspell.yml"
-	},
+	}
 }

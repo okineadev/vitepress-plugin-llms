@@ -80,7 +80,9 @@ export function isPathMatch(filePath: string, sidebarPath: string): boolean {
 	const normalizedFilePath = normalizeLinkPath(filePath)
 	const normalizedSidebarPath = normalizeLinkPath(sidebarPath)
 
-	return normalizedFilePath === normalizedSidebarPath || normalizedFilePath === `${normalizedSidebarPath}.md`
+	return (
+		normalizedFilePath === normalizedSidebarPath || normalizedFilePath === `${normalizedSidebarPath}.md`
+	)
 }
 
 /**
@@ -112,7 +114,10 @@ async function processSidebarSection(
 	const [linkItems, nestedSections] = await Promise.all([
 		Promise.all(
 			section.items
-				.filter((item): item is DefaultTheme.SidebarItem & { link: string } => typeof item.link === 'string')
+				.filter(
+					(item): item is DefaultTheme.SidebarItem & { link: string } =>
+						typeof item.link === 'string',
+				)
 				.map((item) => {
 					// Normalize the link path for matching
 					const normalizedItemLink = normalizeLinkPath(
@@ -261,7 +266,10 @@ export async function generateTOC(
 				: preparedFiles.filter((file) => {
 						const normalizedPath = transformToPosixPath(file.path)
 						const normalizedFilter = transformToPosixPath(directoryFilter)
-						return normalizedPath.startsWith(`${normalizedFilter}/`) || normalizedPath === normalizedFilter
+						return (
+							normalizedPath.startsWith(`${normalizedFilter}/`) ||
+							normalizedPath === normalizedFilter
+						)
 					})
 			: preparedFiles
 
@@ -275,7 +283,11 @@ export async function generateTOC(
 			// Process sections in parallel
 			const sidebarSections = flattenedSidebarConfig.filter((section) => {
 				// Only process sections with items
-				return typeof section.items === 'object' && Array.isArray(section.items) && section.items.length > 0
+				return (
+					typeof section.items === 'object' &&
+					Array.isArray(section.items) &&
+					section.items.length > 0
+				)
 			})
 			const sectionResults = await Promise.all(
 				sidebarSections.map((section) =>

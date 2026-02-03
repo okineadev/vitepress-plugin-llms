@@ -39,9 +39,9 @@ import { defineConfig } from 'vitepress'
 import llmstxt from 'vitepress-plugin-llms'
 
 export default defineConfig({
-  vite: {
-    plugins: [llmstxt()]
-  }
+	vite: {
+		plugins: [llmstxt()],
+	},
 })
 ```
 
@@ -71,10 +71,10 @@ import type { Theme } from 'vitepress'
 import CopyOrDownloadAsMarkdownButtons from 'vitepress-plugin-llms/vitepress-components/CopyOrDownloadAsMarkdownButtons.vue'
 
 export default {
-  extends: DefaultTheme,
-  enhanceApp({ app }) {
-    app.component('CopyOrDownloadAsMarkdownButtons', CopyOrDownloadAsMarkdownButtons)
-  }
+	extends: DefaultTheme,
+	enhanceApp({ app }) {
+		app.component('CopyOrDownloadAsMarkdownButtons', CopyOrDownloadAsMarkdownButtons)
+	},
 } satisfies Theme
 ```
 
@@ -85,12 +85,12 @@ import { defineConfig } from 'vitepress'
 import { copyOrDownloadAsMarkdownButtons } from 'vitepress-plugin-llms'
 
 export default defineConfig({
-  // ...
-  markdown: {
-    config(md) {
-      md.use(copyOrDownloadAsMarkdownButtons)
-    }
-  }
+	// ...
+	markdown: {
+		config(md) {
+			md.use(copyOrDownloadAsMarkdownButtons)
+		},
+	},
 })
 ```
 

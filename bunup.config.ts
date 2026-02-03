@@ -1,5 +1,5 @@
-import { defineConfig, type DefineConfigItem } from 'bunup';
-import { copy } from 'bunup/plugins';
+import { defineConfig, type DefineConfigItem } from 'bunup'
+import { copy } from 'bunup/plugins'
 
 export default defineConfig({
 	entry: ['src/index.ts', 'src/vitepress-components/utils.ts'],

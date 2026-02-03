@@ -20,7 +20,10 @@ export async function configureDevServer(server: ViteDevServer, config: VitePres
 			if (req.url.endsWith('.md') || req.url.endsWith('.txt')) {
 				try {
 					// Try to read and serve the markdown file
-					const filePath = path.resolve(config.vitepress?.outDir ?? 'dist', `${stripExt(req.url)}.md`)
+					const filePath = path.resolve(
+						config.vitepress?.outDir ?? 'dist',
+						`${stripExt(req.url)}.md`,
+					)
 					const content = await fs.readFile(filePath, 'utf-8')
 					res.setHeader('Content-Type', 'text/plain; charset=utf-8')
 					res.end(content)

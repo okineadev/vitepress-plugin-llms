@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { compile, match } from 'path-to-regexp'
 import type { VitePressConfig } from '@/internal-types'
+import { transformToPosixPath } from './file-utils'
 
 /**
  * Resolves the output file path for VitePress with support for route rewrites and dynamic slugs.
@@ -20,7 +21,11 @@ export function resolveOutputFilePath(
 	rewrites: VitePressConfig['rewrites'] = {},
 ): string {
 	let resolvedRewrite: string | undefined
-	const relativePath = path.relative(workDir, file)
+	// Normalize paths to POSIX format for consistent matching
+	// TODO: maybe refactor it later
+	const normalizedFile = file.split(path.sep).join(path.posix.sep)
+	const normalizedWorkDir = workDir.split(path.sep).join(path.posix.sep)
+	const relativePath = path.posix.relative(normalizedWorkDir, normalizedFile)
 
 	// Handle function-based rewrites
 	if (typeof rewrites === 'function') {
@@ -134,7 +139,7 @@ export function resolveSourceFilePath(
 export function resolvePageURL(url: string): string {
 	// Normalize leading slash
 	const hasLeadingSlash = url.startsWith('/')
-	const normalized = hasLeadingSlash ? url.slice(1) : url
+	const normalized = transformToPosixPath(hasLeadingSlash ? url.slice(1) : url)
 
 	// Only rewrite if ends with /index.md and is not just index.md
 	if (normalized.endsWith('/index.md') && normalized !== 'index.md') {

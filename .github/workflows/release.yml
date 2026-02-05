@@ -35,7 +35,7 @@ jobs:
     name: 🚀 Release
     needs: test
     if: ${{ !cancelled() && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-24.04-arm
 
     permissions:
       id-token: write # Required for OIDC authentication with NPM

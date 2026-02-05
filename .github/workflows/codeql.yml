@@ -7,7 +7,7 @@ permissions: {}
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-24.04-arm
 
     concurrency:
       group: codeql-${{ matrix.language }}-${{ github.ref }}

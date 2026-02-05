@@ -21,8 +21,8 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-slim
-          - ${{ inputs.run-on-windows && 'windows-latest' || '' }}
+          - ubuntu-24.04-arm
+          - ${{ inputs.run-on-windows && 'windows-11-arm' || '' }}
         exclude:
           - os: ''
 

@@ -44,7 +44,7 @@
 			"labels": ["🔄 workflows"]
 		},
 		{
-			"matchPackageNames": ["@types/node", "bun-types", "vitepress"],
+			"matchPackageNames": ["@types/node", "bun-types", "vitepress", "path-to-regexp"],
 			"enabled": false
 		}
 	],

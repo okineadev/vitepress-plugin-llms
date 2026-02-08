@@ -80,6 +80,9 @@
 		"typescript": "^5.9.3",
 		"vitepress": "1.4.1"
 	},
+	"engines": {
+		"node": ">=18.0.0"
+	},
 	"patchedDependencies": {
 		"mdast-util-to-markdown@2.1.2": "patches/mdast-util-to-markdown@2.1.2.patch",
 		"oxfmt@0.28.0": "patches/oxfmt@0.28.0.patch"

@@ -3,7 +3,7 @@ import Token from 'markdown-it/lib/token.mjs' // 🩼
 
 // spell-checker:words Divyansh
 /**
- * Markdown-it plugin that injects <CopyOrDownloadAsMarkdownButtons /> after the first H1 heading
+ * Markdown-it plugin that injects `<CopyOrDownloadAsMarkdownButtons />` after the first H1 heading
  *
  * @param componentName - The name of the Vue component to inject
  * (default: `'CopyOrDownloadAsMarkdownButtons'`), useful when you need to

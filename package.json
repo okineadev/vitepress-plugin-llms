@@ -48,6 +48,7 @@
 	},
 	"dependencies": {
 		"gray-matter": "^4.0.3",
+		"markdown-it": "^14.1.0",
 		"markdown-title": "^1.0.2",
 		"mdast-util-from-markdown": "^2.0.3",
 		"millify": "^6.1.0",

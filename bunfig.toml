@@ -7,3 +7,10 @@ bun = true
 [test]
 preload = ["./tests/mocks/preload-global-mocks.ts", "console-fail-test/setup"]
 # coverage = true
+
+[install]
+# This is necessary because we are currently using the same packages
+# that are installed in `node_modules` along with `vitepress`
+#
+# So no `isolated` for now.
+linker = "hoisted"

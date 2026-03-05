@@ -7,6 +7,7 @@ export default defineConfig({
 	dts: {
 		entry: ['src/index.ts'],
 		splitting: true,
+		resolve: false,
 	},
 	banner: '// Built with bunup (https://bunup.dev)',
 	plugins: [

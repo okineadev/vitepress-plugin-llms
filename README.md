@@ -207,21 +207,26 @@ The file structure in `.vitepress/dist` folder will be as follows:
 
 This plugin follows the [llmstxt.org](https://llmstxt.org/) standard, which defines the best practices for LLM-friendly documentation.
 
-## ✨ Projects where this plugin is used
+## ✅ The most popular projects that trust this plugin
+
+This plugin is used by the most popular projects including [**Vite**](https://vite.dev), [**Vue.js**](https://vuejs.org), [**Vitest**](https://vitest.dev), [**Rolldown**](https://rolldown.rs) and many other incredible projects that won't fit on this list
+
+[<img src="https://dependents.info/okineadev/vitepress-plugin-llms/image" height="50">](https://dependents.info/okineadev/vitepress-plugin-llms)
+
+### Early adopters
+
+Here is a list of less popular but no less cool projects that were the first to pick up this plugin, thereby helping others discover this plugin
 
 | Project                                                  |                                                                                   Stars                                                                                   |                      `llms.txt`                       |                         `llms-full.txt`                         |
 | -------------------------------------------------------- | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------: | :-------------------------------------------------------------: |
-| [**Vite**](https://vitejs.dev/)                          |           [![Stars](https://img.shields.io/github/stars/vitejs/vite?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/vitejs/vite)           |         [llms.txt](https://vite.dev/llms.txt)         |         [llms-full.txt](https://vite.dev/llms-full.txt)         |
-| [**Vue.js**](https://vuejs.org/)                         |            [![Stars](https://img.shields.io/github/stars/vuejs/core?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/vuejs/core)            |        [llms.txt](https://vuejs.org/llms.txt)         |        [llms-full.txt](https://vuejs.org/llms-full.txt)         |
-| [**Slidev**](https://sli.dev/)                           |       [![Stars](https://img.shields.io/github/stars/slidevjs/slidev?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/slidevjs/slidev)       |         [llms.txt](https://sli.dev/llms.txt)          |         [llms-full.txt](https://sli.dev/llms-full.txt)          |
-| [**Elysia**](https://elysiajs.com/)                      |       [![Stars](https://img.shields.io/github/stars/elysiajs/elysia?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/elysiajs/elysia)       |       [llms.txt](https://elysiajs.com/llms.txt)       |       [llms-full.txt](https://elysiajs.com/llms-full.txt)       |
-| [**Rolldown**](https://rolldown.rs/)                     |     [![Stars](https://img.shields.io/github/stars/rolldown/rolldown?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/rolldown/rolldown)     |       [llms.txt](https://rolldown.rs/llms.txt)        |       [llms-full.txt](https://rolldown.rs/llms-full.txt)        |
 | [**shadcn/vue**](https://shadcn-vue.com/)                |     [![Stars](https://img.shields.io/github/stars/unovue/shadcn-vue?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/unovue/shadcn-vue)     |      [llms.txt](https://shadcn-vue.com/llms.txt)      |      [llms-full.txt](https://shadcn-vue.com/llms-full.txt)      |
 | [**Fantastic-admin**](https://fantastic-admin.hurui.me/) | [![Stars](https://img.shields.io/github/stars/fantastic-admin/basic?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/fantastic-admin/basic) | [llms.txt](https://fantastic-admin.hurui.me/llms.txt) | [llms-full.txt](https://fantastic-admin.hurui.me/llms-full.txt) |
 | [**Vue Macros**](https://vue-macros.dev/)                | [![Stars](https://img.shields.io/github/stars/vue-macros/vue-macros?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/vue-macros/vue-macros) |      [llms.txt](https://vue-macros.dev/llms.txt)      |      [llms-full.txt](https://vue-macros.dev/llms-full.txt)      |
-| [**oRPC**](https://orpc.unnoq.com/)                      |            [![Stars](https://img.shields.io/github/stars/unnoq/orpc?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/unnoq/orpc)            |      [llms.txt](https://orpc.unnoq.com/llms.txt)      |      [llms-full.txt](https://orpc.unnoq.com/llms-full.txt)      |
+| [**oRPC**](https://orpc.unnoq.com/)                      |        [![Stars](https://img.shields.io/github/stars/middleapi/orpc?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/middleapi/orpc)        |      [llms.txt](https://orpc.unnoq.com/llms.txt)      |      [llms-full.txt](https://orpc.unnoq.com/llms-full.txt)      |
 | [**tsdown**](https://tsdown.dev/)                        |       [![Stars](https://img.shields.io/github/stars/rolldown/tsdown?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/rolldown/tsdown)       |        [llms.txt](https://tsdown.dev/llms.txt)        |        [llms-full.txt](https://tsdown.dev/llms-full.txt)        |
 | [**GramIO**](https://gramio.dev/)                        |       [![Stars](https://img.shields.io/github/stars/gramiojs/gramio?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/gramiojs/gramio)       |        [llms.txt](https://gramio.dev/llms.txt)        |        [llms-full.txt](https://gramio.dev/llms-full.txt)        |
+
+Also big thanks to [@yyx990803](https://github.com/yyx990803) who agreed to integrate this plugin into all projects of the [**VoidZero**](https://voidzero.dev) ecosystem, [**Vue.js**](https://vuejs.org) and shared about this plugin with the world on X, thanks to which this plugin has gained such popularity 💝
 
 ## ❤️ Support
 

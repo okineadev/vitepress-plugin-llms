@@ -10,7 +10,9 @@ export const mockedFs = {
 	default: {
 		access: mock((): Promise<void> => Promise.resolve()),
 		mkdir: mock(),
-		readFile: mock((): Promise<string> => Promise.resolve(fakeMarkdownDocument)),
+		readFile: mock((/* abstraction */ _filePath: string): Promise<string> => {
+			return Promise.resolve(fakeMarkdownDocument)
+		}),
 		writeFile: mock(),
 	},
 }

@@ -8,6 +8,7 @@ import { configureDevServer } from '@/plugin/dev-server'
 import { generateBundle, transform } from '@/plugin/hooks'
 import type { LlmstxtSettings } from '@/types'
 import log from '@/utils/logger'
+import { GrayMatterFile, Input } from 'gray-matter'
 
 const PLUGIN_NAME = packageName
 
@@ -48,6 +49,9 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 	// Map to store all markdown files content
 	const mdFiles: Map<string, string> = new Map()
 
+	// Stores the parsed index.md file
+	let indexMdFile: GrayMatterFile<Input> | undefined = undefined
+
 	// Flag to identify which build we're in
 	let isSsrBuild = false
 
@@ -58,7 +62,16 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 
 			/** Processes each Markdown file */
 			transform(content, id) {
-				return transform(content, id, settings, mdFiles, config)
+				return transform(
+					content,
+					id,
+					settings,
+					(file) => {
+						indexMdFile = file
+					},
+					mdFiles,
+					config,
+				)
 			},
 		},
 		{
@@ -108,7 +121,22 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 			 * This ensures the processing happens exactly once.
 			 */
 			async generateBundle(_options, bundle) {
-				await generateBundle(bundle, settings, config, mdFiles, isSsrBuild)
+				// Skip processing during SSR build
+				if (isSsrBuild) {
+					log.info('Skipping LLMs docs generation in SSR build')
+					return
+				}
+				if (settings.generateLLMsTxt && indexMdFile === undefined) {
+					throw new Error('index.md file was not found during build')
+				} else {
+					await generateBundle(
+						bundle,
+						settings,
+						config,
+						indexMdFile as GrayMatterFile<Input>,
+						mdFiles,
+					)
+				}
 			},
 		},
 	]

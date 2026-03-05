@@ -25,7 +25,7 @@ import log from '@/utils/logger'
 import type { DefaultTheme } from 'vitepress'
 import { extractTitle } from '@/utils/markdown'
 import { expandTemplate } from '@/utils/template-utils'
-import { resolveOutputFilePath, resolvePageURL, resolveSourceFilePath } from '@/utils/vitepress-rewrites'
+import { resolveOutputFilePath, resolvePageURL } from '@/utils/vitepress-rewrites'
 
 /**
  * Processes each Markdown file.
@@ -34,6 +34,7 @@ export async function transform(
 	content: string,
 	id: string,
 	settings: Required<LlmstxtSettings> & { ignoreFiles: string[]; workDir: string },
+	setIndexMdFile: (file: GrayMatterFile<Input>) => void,
 	mdFiles: Map<string, string>,
 	config: VitePressConfig,
 	// TODO: Fix type
@@ -51,6 +52,11 @@ export async function transform(
 		config.vitepress.userConfig?.rewrites,
 	)
 	const isMainPage = path.relative(settings.workDir, resolvedOutFilePath) === 'index.md'
+
+	if (isMainPage) {
+		// Pick up index.md file for llms.txt generation
+		setIndexMdFile(matter(content))
+	}
 
 	// Apply ignore rules, but skip them for main page
 	if (settings.ignoreFiles?.length) {
@@ -146,15 +152,9 @@ export async function generateBundle(
 	bundle: OutputBundle,
 	settings: Required<LlmstxtSettings> & { ignoreFiles: string[]; workDir: string },
 	config: VitePressConfig,
+	indexMdFile: GrayMatterFile<Input>,
 	mdFiles: Map<string, string>,
-	isSsrBuild: boolean,
 ): Promise<void> {
-	// Skip processing during SSR build
-	if (isSsrBuild) {
-		log.info('Skipping LLMs docs generation in SSR build')
-		return
-	}
-
 	// resolve the sidebar option before reading `mdFiles`
 	// in order to process files from content loaders used in the sidebar function
 	const resolvedSidebar =
@@ -288,14 +288,7 @@ export async function generateBundle(
 					log.info(`Generating ${pc.cyan(outputFileName)}...`)
 
 					const llmsTxt = await generateLLMsTxt(preparedFiles, {
-						indexMd: path.resolve(
-							settings.workDir,
-							resolveSourceFilePath(
-								'index.md',
-								settings.workDir,
-								config.vitepress.userConfig?.rewrites,
-							),
-						),
+						indexMdFile,
 						LLMsTxtTemplate: settings.customLLMsTxtTemplate ?? defaultLLMsTxtTemplate,
 						templateVariables,
 						vitepressConfig: config?.vitepress?.userConfig,

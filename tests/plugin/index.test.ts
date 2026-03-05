@@ -326,6 +326,8 @@ This is a test page.`
 		})
 
 		it('should create output directory if it does not exist', async () => {
+			plugin = llmstxt({ generateLLMsTxt: false, generateLLMsFullTxt: false })
+
 			access.mockImplementationOnce(() => {
 				throw new Error()
 			})
@@ -407,6 +409,8 @@ This is a test page.`
 				})
 				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
+				// @ts-expect-error
+				await plugin[0].transform(fakeMarkdownDocument, 'docs/index.md')
 				// @ts-expect-error
 				await plugin[0].transform(fakeMarkdownDocument, 'docs/test.md')
 				// @ts-expect-error
@@ -590,6 +594,8 @@ This is a test page.`
 				plugin[1].configResolved(configWithRewrites)
 
 				// @ts-expect-error
+				await plugin[0].transform(fakeMarkdownDocument, 'docs/index.md')
+				// @ts-expect-error
 				await plugin[0].transform(fakeMarkdownDocument, 'docs/guide/index.md')
 				// @ts-expect-error
 				await plugin[1].generateBundle()
@@ -663,6 +669,8 @@ This is a test page.`
 				plugin[1].configResolved(mockConfig)
 				await Promise.all([
 					// @ts-expect-error
+					plugin[0].transform(fakeMarkdownDocument, 'docs/index.md'),
+					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
 					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/guide/test.md'),
@@ -687,6 +695,8 @@ This is a test page.`
 				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 				await Promise.all([
+					// @ts-expect-error
+					plugin[0].transform(fakeMarkdownDocument, 'docs/index.md'),
 					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
 					// @ts-expect-error
@@ -716,6 +726,8 @@ This is a test page.`
 				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 				await Promise.all([
+					// @ts-expect-error
+					plugin[0].transform(fakeMarkdownDocument, 'docs/index.md'),
 					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
 					// @ts-expect-error
@@ -750,6 +762,8 @@ This is a test page.`
 				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 				await Promise.all([
+					// @ts-expect-error
+					plugin[0].transform(fakeMarkdownDocument, 'docs/index.md'),
 					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/root-file.md'),
 					// @ts-expect-error
@@ -799,6 +813,8 @@ This is a test page.`
 				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
 				await Promise.all([
+					// @ts-expect-error
+					plugin[0].transform(fakeMarkdownDocument, 'docs/index.md'),
 					// @ts-expect-error
 					plugin[0].transform(fakeMarkdownDocument, 'docs/root-file.md'),
 					// @ts-expect-error

@@ -14,7 +14,7 @@ overrides:
     words:
       - Okinea
       - tsgolint
-  - filename: patches/oxfmt@0.28.0.patch.md
+  - filename: patches/oxfmt.patch.md
     words:
       - morlay
 

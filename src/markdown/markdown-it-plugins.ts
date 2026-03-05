@@ -1,5 +1,5 @@
 import type MarkdownIt from 'markdown-it'
-import Token from 'markdown-it/lib/token.mjs'
+import Token from 'markdown-it/lib/token.mjs' // 🩼
 
 // spell-checker:words Divyansh
 /**

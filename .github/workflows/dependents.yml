@@ -1,0 +1,21 @@
+name: 👷‍♂️ Update Dependents Info
+
+on:
+  schedule:
+    - cron: '0 0 */2 * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  dependents:
+    name: 👷‍♂️ Update dependents.info
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Needed for https://dependents.info
+    steps:
+      - uses: gouravkhunger/dependents.info@18ac9b82a1971134c9fbdefb577943191eb00266 # v0.1.4

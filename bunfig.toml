@@ -6,6 +6,7 @@ bun = true
 
 [test]
 preload = ["./tests/mocks/preload-global-mocks.ts", "console-fail-test/setup"]
+onlyFailures = true
 # coverage = true
 
 [install]

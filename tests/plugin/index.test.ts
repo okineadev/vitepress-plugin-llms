@@ -398,6 +398,87 @@ This is a test page.`
 			)
 		})
 
+		it('should ignore directories with glob patterns (e.g., guide/**)', async () => {
+			plugin = llmstxt({
+				generateLLMsFullTxt: false,
+				generateLLMsTxt: false,
+				ignoreFiles: ['pages/components/guide/**'],
+			})
+			// @ts-expect-error
+			plugin[1].configResolved(mockConfig)
+			await Promise.all([
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/pages/components/test.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/pages/components/guide/index.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/pages/components/guide/getting-started.md'),
+			])
+			// @ts-expect-error
+			await plugin[1].generateBundle()
+
+			// Verify that only non-ignored files were written (excluding guide/*)
+			expect(writeFile).toHaveBeenCalledTimes(1)
+			expect(writeFile).toBeCalledWith(
+				path.resolve(mockConfig.vitepress.outDir, 'pages/components/test.md'),
+				'---\nurl: /pages/components/test.md\n---\n# Some cool stuff\n',
+			)
+		})
+
+		it('should ignore nested directories with patterns (e.g., pages/components/guide/**)', async () => {
+			plugin = llmstxt({
+				generateLLMsFullTxt: false,
+				generateLLMsTxt: false,
+				ignoreFiles: ['pages/components/guide/**'],
+			})
+			// @ts-expect-error
+			plugin[1].configResolved(mockConfig)
+			await Promise.all([
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/pages/components/alert.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/pages/components/guide/index.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/pages/components/guide/nested/example.md'),
+			])
+			// @ts-expect-error
+			await plugin[1].generateBundle()
+
+			// Verify that only non-ignored files were written (excluding pages/components/guide/**)
+			expect(writeFile).toHaveBeenCalledTimes(1)
+			expect(writeFile).toBeCalledWith(
+				path.resolve(mockConfig.vitepress.outDir, 'pages', 'components', 'alert.md'),
+				'---\nurl: /pages/components/alert.md\n---\n# Some cool stuff\n',
+			)
+		})
+
+		it('should ignore directories with wildcard patterns (e.g., **/guide/**)', async () => {
+			plugin = llmstxt({
+				generateLLMsFullTxt: false,
+				generateLLMsTxt: false,
+				ignoreFiles: ['**/guide/**'],
+			})
+			// @ts-expect-error
+			plugin[1].configResolved(mockConfig)
+			await Promise.all([
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/test.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/components/guide/index.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/pages/guide/getting-started.md'),
+			])
+			// @ts-expect-error
+			await plugin[1].generateBundle()
+
+			// Verify that only non-ignored files were written (excluding any path with guide/**)
+			expect(writeFile).toHaveBeenCalledTimes(1)
+			expect(writeFile).toBeCalledWith(
+				path.resolve(mockConfig.vitepress.outDir, 'test.md'),
+				'---\nurl: /test.md\n---\n# Some cool stuff\n',
+			)
+		})
+
 		it.serial(
 			'does not add links with `.md` extension in `llms.txt` if `generateLLMFriendlyDocsForEachPage` option is disabled',
 			async () => {

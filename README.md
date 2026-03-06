@@ -3,7 +3,7 @@
 <div align="center">
   <b>Is this plugin useful for your site? Consider <a href="https://github.com/sponsors/okineadev">sponsoring the developer</a> to support the project's development 😺</b>
   <br><br>
-  <a href="https://npmjs.com/package/vitepress-plugin-llms">
+  <a href="https://npmx.com/package/vitepress-plugin-llms">
     <!-- https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#specifying-the-theme-an-image-is-shown-to -->
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.png">
@@ -15,7 +15,7 @@
 <!-- prettier-ignore-start -->
   # 📜 vitepress-plugin-llms
 
-  [![NPM Downloads](https://img.shields.io/npm/dw/vitepress-plugin-llms?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMDAwMDAwIj48cGF0aCBkPSJNNDgwLTMyMCAyODAtNTIwbDU2LTU4IDEwNCAxMDR2LTMyNmg4MHYzMjZsMTA0LTEwNCA1NiA1OC0yMDAgMjAwWk0xNjAtMTYwdi0yMDBoODB2MTIwaDQ4MHYtMTIwaDgwdjIwMEgxNjBaIi8%2BPC9zdmc%2B&labelColor=FAFAFA&color=212121)](https://www.npmjs.com/package/vitepress-plugin-llms) [![NPM Version](https://img.shields.io/npm/v/vitepress-plugin-llms?logo=npm&logoColor=212121&label=version&labelColor=FAFAFA&color=212121)](https://npmjs.com/package/vitepress-plugin-llms) [![Tests Status](https://img.shields.io/github/actions/workflow/status/okineadev/vitepress-plugin-llms/ci.yml?label=tests&labelColor=212121)](https://github.com/okineadev/vitepress-plugin-llms/actions/workflows/ci.yml) [![Built with Bun](https://img.shields.io/badge/Built_with-Bun-fbf0df?logo=bun&labelColor=212121)](https://bun.sh) [![Formatted with oxfmt](https://github.com/user-attachments/assets/bbae5797-1160-4256-a838-0b51bff4370e)](https://oxc.rs/)
+  [![NPM Downloads](https://img.shields.io/npm/dw/vitepress-plugin-llms?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMDAwMDAwIj48cGF0aCBkPSJNNDgwLTMyMCAyODAtNTIwbDU2LTU4IDEwNCAxMDR2LTMyNmg4MHYzMjZsMTA0LTEwNCA1NiA1OC0yMDAgMjAwWk0xNjAtMTYwdi0yMDBoODB2MTIwaDQ4MHYtMTIwaDgwdjIwMEgxNjBaIi8%2BPC9zdmc%2B&labelColor=FAFAFA&color=212121)](https://npmx.dev/package/vitepress-plugin-llms) [![NPM Version](https://img.shields.io/npm/v/vitepress-plugin-llms?label=.%2Fnpmx&labelColor=FAFAFA&color=212121)](https://npmx.dev/package/vitepress-plugin-llms) [![Tests Status](https://img.shields.io/github/actions/workflow/status/okineadev/vitepress-plugin-llms/ci.yml?label=tests&labelColor=212121)](https://github.com/okineadev/vitepress-plugin-llms/actions/workflows/ci.yml) [![Built with Bun](https://img.shields.io/badge/Built_with-Bun-fbf0df?logo=bun&labelColor=212121)](https://bun.sh) [![Formatted with oxfmt](https://github.com/user-attachments/assets/bbae5797-1160-4256-a838-0b51bff4370e)](https://oxc.rs/)
  [![sponsor](https://img.shields.io/badge/sponsor-EA4AAA?logo=githubsponsors&labelColor=FAFAFA)](https://github.com/sponsors/okineadev)
 
   [🐛 Report bug](https://github.com/okineadev/vitepress-plugin-llms/issues/new?template=bug-report.yml) • [Request feature ✨](https://github.com/okineadev/vitepress-plugin-llms/issues/new?template=feature-request.yml)
@@ -39,9 +39,9 @@ import { defineConfig } from 'vitepress'
 import llmstxt from 'vitepress-plugin-llms'
 
 export default defineConfig({
-	vite: {
-		plugins: [llmstxt()],
-	},
+  vite: {
+    plugins: [llmstxt()],
+  },
 })
 ```
 
@@ -71,10 +71,10 @@ import type { Theme } from 'vitepress'
 import CopyOrDownloadAsMarkdownButtons from 'vitepress-plugin-llms/vitepress-components/CopyOrDownloadAsMarkdownButtons.vue'
 
 export default {
-	extends: DefaultTheme,
-	enhanceApp({ app }) {
-		app.component('CopyOrDownloadAsMarkdownButtons', CopyOrDownloadAsMarkdownButtons)
-	},
+  extends: DefaultTheme,
+  enhanceApp({ app }) {
+    app.component('CopyOrDownloadAsMarkdownButtons', CopyOrDownloadAsMarkdownButtons)
+  },
 } satisfies Theme
 ```
 
@@ -85,12 +85,12 @@ import { defineConfig } from 'vitepress'
 import { copyOrDownloadAsMarkdownButtons } from 'vitepress-plugin-llms'
 
 export default defineConfig({
-	// ...
-	markdown: {
-		config(md) {
-			md.use(copyOrDownloadAsMarkdownButtons)
-		},
-	},
+  // ...
+  markdown: {
+    config(md) {
+      md.use(copyOrDownloadAsMarkdownButtons)
+    },
+  },
 })
 ```
 
@@ -211,7 +211,10 @@ This plugin follows the [llmstxt.org](https://llmstxt.org/) standard, which defi
 
 This plugin is used by the most popular projects including [**Vite**](https://vite.dev), [**Vue.js**](https://vuejs.org), [**Vitest**](https://vitest.dev), [**Rolldown**](https://rolldown.rs) and many other incredible projects that won't fit on this list
 
-[<img src="https://dependents.info/okineadev/vitepress-plugin-llms/image" height="50">](https://dependents.info/okineadev/vitepress-plugin-llms)
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable-next-line no-inline-html -->
+[<img alt="Dependents" src="https://dependents.info/okineadev/vitepress-plugin-llms/image" height="50">](https://dependents.info/okineadev/vitepress-plugin-llms)
+<!-- prettier-ignore-end -->
 
 ### Early adopters
 

@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: taiki-e/checkout-action@3ab630d442e198ebb0ca30872832406ca01c46eb # v1.4.0
         with:
           persist-credentials: false
           sparse-checkout-cone-mode: false

@@ -127,6 +127,10 @@ export async function transform(
 					content.slice(0, idx + marker.length) + hintBlock + content.slice(idx + marker.length)
 			}
 			modifiedContent = matter.stringify(content, modifiedContent.data)
+		} else {
+			// Ensure modifiedContent is converted back to string when no hint is generated,
+			// otherwise GrayMatterFile object causes src.replace is not a function
+			modifiedContent = matter.stringify(modifiedContent.content, modifiedContent.data)
 		}
 	}
 

@@ -18,4 +18,6 @@ jobs:
     permissions:
       id-token: write # Needed for https://dependents.info
     steps:
-      - uses: gouravkhunger/dependents.info@18ac9b82a1971134c9fbdefb577943191eb00266 # v0.1.4
+      - uses: gouravkhunger/dependents.info@bb3d55b67e0ec762dacb8c7456585a8464e14cb4 # v0.1.5
+        with:
+          exclude-users: koel

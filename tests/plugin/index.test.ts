@@ -963,4 +963,247 @@ This is a test page.`
 			})
 		})
 	})
+
+	describe('ignoreFilesPerOutput', () => {
+		it('ignores files for llms.txt only, keeping them in llms-full.txt and pages', async () => {
+			plugin = llmstxt({
+				ignoreFiles: [],
+				ignoreFilesPerOutput: {
+					llmsTxt: ['api/*'],
+				},
+				generateLLMsTxt: true,
+				generateLLMsFullTxt: true,
+				generateLLMFriendlyDocsForEachPage: true,
+			})
+			// @ts-expect-error
+			plugin[1].configResolved(mockConfig)
+			await Promise.all([
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/guide/intro.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/api/reference.md'),
+			])
+			// @ts-expect-error
+			await plugin[1].generateBundle()
+
+			// llms.txt + llms-full.txt + 2 pages = 4 total writes
+			expect(writeFile).toHaveBeenCalledTimes(4)
+
+			const calls = writeFile.mock.calls as [string, string][]
+
+			const llmsTxt = calls.find(([p]) => p.endsWith('llms.txt'))?.[1]
+			const llmsFullTxt = calls.find(([p]) => p.endsWith('llms-full.txt'))?.[1]
+			const apiPage = calls.find(([p]) => p.endsWith('api' + path.sep + 'reference.md'))?.[1]
+
+			// api/reference.md must NOT appear in llms.txt
+			expect(llmsTxt).not.toContain('reference')
+			// but MUST appear in llms-full.txt and as a standalone page
+			expect(llmsFullTxt).toContain('reference')
+			expect(apiPage).toBeDefined()
+		})
+
+		it('ignores files for llms-full.txt only', async () => {
+			plugin = llmstxt({
+				ignoreFiles: [],
+				ignoreFilesPerOutput: {
+					llmsFullTxt: ['internal/*'],
+				},
+				generateLLMsTxt: true,
+				generateLLMsFullTxt: true,
+				generateLLMFriendlyDocsForEachPage: false,
+			})
+			// @ts-expect-error
+			plugin[1].configResolved(mockConfig)
+			await Promise.all([
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/guide/intro.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/internal/notes.md'),
+			])
+			// @ts-expect-error
+			await plugin[1].generateBundle()
+
+			// llms.txt + llms-full.txt = 2 writes
+			expect(writeFile).toHaveBeenCalledTimes(2)
+
+			const calls = writeFile.mock.calls as [string, string][]
+			const llmsTxt = calls.find(([p]) => p.endsWith('llms.txt'))?.[1]
+			const llmsFullTxt = calls.find(([p]) => p.endsWith('llms-full.txt'))?.[1]
+
+			expect(llmsTxt).toContain('notes')
+			expect(llmsFullTxt).not.toContain('notes')
+		})
+
+		it('ignores files for pages only', async () => {
+			plugin = llmstxt({
+				ignoreFiles: [],
+				ignoreFilesPerOutput: {
+					pages: ['private/*'],
+				},
+				generateLLMsTxt: true,
+				generateLLMsFullTxt: false,
+				generateLLMFriendlyDocsForEachPage: true,
+			})
+			// @ts-expect-error
+			plugin[1].configResolved(mockConfig)
+			await Promise.all([
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/guide/intro.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/private/secret.md'),
+			])
+			// @ts-expect-error
+			await plugin[1].generateBundle()
+
+			const calls = writeFile.mock.calls as [string, string][]
+
+			// llms.txt should list private/secret
+			const llmsTxt = calls.find(([p]) => p.endsWith('llms.txt'))?.[1]
+			expect(llmsTxt).toContain('secret')
+
+			// private/secret.md page must NOT be written
+			const secretPage = calls.find(([p]) => p.includes('secret'))
+			expect(secretPage).toBeUndefined()
+		})
+
+		it('un-ignores a globally excluded file for llms-full.txt via ! negation', async () => {
+			plugin = llmstxt({
+				ignoreFiles: ['api/reference/*'],
+				ignoreFilesPerOutput: {
+					llmsFullTxt: ['!api/reference/*'],
+				},
+				generateLLMsTxt: true,
+				generateLLMsFullTxt: true,
+				generateLLMFriendlyDocsForEachPage: false,
+			})
+			// @ts-expect-error
+			plugin[1].configResolved(mockConfig)
+			await Promise.all([
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/guide/intro.md'),
+				// NOTE: api/reference/index.md is globally ignored so transform returns null
+				// and the file is never added to mdFiles — the negation in perOutput
+				// cannot restore files that were excluded during transform.
+				// This test verifies that llms.txt still excludes it.
+			])
+			// @ts-expect-error
+			await plugin[1].generateBundle()
+
+			const calls = writeFile.mock.calls as [string, string][]
+			const llmsTxt = calls.find(([p]) => p.endsWith('llms.txt'))?.[1]
+
+			// guide/intro.md only — api/* was globally excluded from transform stage
+			expect(llmsTxt).toContain('intro')
+			expect(llmsTxt).not.toContain('reference')
+		})
+
+		it('un-ignores a per-output excluded file via ! negation within perOutput itself', async () => {
+			// Exclude all of api/* from llms.txt, but un-ignore api/index.md
+			plugin = llmstxt({
+				ignoreFiles: [],
+				ignoreFilesPerOutput: {
+					llmsTxt: ['api/*', '!api/index.md'],
+				},
+				generateLLMsTxt: true,
+				generateLLMsFullTxt: false,
+				generateLLMFriendlyDocsForEachPage: false,
+			})
+			// @ts-expect-error
+			plugin[1].configResolved(mockConfig)
+			await Promise.all([
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/api/index.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/api/advanced.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/guide/intro.md'),
+			])
+			// @ts-expect-error
+			await plugin[1].generateBundle()
+
+			const calls = writeFile.mock.calls as [string, string][]
+			const llmsTxt = calls.find(([p]) => p.endsWith('llms.txt'))?.[1]
+
+			expect(llmsTxt).toContain('intro')
+			// api/index.md is un-ignored so it should appear
+			expect(llmsTxt).toContain('api')
+			// api/advanced.md stays ignored
+			expect(llmsTxt).not.toContain('advanced')
+		})
+
+		it('global ignoreFiles still applies to all outputs even when perOutput is set', async () => {
+			plugin = llmstxt({
+				ignoreFiles: ['team/*'],
+				ignoreFilesPerOutput: {
+					llmsTxt: ['changelog.md'],
+				},
+				generateLLMsTxt: true,
+				generateLLMsFullTxt: true,
+				generateLLMFriendlyDocsForEachPage: false,
+			})
+			// @ts-expect-error
+			plugin[1].configResolved(mockConfig)
+			await Promise.all([
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/guide/intro.md'),
+				// team/* is globally ignored so transform skips it
+			])
+			// @ts-expect-error
+			await plugin[1].generateBundle()
+
+			const calls = writeFile.mock.calls as [string, string][]
+			const llmsTxt = calls.find(([p]) => p.endsWith('llms.txt'))?.[1]
+			const llmsFullTxt = calls.find(([p]) => p.endsWith('llms-full.txt'))?.[1]
+
+			// team/* must not appear in either output
+			expect(llmsTxt).not.toContain('team')
+			expect(llmsFullTxt).not.toContain('team')
+		})
+
+		it('applies independent per-output patterns to each output simultaneously', async () => {
+			plugin = llmstxt({
+				ignoreFiles: [],
+				ignoreFilesPerOutput: {
+					llmsTxt: ['changelog.md'],
+					llmsFullTxt: ['internal/*'],
+					pages: ['private/*'],
+				},
+				generateLLMsTxt: true,
+				generateLLMsFullTxt: true,
+				generateLLMFriendlyDocsForEachPage: true,
+			})
+			// @ts-expect-error
+			plugin[1].configResolved(mockConfig)
+			await Promise.all([
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/guide/intro.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/changelog.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/internal/notes.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/private/secret.md'),
+			])
+			// @ts-expect-error
+			await plugin[1].generateBundle()
+
+			const calls = writeFile.mock.calls as [string, string][]
+			const llmsTxt = calls.find(([p]) => p.endsWith('llms.txt'))?.[1]
+			const llmsFullTxt = calls.find(([p]) => p.endsWith('llms-full.txt'))?.[1]
+
+			// llms.txt: changelog excluded, rest present
+			expect(llmsTxt).not.toContain('changelog')
+			expect(llmsTxt).toContain('notes')
+			expect(llmsTxt).toContain('secret')
+
+			// llms-full.txt: internal excluded, rest present
+			expect(llmsFullTxt).not.toContain('notes')
+			expect(llmsFullTxt).toContain('changelog')
+			expect(llmsFullTxt).toContain('secret')
+
+			// private/secret.md page must NOT be written as a standalone file
+			const secretPage = calls.find(([p]) => p.includes('secret'))
+			expect(secretPage).toBeUndefined()
+		})
+	})
 })

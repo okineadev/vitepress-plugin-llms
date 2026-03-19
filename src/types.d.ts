@@ -162,6 +162,73 @@ export interface LlmstxtSettings extends TemplateVariables {
 	ignoreFiles?: string[]
 
 	/**
+	 * Per-output ignore patterns that are **merged** with the global {@link LlmstxtSettings.ignoreFiles | `ignoreFiles`}.
+	 *
+	 * ---
+	 *
+	 * Use this when you want to exclude files from specific outputs only.
+	 * Global `ignoreFiles` always applies to all outputs — these extend it per target.
+	 *
+	 * @example
+	 * ```typescript
+	 * llmstxt({
+	 *     // Excluded from ALL outputs
+	 *     ignoreFiles: ['team/*', 'blog/*'],
+	 *
+	 *     // Additionally excluded only from specific outputs
+	 *     ignoreFilesPerOutput: {
+	 *         // llms.txt is a summary — skip verbose API reference
+	 *         llmsTxt: ['api/reference/*'],
+	 *         // full bundle includes everything except sponsors
+	 *         llmsFullTxt: ['sponsors/*'],
+	 *         // individual pages — skip internal/dev docs
+	 *         pages: ['internal/*', 'dev/*'],
+	 *     }
+	 * })
+	 * ```
+	 */
+	ignoreFilesPerOutput?: {
+		/**
+		 * Additional patterns to ignore when generating `llms.txt`.
+		 *
+		 * ---
+		 *
+		 * Merged with global {@link LlmstxtSettings.ignoreFiles | `ignoreFiles`}.
+		 *
+		 * Supports `!`-prefixed negation patterns.
+		 *
+		 * @default []
+		 */
+		llmsTxt?: string[]
+
+		/**
+		 * Additional patterns to ignore when generating `llms-full.txt`.
+		 *
+		 * ---
+		 *
+		 * Merged with global {@link LlmstxtSettings.ignoreFiles | `ignoreFiles`}.
+		 *
+		 * Supports `!`-prefixed negation patterns.
+		 *
+		 * @default []
+		 */
+		llmsFullTxt?: string[]
+
+		/**
+		 * Additional patterns to ignore when generating per-page LLM-friendly docs.
+		 *
+		 * ---
+		 *
+		 * Merged with global {@link LlmstxtSettings.ignoreFiles | `ignoreFiles`}.
+		 *
+		 * Supports `!`-prefixed negation patterns.
+		 *
+		 * @default []
+		 */
+		pages?: string[]
+	}
+
+	/**
 	 * Whether to exclude unnecessary files (such as blog, sponsor or team information) that LLM does not need at all to save tokens ♻️
 	 *
 	 * ---

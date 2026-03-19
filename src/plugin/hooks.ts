@@ -21,6 +21,7 @@ import type { CustomTemplateVariables, LlmstxtSettings } from '@/types.d'
 import { processVPParams } from '@/utils/dynamic-routes'
 import { getDirectoriesAtDepths } from '@/utils/file-utils'
 import { getHumanReadableSizeOf } from '@/utils/helpers'
+import { filterPreparedFiles, resolveIgnorePatterns } from '@/utils/ignore'
 import log from '@/utils/logger'
 import type { DefaultTheme } from 'vitepress'
 import { extractTitle } from '@/utils/markdown'
@@ -183,7 +184,7 @@ export async function generateBundle(
 
 	// Skip if no files found
 	if (fileCount === 0) {
-		log.warn(
+		log.error(
 			`No markdown files found to process. Check your \`${pc.bold('workDir')}\` and \`${pc.bold('ignoreFiles')}\` settings.`,
 		)
 		return
@@ -256,6 +257,13 @@ export async function generateBundle(
 	// Sort files by title for better organization
 	preparedFiles.sort((a, b) => a.title.localeCompare(b.title))
 
+	// Pre-resolve per-output ignore patterns (merged with global ignoreFiles)
+	const perOutput = settings.ignoreFilesPerOutput ?? {}
+
+	const llmsTxtPatterns = resolveIgnorePatterns(settings.ignoreFiles, perOutput.llmsTxt ?? [])
+	const llmsFullTxtPatterns = resolveIgnorePatterns(settings.ignoreFiles, perOutput.llmsFullTxt ?? [])
+	const pagesPatterns = resolveIgnorePatterns(settings.ignoreFiles, perOutput.pages ?? [])
+
 	const mdFilesKeys = Array.from(mdFiles.keys())
 	const tasks: Promise<void>[] = []
 
@@ -275,6 +283,14 @@ export async function generateBundle(
 			settings.experimental?.depth ?? 1,
 		)
 
+		// Apply per-output filtering for llms.txt
+		const llmsTxtFiles = filterPreparedFiles(
+			preparedFiles,
+			settings.workDir,
+			llmsTxtPatterns.positive,
+			llmsTxtPatterns.negative,
+		)
+
 		// Generate llms.txt for each directory at the specified depths
 		tasks.push(
 			...directories.map((directory) =>
@@ -291,7 +307,7 @@ export async function generateBundle(
 
 					log.info(`Generating ${pc.cyan(outputFileName)}...`)
 
-					const llmsTxt = await generateLLMsTxt(preparedFiles, {
+					const llmsTxt = await generateLLMsTxt(llmsTxtFiles, {
 						indexMdFile,
 						LLMsTxtTemplate: settings.customLLMsTxtTemplate ?? defaultLLMsTxtTemplate,
 						templateVariables,
@@ -312,7 +328,7 @@ export async function generateBundle(
 								file: pc.cyan(outputFileName),
 								tokens: pc.bold(millify(estimateTokenCount(llmsTxt))),
 								size: pc.bold(getHumanReadableSizeOf(llmsTxt)),
-								fileCount: pc.bold(fileCount.toString()),
+								fileCount: pc.bold(llmsTxtFiles.length.toString()),
 							},
 						),
 					)
@@ -328,6 +344,14 @@ export async function generateBundle(
 			mdFilesKeys,
 			settings.workDir,
 			settings.experimental?.depth ?? 1,
+		)
+
+		// Apply per-output filtering for llms-full.txt
+		const llmsFullTxtFiles = filterPreparedFiles(
+			preparedFiles,
+			settings.workDir,
+			llmsFullTxtPatterns.positive,
+			llmsFullTxtPatterns.negative,
 		)
 
 		// Generate llms-full.txt for each directory at the specified depths
@@ -348,7 +372,7 @@ export async function generateBundle(
 
 					log.info(`Generating full documentation bundle (${pc.cyan(outputFileName)})...`)
 
-					const llmsFullTxt = await generateLLMsFullTxt(preparedFiles, {
+					const llmsFullTxt = await generateLLMsFullTxt(llmsFullTxtFiles, {
 						domain: settings.domain,
 						linksExtension:
 							settings.generateLLMFriendlyDocsForEachPage === false ? '.html' : undefined,
@@ -366,7 +390,7 @@ export async function generateBundle(
 								file: pc.cyan(outputFileName),
 								tokens: pc.bold(millify(estimateTokenCount(llmsFullTxt))),
 								size: pc.bold(getHumanReadableSizeOf(llmsFullTxt)),
-								fileCount: pc.bold(fileCount.toString()),
+								fileCount: pc.bold(llmsFullTxtFiles.length.toString()),
 							},
 						),
 					)
@@ -376,7 +400,15 @@ export async function generateBundle(
 	}
 
 	if (settings.generateLLMFriendlyDocsForEachPage) {
-		tasks.push(generateLLMFriendlyPages(preparedFiles, outDir, settings.domain, config.base))
+		// Apply per-output filtering for individual pages
+		const pagesFiles = filterPreparedFiles(
+			preparedFiles,
+			settings.workDir,
+			pagesPatterns.positive,
+			pagesPatterns.negative,
+		)
+
+		tasks.push(generateLLMFriendlyPages(pagesFiles, outDir, settings.domain, config.base))
 	}
 
 	if (tasks.length > 0) {

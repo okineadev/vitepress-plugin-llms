@@ -29,6 +29,7 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 		generateLLMsFullTxt: true,
 		generateLLMFriendlyDocsForEachPage: true,
 		ignoreFiles: [],
+		ignoreFilesPerOutput: {},
 		excludeUnnecessaryFiles: true,
 		excludeIndexPage: true,
 		excludeBlog: true,

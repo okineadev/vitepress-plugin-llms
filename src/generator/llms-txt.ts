@@ -1,5 +1,4 @@
-import fs from 'node:fs/promises'
-import matter from 'gray-matter'
+import matter, { GrayMatterFile, Input } from 'gray-matter'
 import type { DefaultTheme } from 'vitepress'
 import { defaultLLMsTxtTemplate } from '@/constants'
 import { generateTOC } from '@/generator/toc'
@@ -12,8 +11,8 @@ import { expandTemplate } from '@/utils/template-utils'
  * Options for generating the `llms.txt` file.
  */
 export interface GenerateLLMsTxtOptions {
-	/** Path to the main documentation file `index.md`.*/
-	indexMd: string
+	/** `index.md` file. */
+	indexMdFile: GrayMatterFile<Input>
 
 	/** Template to use for generating `llms.txt`. */
 	LLMsTxtTemplate?: LlmstxtSettings['customLLMsTxtTemplate']
@@ -50,7 +49,7 @@ export interface GenerateLLMsTxtOptions {
 export async function generateLLMsTxt(
 	preparedFiles: PreparedFile[],
 	{
-		indexMd,
+		indexMdFile,
 		LLMsTxtTemplate = defaultLLMsTxtTemplate,
 		templateVariables = {},
 		vitepressConfig,
@@ -62,9 +61,6 @@ export async function generateLLMsTxt(
 	// @ts-expect-error
 	// oxlint-disable-next-line typescript/no-unsafe-call
 	matter.clearCache()
-
-	const indexMdContent = await fs.readFile(indexMd, 'utf-8')
-	const indexMdFile = matter(indexMdContent)
 
 	templateVariables.title ??=
 		// oxlint-disable-next-line typescript/no-unsafe-member-access

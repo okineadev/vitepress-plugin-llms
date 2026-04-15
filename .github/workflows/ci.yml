@@ -65,6 +65,9 @@ jobs:
     runs-on: ubuntu-slim
     if: github.event.repository.full_name == 'okineadev/vitepress-plugin-llms'
 
+    env:
+      PKG_PR_NEW: true
+
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

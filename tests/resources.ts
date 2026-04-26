@@ -15,7 +15,7 @@ export const sampleDomain = 'https://example.com'
 
 export const fakeCustomLlmsTxtTemplate = '# Custom title\n\n> Custom description\n\n## TOC\n\n{toc}'
 
-export const sampleVitePressSidebar: DefaultTheme.Sidebar = [
+export const sampleVitePressSidebar = [
 	{
 		items: [{ link: '/test/getting-started', text: 'Getting Started' }],
 		text: 'Test Section',
@@ -24,9 +24,9 @@ export const sampleVitePressSidebar: DefaultTheme.Sidebar = [
 		items: [{ link: '/test/quickstart', text: 'Quickstart' }],
 		text: 'Quickstart Section',
 	},
-]
+] as const satisfies DefaultTheme.Sidebar
 
-export const sampleObjectVitePressSidebar: DefaultTheme.Sidebar = {
+export const sampleObjectVitePressSidebar = {
 	'/': [
 		{
 			items: [{ link: '/test/getting-started', text: 'Introduction' }],
@@ -41,7 +41,7 @@ export const sampleObjectVitePressSidebar: DefaultTheme.Sidebar = {
 	],
 }
 
-export const sampleObjectVitePressSidebarWithBase: DefaultTheme.Sidebar = {
+export const sampleObjectVitePressSidebarWithBase = {
 	'/': [
 		{
 			base: '/test',
@@ -79,9 +79,9 @@ export const sampleObjectVitePressSidebarWithBase: DefaultTheme.Sidebar = {
 			text: 'Tutorials',
 		},
 	],
-}
+} as const satisfies DefaultTheme.Sidebar
 
-export const sampleObjectVitePressSidebarWithCommonPrefix: DefaultTheme.Sidebar = {
+export const sampleObjectVitePressSidebarWithCommonPrefix = {
 	'/blog': [
 		{
 			items: [
@@ -91,20 +91,20 @@ export const sampleObjectVitePressSidebarWithCommonPrefix: DefaultTheme.Sidebar 
 			text: 'Blog Started',
 		},
 	],
-}
+} as const satisfies DefaultTheme.Sidebar
 
-export const sampleObjectVitePressSidebarWithoutSections: DefaultTheme.Sidebar = [
+export const sampleObjectVitePressSidebarWithoutSections = [
 	{ link: '/test/getting-started', text: 'Getting Started' },
 	{ link: '/test/quickstart', text: 'Quickstart' },
-]
+] as const satisfies DefaultTheme.Sidebar
 
-export const fooMdSample: PreparedFile = {
+export const fooMdSample = {
 	file: matter(''),
 	path: 'foo.md',
 	title: 'Title',
-}
+} as const satisfies PreparedFile
 
-export const preparedFilesSample: PreparedFile[] = [
+export const preparedFilesSample = [
 	{
 		file: matter(fakeIndexMd),
 		path: 'index.md',
@@ -125,9 +125,9 @@ export const preparedFilesSample: PreparedFile[] = [
 		path: 'test/other.md',
 		title: 'Some other section',
 	},
-]
+] as const satisfies PreparedFile[]
 
-export const preparedFilesWithCommonPrefixSample: PreparedFile[] = [
+export const preparedFilesWithCommonPrefixSample = [
 	{
 		file: matter(fakeIndexMd),
 		path: 'blog/v1.md',
@@ -138,4 +138,4 @@ export const preparedFilesWithCommonPrefixSample: PreparedFile[] = [
 		path: 'blog/v1.1.md',
 		title: 'New features!',
 	},
-]
+] as const satisfies PreparedFile[]

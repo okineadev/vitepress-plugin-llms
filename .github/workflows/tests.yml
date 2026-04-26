@@ -46,7 +46,7 @@ jobs:
             bunup.config.ts
             package.json
             .oxfmtrc.json
-            .oxlintrc.json
+            oxlint.config.ts
             bun.lock
             bunfig.toml
             cspell.yml

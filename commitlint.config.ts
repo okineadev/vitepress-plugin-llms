@@ -1,6 +1,8 @@
-import type { Rule, UserConfig } from '@commitlint/types'
-import { RuleConfigSeverity } from '@commitlint/types'
 import type { Commit } from 'conventional-commits-parser'
+
+import { type Rule, type UserConfig, RuleConfigSeverity } from '@commitlint/types'
+
+import type { DeepReadonly } from './src/internal-types'
 
 const COMMITLINT_HELP_URL =
 	'https://github.com/okineadev/vitepress-plugin-llms/blob/main/CONTRIBUTING.md#conventional-pr-titles'
@@ -10,20 +12,20 @@ const COMMITLINT_HELP_URL =
  * Rule to ensure the first letter of the commit subject is lowercase.
  *
  * @param parsed - Parsed commit object containing commit message parts.
- * @returns A tuple where the first element is a boolean indicating
- * if the rule passed, and the second is an optional error message.
+ * @returns A tuple where the first element is a boolean indicating if the rule passed, and the second is an
+ *   optional error message.
  */
-// oxlint-disable-next-line require-await
-const subjectLowercaseFirst: Rule = async (parsed: Commit) => {
+const subjectLowercaseFirst: Rule = async (parsed: DeepReadonly<Commit>) => {
 	// Find the first alphabetic character
 	if (typeof parsed.subject === 'string' && parsed.subject.length === 0) {
-		const match = parsed.subject.match(/[a-z]/i)
+		const match = /[a-z]/i.exec(parsed.subject)
 
 		if (match) {
-			const firstLetter = match[0]
+			const [firstLetter] = match
 
-			if (firstLetter !== firstLetter.toLowerCase())
+			if (firstLetter !== firstLetter.toLowerCase()) {
 				return [false, 'Subject must start with a lowercase letter']
+			}
 		}
 	}
 	return [true]
@@ -32,10 +34,7 @@ const subjectLowercaseFirst: Rule = async (parsed: Commit) => {
 
 const Configuration: UserConfig = {
 	extends: ['@commitlint/config-conventional'],
-	rules: {
-		'subject-case': [RuleConfigSeverity.Disabled],
-		'subject-lowercase-first': [RuleConfigSeverity.Error, 'always'],
-	},
+	helpUrl: COMMITLINT_HELP_URL,
 	plugins: [
 		{
 			rules: {
@@ -43,7 +42,10 @@ const Configuration: UserConfig = {
 			},
 		},
 	],
-	helpUrl: COMMITLINT_HELP_URL,
+	rules: {
+		'subject-case': [RuleConfigSeverity.Disabled],
+		'subject-lowercase-first': [RuleConfigSeverity.Error, 'always'],
+	},
 }
 
 export default Configuration

@@ -66,7 +66,7 @@ jobs:
     if: github.event.repository.full_name == 'okineadev/vitepress-plugin-llms'
 
     env:
-      PKG_PR_NEW: true
+      BUNDLE_SOURCEMAPS: true
 
     steps:
       - name: 📥 Checkout

@@ -1,14 +1,15 @@
 import path from 'node:path'
 import { compile, match } from 'path-to-regexp'
-import type { VitePressConfig } from '@/internal-types'
+
+import type { DeepReadonly, VitePressConfig } from '@/internal-types'
+
 import { transformToPosixPath } from './file-utils'
 
 /**
  * Resolves the output file path for VitePress with support for route rewrites and dynamic slugs.
  *
- * Handles both static rewrites (exact matches) and dynamic patterns using path-to-regexp.
- * Dynamic patterns support parameters (`:param`) and wildcards (`*wildcard`) as defined
- * in VitePress rewrites configuration.
+ * Handles both static rewrites (exact matches) and dynamic patterns using path-to-regexp. Dynamic patterns
+ * support parameters (`:param`) and wildcards (`*wildcard`) as defined in VitePress rewrites configuration.
  *
  * @param file - The source file path to resolve (e.g., 'packages/pkg-a/src/index.md')
  * @param workDir - The working directory to join resolved paths with
@@ -18,6 +19,7 @@ import { transformToPosixPath } from './file-utils'
 export function resolveOutputFilePath(
 	file: string,
 	workDir: string,
+	// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
 	rewrites: VitePressConfig['rewrites'] = {},
 ): string {
 	let resolvedRewrite: string | undefined
@@ -30,7 +32,9 @@ export function resolveOutputFilePath(
 	// Handle function-based rewrites
 	if (typeof rewrites === 'function') {
 		const resolvedFilePath = rewrites(relativePath)
-		if (resolvedFilePath) resolvedRewrite = resolvedFilePath
+		if (resolvedFilePath) {
+			resolvedRewrite = resolvedFilePath
+		}
 	}
 	// Handle object-based rewrites
 	else if (Object.keys(rewrites).length > 0) {
@@ -42,6 +46,7 @@ export function resolveOutputFilePath(
 			for (const [pattern, replacement] of Object.entries(rewrites)) {
 				// Skip if it's not a dynamic pattern (no : or *)
 				if (!pattern.includes(':') && !pattern.includes('*')) {
+					// oxlint-disable-next-line no-continue
 					continue
 				}
 
@@ -49,8 +54,7 @@ export function resolveOutputFilePath(
 					const matcher = match(pattern)
 					const result = matcher(relativePath)
 
-					// oxlint-disable-next-line max-depth
-					if (typeof result === 'object' && result !== null && 'params' in result) {
+					if (typeof result === 'object' && 'params' in result) {
 						// Compile the replacement pattern with matched parameters
 						const compileFn = compile(replacement)
 						resolvedRewrite = compileFn(result.params)
@@ -72,8 +76,8 @@ export function resolveOutputFilePath(
 }
 
 /**
- * Resolves the source file path from output path using VitePress rewrites configuration.
- * This is the reverse operation of {@link resolveOutputFilePath}.
+ * Resolves the source file path from output path using VitePress rewrites configuration. This is the reverse
+ * operation of {@link resolveOutputFilePath}.
  *
  * @param outputPath - The output file path to resolve back to source (e.g., 'index.md')
  * @param workDir - The working directory
@@ -83,12 +87,12 @@ export function resolveOutputFilePath(
 export function resolveSourceFilePath(
 	outputPath: string,
 	workDir: string,
-	rewrites: VitePressConfig['rewrites'] = {},
+	rewrites: DeepReadonly<VitePressConfig['rewrites']> = {},
 ): string {
 	// Handle function-based rewrites - we can't reverse these easily
 	if (typeof rewrites === 'function') {
 		// For function-based rewrites, we can't easily reverse the operation
-		// so we return the original path
+		// So we return the original path
 		return outputPath
 	}
 
@@ -105,6 +109,7 @@ export function resolveSourceFilePath(
 		for (const [sourcePattern, targetPattern] of Object.entries(rewrites)) {
 			// Skip if it's not a dynamic pattern (no : or *)
 			if (!targetPattern.includes(':') && !targetPattern.includes('*')) {
+				// oxlint-disable-next-line no-continue
 				continue
 			}
 
@@ -112,7 +117,7 @@ export function resolveSourceFilePath(
 				const matcher = match(targetPattern)
 				const result = matcher(outputPath)
 
-				if (typeof result === 'object' && result !== null && 'params' in result) {
+				if (typeof result === 'object' && 'params' in result) {
 					// Compile the source pattern with matched parameters
 					const compileFn = compile(sourcePattern)
 					const resolvedSource = compileFn(result.params)
@@ -131,8 +136,8 @@ export function resolveSourceFilePath(
 /**
  * Resolves a VitePress page URL from its file system path.
  *
- * This function converts the internal file path (e.g., `guide/index.md`)
- * to the actual URL path (e.g., `guide.md`).
+ * This function converts the internal file path (e.g., `guide/index.md`) to the actual URL path (e.g.,
+ * `guide.md`).
  *
  * @param url The file system path of the page (e.g., `guide/index.md`).
  * @returns The resolved URL path (e.g., `guide.md`).

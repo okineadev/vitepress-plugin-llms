@@ -1,18 +1,20 @@
 import { mock } from 'bun:test'
+
 import fakeMarkdownDocument from '../test-assets/markdown-document.md'
 
 /**
  * Mocked filesystem module for testing purposes
  *
- * @remarks Contains mock implementations of common `fs` operations
+ * @remarks
+ *   Contains mock implementations of common `fs` operations
  */
-export const mockedFs = {
+const mockedFs = {
 	default: {
-		access: mock((): Promise<void> => Promise.resolve()),
-		mkdir: mock(),
-		readFile: mock((/* abstraction */ _filePath: string): Promise<string> => {
-			return Promise.resolve(fakeMarkdownDocument)
+		access: mock(async (): Promise<void> => {
+			/* Mock */
 		}),
+		mkdir: mock(),
+		readFile: mock(async (/* Abstraction */ _filePath: string): Promise<string> => fakeMarkdownDocument),
 		writeFile: mock(),
 	},
 }

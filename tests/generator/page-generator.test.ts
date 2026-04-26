@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import path from 'node:path'
+
 import type { PreparedFile } from '@/internal-types'
+
 import mockedFs from '../mocks/fs'
 import { outDir, preparedFilesSample } from '../resources'
 
 const { mkdir, writeFile } = mockedFs.default
 
-mock.module('node:fs/promises', () => mockedFs)
+await mock.module('node:fs/promises', () => mockedFs)
 
 import {
 	generateLLMFriendlyPages,

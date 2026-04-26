@@ -1,46 +1,53 @@
+import type { GrayMatterFile, Input } from 'gray-matter'
+import type { OutputBundle } from 'rollup'
+import type { Plugin, ViteDevServer } from 'vite'
+
 import path from 'node:path'
 import pc from 'picocolors'
-import type { Plugin, ViteDevServer } from 'vite'
-import { name as packageName } from '@/../package.json'
-import { unnecessaryFilesList } from '@/constants'
-import type { VitePressConfig } from '@/internal-types'
-import { configureDevServer } from '@/plugin/dev-server'
-import { generateBundle, transform } from '@/plugin/hooks'
+
+import type { DeepReadonly, VitePressConfig } from '@/internal-types'
 import type { LlmstxtSettings } from '@/types'
+
+import { name as packageName } from '@/../package.json'
+import { defaultLLMsTxtTemplate, unnecessaryFilesList } from '@/constants'
+import configureDevServer from '@/plugin/dev-server'
+import { generateBundle, transform } from '@/plugin/hooks'
 import log from '@/utils/logger'
-import { GrayMatterFile, Input } from 'gray-matter'
 
 const PLUGIN_NAME = packageName
 
 //#region Plugin
 /**
- * [VitePress](http://vitepress.dev/) plugin for generating raw documentation
- * for **LLMs** in Markdown format which is much lighter and more efficient for LLMs
+ * [VitePress](http://vitepress.dev/) plugin for generating raw documentation for **LLMs** in Markdown format
+ * which is much lighter and more efficient for LLMs
  *
- * @param [userSettings={}] - Plugin settings.
- *
+ * @param userSettings - Plugin settings.
  * @see https://github.com/okineadev/vitepress-plugin-llms
  * @see https://llmstxt.org/
  */
+// oxlint-disable-next-line typescript/prefer-readonly-parameter-types jsdoc/require-returns
 export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 	// Create a settings object with defaults explicitly merged
+	// oxlint-disable-next-line typescript/no-unsafe-type-assertion
 	const settings: Required<LlmstxtSettings> = {
-		generateLLMsTxt: true,
-		generateLLMsFullTxt: true,
-		generateLLMFriendlyDocsForEachPage: true,
-		ignoreFiles: [],
-		ignoreFilesPerOutput: {},
-		excludeUnnecessaryFiles: true,
-		excludeIndexPage: true,
+		customLLMsTxtTemplate: defaultLLMsTxtTemplate,
 		excludeBlog: true,
+		excludeIndexPage: true,
 		excludeTeam: true,
-		injectLLMHint: true,
-		workDir: undefined as unknown as string,
-		stripHTML: true,
+		excludeUnnecessaryFiles: true,
 		experimental: {
 			depth: 1,
 			...userSettings.experimental,
 		},
+		generateLLMFriendlyDocsForEachPage: true,
+		generateLLMsFullTxt: true,
+		generateLLMsTxt: true,
+		ignoreFiles: [],
+		ignoreFilesPerOutput: {},
+		injectLLMHint: true,
+		stripHTML: true,
+		// oxlint-disable-next-line typescript/no-unsafe-type-assertion
+		workDir: undefined as unknown as string,
 		...userSettings,
 	} as Required<LlmstxtSettings>
 
@@ -48,7 +55,7 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 	let config: VitePressConfig
 
 	// Map to store all markdown files content
-	const mdFiles: Map<string, string> = new Map()
+	const mdFiles = new Map<string, string>()
 
 	// Stores the parsed index.md file
 	let indexMdFile: GrayMatterFile<Input> | undefined = undefined
@@ -62,7 +69,8 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 			name: `${PLUGIN_NAME}:llm-tags`,
 
 			/** Processes each Markdown file */
-			transform(content, id) {
+			// oxlint-disable-next-line jsdoc/require-param jsdoc/require-returns
+			async transform(content, id) {
 				return transform(
 					content,
 					id,
@@ -75,19 +83,21 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 				)
 			},
 		},
+		// oxlint-disable-next-line sort-keys
 		{
 			name: PLUGIN_NAME,
 			// Run after all other plugins
 			enforce: 'post',
 
 			/** Resolves the Vite configuration and sets up the working directory. */
+			// oxlint-disable-next-line jsdoc/require-param
 			configResolved(resolvedConfig) {
-				config = resolvedConfig as VitePressConfig
-				if (settings.workDir) {
-					settings.workDir = path.resolve(config.vitepress.srcDir, settings.workDir)
-				} else {
-					settings.workDir = path.resolve(config.vitepress.srcDir)
-				}
+				// oxlint-disable-next-line typescript/no-unsafe-type-assertion
+				config = resolvedConfig as Readonly<VitePressConfig>
+
+				settings.workDir = settings.workDir
+					? path.resolve(config.vitepress.srcDir, settings.workDir)
+					: path.resolve(config.vitepress.srcDir)
 
 				if (settings.excludeUnnecessaryFiles) {
 					settings.excludeIndexPage && settings.ignoreFiles.push(...unnecessaryFilesList.indexPage)
@@ -96,7 +106,7 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 				}
 
 				// Detect if this is the SSR build
-				isSsrBuild = Boolean(resolvedConfig.build?.ssr)
+				isSsrBuild = Boolean(resolvedConfig.build.ssr)
 
 				log.info(
 					`${pc.bold(PLUGIN_NAME)} initialized ${isSsrBuild ? pc.dim('(SSR build)') : pc.dim('(client build)')} with workDir: ${pc.cyan(settings.workDir)}`,
@@ -104,13 +114,14 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 			},
 
 			/** Configures the development server to handle `llms.txt` and markdown files for LLMs. */
-			async configureServer(server: ViteDevServer) {
-				await configureDevServer(server, config)
+			// oxlint-disable-next-line typescript/prefer-readonly-parameter-types jsdoc/require-param
+			configureServer(server: ViteDevServer) {
+				configureDevServer(server, config)
 			},
 
 			/**
-			 * Resets the collection of markdown files when the build starts.
-			 * This ensures we don't include stale data from previous builds.
+			 * Resets the collection of markdown files when the build starts. This ensures we don't include
+			 * stale data from previous builds.
 			 */
 			buildStart() {
 				mdFiles.clear()
@@ -118,10 +129,11 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 			},
 
 			/**
-			 * Runs only in the client build (not SSR) after completion.
-			 * This ensures the processing happens exactly once.
+			 * Runs only in the client build (not SSR) after completion. This ensures the processing happens
+			 * exactly once.
 			 */
-			async generateBundle(_options, bundle) {
+			// oxlint-disable-next-line jsdoc/require-param
+			async generateBundle(_options, bundle: DeepReadonly<OutputBundle>) {
 				// Skip processing during SSR build
 				if (isSsrBuild) {
 					log.info('Skipping LLMs docs generation in SSR build')
@@ -134,6 +146,7 @@ export function llmstxt(userSettings: LlmstxtSettings = {}): [Plugin, Plugin] {
 						bundle,
 						settings,
 						config,
+						// oxlint-disable-next-line typescript/no-unsafe-type-assertion
 						indexMdFile as GrayMatterFile<Input>,
 						mdFiles,
 					)

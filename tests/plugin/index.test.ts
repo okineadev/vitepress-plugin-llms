@@ -1,20 +1,22 @@
-// spell-checker:words awesomeproject myproject otherdocs
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 import type { ViteDevServer } from 'vite'
 import type { Plugin } from 'vitepress'
-import mockedFs from '../mocks/fs'
 
-import fakeMarkdownDocument from '../test-assets/markdown-document.md'
+// Spell-checker:words awesomeproject myproject otherdocs
+import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+
+import mockedFs from '../mocks/fs'
 import fakeIndexMd from '../test-assets/index.md'
+import fakeMarkdownDocument from '../test-assets/markdown-document.md'
 
 const { access, mkdir, writeFile, readFile } = mockedFs.default
 
-mock.module('node:fs/promises', () => mockedFs)
+await mock.module('node:fs/promises', () => mockedFs)
 
 import path from 'node:path'
-import type { VitePressConfig } from '@/internal-types'
-// Import the module under test AFTER mocking its dependencies
 
+import type { VitePressConfig } from '@/internal-types'
+
+// Import the module under test AFTER mocking its dependencies
 // oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 // @ts-ignore
 import { llmstxt } from '@/plugin/plugin'
@@ -34,12 +36,13 @@ describe('llmstxt plugin', () => {
 
 		// Setup mock config
 		mockConfig = {
+			build: {
+				ssr: false,
+			},
 			vitepress: {
 				outDir: path.resolve('dist'),
 				srcDir: path.resolve('docs'),
-			},
-			build: {
-				ssr: false,
+				userConfig: {},
 			},
 		} as VitePressConfig
 
@@ -84,10 +87,10 @@ describe('llmstxt plugin', () => {
 		describe('LLM hint injection', () => {
 			it.serial('should inject LLM hint for main page when generateLLMsTxt is enabled', async () => {
 				const plugin = llmstxt({
-					injectLLMHint: true,
-					generateLLMsTxt: true,
-					generateLLMsFullTxt: false,
 					generateLLMFriendlyDocsForEachPage: false,
+					generateLLMsFullTxt: false,
+					generateLLMsTxt: true,
+					injectLLMHint: true,
 				})
 
 				// @ts-expect-error
@@ -102,10 +105,10 @@ describe('llmstxt plugin', () => {
 
 			it('should inject LLM hint for main page when generateLLMsFullTxt is enabled', async () => {
 				const plugin = llmstxt({
-					injectLLMHint: true,
-					generateLLMsTxt: false,
-					generateLLMsFullTxt: true,
 					generateLLMFriendlyDocsForEachPage: false,
+					generateLLMsFullTxt: true,
+					generateLLMsTxt: false,
+					injectLLMHint: true,
 				})
 
 				// @ts-expect-error
@@ -122,10 +125,10 @@ describe('llmstxt plugin', () => {
 
 			it('should inject LLM hint for main page when both generateLLMsTxt and generateLLMsFullTxt are enabled', async () => {
 				const plugin = llmstxt({
-					injectLLMHint: true,
-					generateLLMsTxt: true,
-					generateLLMsFullTxt: true,
 					generateLLMFriendlyDocsForEachPage: false,
+					generateLLMsFullTxt: true,
+					generateLLMsTxt: true,
+					injectLLMHint: true,
 				})
 
 				// @ts-expect-error
@@ -142,10 +145,10 @@ describe('llmstxt plugin', () => {
 
 			it('should inject LLM hint for regular page when generateLLMFriendlyDocsForEachPage is enabled', async () => {
 				const plugin = llmstxt({
-					injectLLMHint: true,
-					generateLLMsTxt: false,
-					generateLLMsFullTxt: false,
 					generateLLMFriendlyDocsForEachPage: true,
+					generateLLMsFullTxt: false,
+					generateLLMsTxt: false,
+					injectLLMHint: true,
 				})
 
 				// @ts-expect-error
@@ -167,10 +170,10 @@ describe('llmstxt plugin', () => {
 				}
 
 				const plugin = llmstxt({
-					injectLLMHint: true,
-					generateLLMsTxt: true,
-					generateLLMsFullTxt: false,
 					generateLLMFriendlyDocsForEachPage: true,
+					generateLLMsFullTxt: false,
+					generateLLMsTxt: true,
+					injectLLMHint: true,
 				})
 
 				// @ts-expect-error
@@ -193,10 +196,10 @@ describe('llmstxt plugin', () => {
 
 			it('should not inject LLM hint when injectLLMHint is disabled', async () => {
 				const plugin = llmstxt({
-					injectLLMHint: false,
-					generateLLMsTxt: true,
-					generateLLMsFullTxt: true,
 					generateLLMFriendlyDocsForEachPage: true,
+					generateLLMsFullTxt: true,
+					generateLLMsTxt: true,
+					injectLLMHint: false,
 				})
 
 				// @ts-expect-error
@@ -211,10 +214,10 @@ describe('llmstxt plugin', () => {
 
 			it('should not inject LLM hint when no generation options are enabled', async () => {
 				const plugin = llmstxt({
-					injectLLMHint: true,
-					generateLLMsTxt: false,
-					generateLLMsFullTxt: false,
 					generateLLMFriendlyDocsForEachPage: false,
+					generateLLMsFullTxt: false,
+					generateLLMsTxt: false,
+					injectLLMHint: true,
 				})
 
 				// @ts-expect-error
@@ -241,8 +244,8 @@ describe('llmstxt plugin', () => {
 				}
 
 				const plugin = llmstxt({
-					injectLLMHint: true,
 					generateLLMFriendlyDocsForEachPage: true,
+					injectLLMHint: true,
 				})
 
 				// @ts-expect-error
@@ -267,8 +270,8 @@ description: A test page
 This is a test page.`
 
 				const plugin = llmstxt({
-					injectLLMHint: true,
 					generateLLMFriendlyDocsForEachPage: true,
+					injectLLMHint: true,
 				})
 
 				// @ts-expect-error
@@ -291,9 +294,9 @@ This is a test page.`
 				}
 
 				const plugin = llmstxt({
-					injectLLMHint: true,
-					generateLLMsTxt: true,
 					generateLLMFriendlyDocsForEachPage: true,
+					generateLLMsTxt: true,
+					injectLLMHint: true,
 				})
 
 				// @ts-expect-error
@@ -327,9 +330,10 @@ This is a test page.`
 		})
 
 		it('should create output directory if it does not exist', async () => {
-			plugin = llmstxt({ generateLLMsTxt: false, generateLLMsFullTxt: false })
+			plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMsTxt: false })
 
 			access.mockImplementationOnce(() => {
+				// oxlint-disable-next-line unicorn/error-message
 				throw new Error()
 			})
 
@@ -395,7 +399,7 @@ This is a test page.`
 			// Verify that only non-ignored files were written
 			expect(writeFile).toHaveBeenCalledTimes(1)
 			expect(writeFile).toBeCalledWith(
-				// docs/test.md
+				// `docs/test.md`
 				path.resolve(mockConfig.vitepress.outDir, 'test.md'),
 				'---\nurl: /test.md\n---\n# Some cool stuff\n',
 			)
@@ -486,8 +490,8 @@ This is a test page.`
 			'does not add links with `.md` extension in `llms.txt` if `generateLLMFriendlyDocsForEachPage` option is disabled',
 			async () => {
 				plugin = llmstxt({
-					generateLLMsFullTxt: false,
 					generateLLMFriendlyDocsForEachPage: false,
+					generateLLMsFullTxt: false,
 				})
 				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
@@ -499,7 +503,7 @@ This is a test page.`
 				await plugin[1].generateBundle()
 
 				expect(writeFile).toHaveBeenCalledTimes(1)
-				expect(writeFile.mock?.lastCall?.[1]).toMatchSnapshot()
+				expect(writeFile.mock.lastCall?.[1]).toMatchSnapshot()
 			},
 		)
 
@@ -507,8 +511,8 @@ This is a test page.`
 			'does not add links with `.md` extension in `llms-full.txt` if `generateLLMFriendlyDocsForEachPage` option is disabled',
 			async () => {
 				plugin = llmstxt({
-					generateLLMsTxt: false,
 					generateLLMFriendlyDocsForEachPage: false,
+					generateLLMsTxt: false,
 				})
 				// @ts-expect-error
 				await plugin[1].configResolved(mockConfig)
@@ -518,7 +522,7 @@ This is a test page.`
 				await plugin[1].generateBundle()
 
 				expect(writeFile).toHaveBeenCalledTimes(1)
-				expect(writeFile.mock?.lastCall?.[1]).toMatchSnapshot()
+				expect(writeFile.mock.lastCall?.[1]).toMatchSnapshot()
 			},
 		)
 
@@ -565,8 +569,8 @@ This is a test page.`
 						...mockConfig.vitepress,
 						userConfig: {
 							rewrites: {
-								'guide/index.md': 'guide.md',
 								'api/reference.md': 'api.md',
+								'guide/index.md': 'guide.md',
 							},
 						},
 					},
@@ -671,7 +675,7 @@ This is a test page.`
 					},
 				}
 
-				plugin = llmstxt({ generateLLMsFullTxt: false, generateLLMFriendlyDocsForEachPage: false })
+				plugin = llmstxt({ generateLLMFriendlyDocsForEachPage: false, generateLLMsFullTxt: false })
 				// @ts-expect-error
 				plugin[1].configResolved(configWithRewrites)
 
@@ -697,9 +701,13 @@ This is a test page.`
 				vitepress: {
 					...mockConfig.vitepress,
 					userConfig: {
-						rewrites: (filepath: string) => {
-							if (filepath.endsWith('guide/index.md')) return 'guide.md'
-							if (filepath.endsWith('api/reference.md')) return 'api.md'
+						rewrites: (filepath: string): string => {
+							if (filepath.endsWith('guide/index.md')) {
+								return 'guide.md'
+							}
+							if (filepath.endsWith('api/reference.md')) {
+								return 'api.md'
+							}
 							return filepath.replace(/^docs\//, '')
 						},
 					},
@@ -743,9 +751,9 @@ This is a test page.`
 		describe('experimental depth option', () => {
 			it('should generate llms.txt only in root when depth is 1 (default)', async () => {
 				plugin = llmstxt({
-					generateLLMsFullTxt: false,
-					generateLLMFriendlyDocsForEachPage: false,
 					experimental: { depth: 1 },
+					generateLLMFriendlyDocsForEachPage: false,
+					generateLLMsFullTxt: false,
 				})
 				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
@@ -770,9 +778,9 @@ This is a test page.`
 
 			it('should generate llms.txt in root and first-level subdirectories when depth is 2', async () => {
 				plugin = llmstxt({
-					generateLLMsFullTxt: false,
-					generateLLMFriendlyDocsForEachPage: false,
 					experimental: { depth: 2 },
+					generateLLMFriendlyDocsForEachPage: false,
+					generateLLMsFullTxt: false,
 				})
 				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
@@ -794,16 +802,16 @@ This is a test page.`
 				// Should generate root llms.txt + subdirectory llms.txt files
 				expect(writeFile).toHaveBeenCalledTimes(3)
 				const calls = writeFile.mock.calls.map((call) => call[0] as string)
-				expect(calls.some((filepath) => filepath.endsWith(path.join('dist/llms.txt')))).toBe(true) // root
+				expect(calls.some((filepath) => filepath.endsWith(path.join('dist/llms.txt')))).toBe(true) // Root
 				expect(calls.some((filepath) => filepath.endsWith(path.join('guide/llms.txt')))).toBe(true)
 				expect(calls.some((filepath) => filepath.endsWith(path.join('api/llms.txt')))).toBe(true)
 			})
 
 			it('should generate llms.txt files up to specified depth level', async () => {
 				plugin = llmstxt({
-					generateLLMsFullTxt: false,
-					generateLLMFriendlyDocsForEachPage: false,
 					experimental: { depth: 3 },
+					generateLLMFriendlyDocsForEachPage: false,
+					generateLLMsFullTxt: false,
 				})
 				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
@@ -827,7 +835,7 @@ This is a test page.`
 				// Should generate files at root, first-level, and second-level directories
 				expect(writeFile).toHaveBeenCalledTimes(4)
 				const calls = writeFile.mock.calls.map((call) => call[0] as string)
-				expect(calls.some((filepath) => filepath.endsWith(path.join('dist/llms.txt')))).toBe(true) // root
+				expect(calls.some((filepath) => filepath.endsWith(path.join('dist/llms.txt')))).toBe(true) // Root
 				expect(calls.some((filepath) => filepath.endsWith(path.join('guide/llms.txt')))).toBe(true)
 				expect(calls.some((filepath) => filepath.endsWith(path.join('api/llms.txt')))).toBe(true)
 				expect(
@@ -837,9 +845,9 @@ This is a test page.`
 
 			it('should filter content correctly for each directory level', async () => {
 				plugin = llmstxt({
-					generateLLMsFullTxt: false,
-					generateLLMFriendlyDocsForEachPage: false,
 					experimental: { depth: 2 },
+					generateLLMFriendlyDocsForEachPage: false,
+					generateLLMsFullTxt: false,
 				})
 				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
@@ -889,8 +897,8 @@ This is a test page.`
 
 			it('should generate both llms.txt and llms-full.txt at each depth level', async () => {
 				plugin = llmstxt({
-					generateLLMFriendlyDocsForEachPage: false,
 					experimental: { depth: 2 },
+					generateLLMFriendlyDocsForEachPage: false,
 				})
 				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
@@ -912,14 +920,14 @@ This is a test page.`
 				const calls = writeFile.mock.calls.map((call) => call[0] as string)
 
 				// Check llms.txt files
-				expect(calls.some((filepath) => filepath.endsWith(path.join('dist/llms.txt')))).toBe(true) // root
+				expect(calls.some((filepath) => filepath.endsWith(path.join('dist/llms.txt')))).toBe(true) // Root
 				expect(calls.some((filepath) => filepath.endsWith(path.join('guide/llms.txt')))).toBe(true)
 				expect(calls.some((filepath) => filepath.endsWith(path.join('api/llms.txt')))).toBe(true)
 
 				// Check llms-full.txt files
 				expect(calls.some((filepath) => filepath.endsWith(path.join('dist', 'llms-full.txt')))).toBe(
 					true,
-				) // root
+				) // Root
 				expect(calls.some((filepath) => filepath.endsWith(path.join('guide', 'llms-full.txt')))).toBe(
 					true,
 				)
@@ -930,9 +938,9 @@ This is a test page.`
 
 			it('should filter llms-full.txt content correctly for each directory', async () => {
 				plugin = llmstxt({
-					generateLLMsTxt: false,
-					generateLLMFriendlyDocsForEachPage: false,
 					experimental: { depth: 2 },
+					generateLLMFriendlyDocsForEachPage: false,
+					generateLLMsTxt: false,
 				})
 				// @ts-expect-error
 				plugin[1].configResolved(mockConfig)
@@ -984,13 +992,13 @@ This is a test page.`
 	describe('ignoreFilesPerOutput', () => {
 		it('ignores files for llms.txt only, keeping them in llms-full.txt and pages', async () => {
 			plugin = llmstxt({
+				generateLLMFriendlyDocsForEachPage: true,
+				generateLLMsFullTxt: true,
+				generateLLMsTxt: true,
 				ignoreFiles: [],
 				ignoreFilesPerOutput: {
 					llmsTxt: ['api/*'],
 				},
-				generateLLMsTxt: true,
-				generateLLMsFullTxt: true,
-				generateLLMFriendlyDocsForEachPage: true,
 			})
 			// @ts-expect-error
 			plugin[1].configResolved(mockConfig)
@@ -1005,31 +1013,31 @@ This is a test page.`
 			// @ts-expect-error
 			await plugin[1].generateBundle()
 
-			// llms.txt + llms-full.txt + 2 pages = 4 total writes
+			// Llms.txt + llms-full.txt + 2 pages = 4 total writes
 			expect(writeFile).toHaveBeenCalledTimes(4)
 
 			const calls = writeFile.mock.calls as [string, string][]
 
 			const llmsTxt = calls.find(([p]) => p.endsWith('llms.txt'))?.[1]
 			const llmsFullTxt = calls.find(([p]) => p.endsWith('llms-full.txt'))?.[1]
-			const apiPage = calls.find(([p]) => p.endsWith('api' + path.sep + 'reference.md'))?.[1]
+			const apiPage = calls.find(([p]) => p.endsWith(`api${path.sep}reference.md`))?.[1]
 
-			// api/reference.md must NOT appear in llms.txt
+			// `api/reference.md` must NOT appear in llms.txt
 			expect(llmsTxt).not.toContain('reference')
-			// but MUST appear in llms-full.txt and as a standalone page
+			// But MUST appear in llms-full.txt and as a standalone page
 			expect(llmsFullTxt).toContain('reference')
 			expect(apiPage).toBeDefined()
 		})
 
 		it('ignores files for llms-full.txt only', async () => {
 			plugin = llmstxt({
+				generateLLMFriendlyDocsForEachPage: false,
+				generateLLMsFullTxt: true,
+				generateLLMsTxt: true,
 				ignoreFiles: [],
 				ignoreFilesPerOutput: {
 					llmsFullTxt: ['internal/*'],
 				},
-				generateLLMsTxt: true,
-				generateLLMsFullTxt: true,
-				generateLLMFriendlyDocsForEachPage: false,
 			})
 			// @ts-expect-error
 			plugin[1].configResolved(mockConfig)
@@ -1044,7 +1052,7 @@ This is a test page.`
 			// @ts-expect-error
 			await plugin[1].generateBundle()
 
-			// llms.txt + llms-full.txt = 2 writes
+			// Llms.txt + llms-full.txt = 2 writes
 			expect(writeFile).toHaveBeenCalledTimes(2)
 
 			const calls = writeFile.mock.calls as [string, string][]
@@ -1057,13 +1065,13 @@ This is a test page.`
 
 		it('ignores files for pages only', async () => {
 			plugin = llmstxt({
+				generateLLMFriendlyDocsForEachPage: true,
+				generateLLMsFullTxt: false,
+				generateLLMsTxt: true,
 				ignoreFiles: [],
 				ignoreFilesPerOutput: {
 					pages: ['private/*'],
 				},
-				generateLLMsTxt: true,
-				generateLLMsFullTxt: false,
-				generateLLMFriendlyDocsForEachPage: true,
 			})
 			// @ts-expect-error
 			plugin[1].configResolved(mockConfig)
@@ -1080,24 +1088,24 @@ This is a test page.`
 
 			const calls = writeFile.mock.calls as [string, string][]
 
-			// llms.txt should list private/secret
+			// Llms.txt should list private/secret
 			const llmsTxt = calls.find(([p]) => p.endsWith('llms.txt'))?.[1]
 			expect(llmsTxt).toContain('secret')
 
-			// private/secret.md page must NOT be written
+			// `private/secret.md` page must NOT be written
 			const secretPage = calls.find(([p]) => p.includes('secret'))
 			expect(secretPage).toBeUndefined()
 		})
 
 		it('un-ignores a globally excluded file for llms-full.txt via ! negation', async () => {
 			plugin = llmstxt({
+				generateLLMFriendlyDocsForEachPage: false,
+				generateLLMsFullTxt: true,
+				generateLLMsTxt: true,
 				ignoreFiles: ['api/reference/*'],
 				ignoreFilesPerOutput: {
 					llmsFullTxt: ['!api/reference/*'],
 				},
-				generateLLMsTxt: true,
-				generateLLMsFullTxt: true,
-				generateLLMFriendlyDocsForEachPage: false,
 			})
 			// @ts-expect-error
 			plugin[1].configResolved(mockConfig)
@@ -1110,8 +1118,8 @@ This is a test page.`
 				// @ts-expect-error
 				plugin[0].transform(fakeMarkdownDocument, 'docs/guide/intro.md'),
 				// NOTE: api/reference/index.md is globally ignored so transform returns null
-				// and the file is never added to mdFiles — the negation in perOutput
-				// cannot restore files that were excluded during transform.
+				// And the file is never added to mdFiles — the negation in perOutput
+				// Cannot restore files that were excluded during transform.
 				// This test verifies that llms.txt still excludes it.
 			])
 
@@ -1121,7 +1129,7 @@ This is a test page.`
 			const calls = writeFile.mock.calls as [string, string][]
 			const llmsTxt = calls.find(([p]) => p.endsWith('llms.txt'))?.[1]
 
-			// guide/intro.md only — api/* was globally excluded from transform stage
+			// `guide/intro.md` only — api/* was globally excluded from transform stage
 			expect(llmsTxt).toContain('intro')
 			expect(llmsTxt).not.toContain('reference')
 		})
@@ -1129,13 +1137,13 @@ This is a test page.`
 		it('un-ignores a per-output excluded file via ! negation within perOutput itself', async () => {
 			// Exclude all of api/* from llms.txt, but un-ignore api/index.md
 			plugin = llmstxt({
+				generateLLMFriendlyDocsForEachPage: false,
+				generateLLMsFullTxt: false,
+				generateLLMsTxt: true,
 				ignoreFiles: [],
 				ignoreFilesPerOutput: {
 					llmsTxt: ['api/*', '!api/index.md'],
 				},
-				generateLLMsTxt: true,
-				generateLLMsFullTxt: false,
-				generateLLMFriendlyDocsForEachPage: false,
 			})
 			// @ts-expect-error
 			plugin[1].configResolved(mockConfig)
@@ -1156,21 +1164,21 @@ This is a test page.`
 			const llmsTxt = calls.find(([p]) => p.endsWith('llms.txt'))?.[1]
 
 			expect(llmsTxt).toContain('intro')
-			// api/index.md is un-ignored so it should appear
+			// `api/index.md` is un-ignored so it should appear
 			expect(llmsTxt).toContain('api')
-			// api/advanced.md stays ignored
+			// `api/advanced.md` stays ignored
 			expect(llmsTxt).not.toContain('advanced')
 		})
 
 		it('global ignoreFiles still applies to all outputs even when perOutput is set', async () => {
 			plugin = llmstxt({
+				generateLLMFriendlyDocsForEachPage: false,
+				generateLLMsFullTxt: true,
+				generateLLMsTxt: true,
 				ignoreFiles: ['team/*'],
 				ignoreFilesPerOutput: {
 					llmsTxt: ['changelog.md'],
 				},
-				generateLLMsTxt: true,
-				generateLLMsFullTxt: true,
-				generateLLMFriendlyDocsForEachPage: false,
 			})
 			// @ts-expect-error
 			plugin[1].configResolved(mockConfig)
@@ -1190,22 +1198,22 @@ This is a test page.`
 			const llmsTxt = calls.find(([p]) => p.endsWith('llms.txt'))?.[1]
 			const llmsFullTxt = calls.find(([p]) => p.endsWith('llms-full.txt'))?.[1]
 
-			// team/* must not appear in either output
+			// Team/* must not appear in either output
 			expect(llmsTxt).not.toContain('team')
 			expect(llmsFullTxt).not.toContain('team')
 		})
 
 		it('applies independent per-output patterns to each output simultaneously', async () => {
 			plugin = llmstxt({
+				generateLLMFriendlyDocsForEachPage: true,
+				generateLLMsFullTxt: true,
+				generateLLMsTxt: true,
 				ignoreFiles: [],
 				ignoreFilesPerOutput: {
-					llmsTxt: ['changelog.md'],
 					llmsFullTxt: ['internal/*'],
+					llmsTxt: ['changelog.md'],
 					pages: ['private/*'],
 				},
-				generateLLMsTxt: true,
-				generateLLMsFullTxt: true,
-				generateLLMFriendlyDocsForEachPage: true,
 			})
 			// @ts-expect-error
 			plugin[1].configResolved(mockConfig)
@@ -1228,17 +1236,17 @@ This is a test page.`
 			const llmsTxt = calls.find(([p]) => p.endsWith('llms.txt'))?.[1]
 			const llmsFullTxt = calls.find(([p]) => p.endsWith('llms-full.txt'))?.[1]
 
-			// llms.txt: changelog excluded, rest present
+			// Llms.txt: changelog excluded, rest present
 			expect(llmsTxt).not.toContain('changelog')
 			expect(llmsTxt).toContain('notes')
 			expect(llmsTxt).toContain('secret')
 
-			// llms-full.txt: internal excluded, rest present
+			// Llms-full.txt: internal excluded, rest present
 			expect(llmsFullTxt).not.toContain('notes')
 			expect(llmsFullTxt).toContain('changelog')
 			expect(llmsFullTxt).toContain('secret')
 
-			// private/secret.md page must NOT be written as a standalone file
+			// Private/secret.md page must NOT be written as a standalone file
 			const secretPage = calls.find(([p]) => p.includes('secret'))
 			expect(secretPage).toBeUndefined()
 		})

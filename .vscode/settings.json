@@ -4,7 +4,7 @@
 
 	"oxc.typeAware": true,
 
-	"typescript.experimental.useTsgo": true,
+	"js/ts.experimental.useTsgo": true,
 
 	"editor.codeActionsOnSave": {
 		"source.fixAll.oxc": "always"
@@ -28,5 +28,7 @@
 
 	"yaml.schemas": {
 		"./node_modules/@cspell/cspell-types/cspell.schema.json": "cspell.yml"
-	}
+	},
+	"oxc.enable.oxlint": true,
+	"typescript.native-preview.tsdk": "/home/okineadev/vitepress-plugin-llms/node_modules/@typescript/native-preview"
 }

@@ -1,5 +1,6 @@
-import path from 'node:path'
 import type { Root } from 'mdast'
+
+import path from 'node:path'
 import { visit } from 'unist-util-visit'
 
 /**
@@ -8,8 +9,9 @@ import { visit } from 'unist-util-visit'
  * @param map - Map of original image file names to hashed file paths.
  * @returns A remark plugin that rewrites image URLs.
  */
-function remarkReplaceImageUrls(map: Map<string, string>) {
+function remarkReplaceImageUrls(map: Readonly<Map<string, string>>) {
 	return () =>
+		// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
 		(tree: Root): void => {
 			visit(tree, 'image', (node) => {
 				const original = path.posix.basename(node.url)

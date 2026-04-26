@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test'
+
 import { resolvePageURL } from '@/utils/vitepress-rewrites'
 import { resolveMarkdownPageURL } from '@/vitepress-components/utils'
 
@@ -21,8 +22,8 @@ describe('resolvePageURL', () => {
 
 describe('resolveMarkdownPageURL', () => {
 	const origin = 'https://example.com'
-	global.window = Object.create({})
-	Object.defineProperty(window, 'location', {
+	globalThis.window = Object.create({})
+	Object.defineProperty(globalThis, 'location', {
 		value: { origin },
 		writable: true,
 	})

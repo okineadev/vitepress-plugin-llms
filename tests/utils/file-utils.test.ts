@@ -1,12 +1,14 @@
-// spell-checker:words awesomeproject
+// Spell-checker:words awesomeproject
 
 import { describe, expect, it } from 'bun:test'
 import path from 'node:path'
+
 import { getDirectoriesAtDepths } from '@/utils/file-utils'
 import { generateLink } from '@/utils/template-utils'
 // oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 // @ts-ignore
 import { cleanUrl } from '@/vitepress-components/utils'
+
 import { sampleDomain } from '../resources'
 
 describe('generateLink', () => {
@@ -78,8 +80,8 @@ describe('getDirectoriesAtDepths', () => {
 
 		expect(result).toEqual([
 			{
-				path: baseDir,
 				depth: 1,
+				path: baseDir,
 				relativePath: '.',
 			},
 		])
@@ -97,18 +99,18 @@ describe('getDirectoriesAtDepths', () => {
 
 		expect(result).toEqual([
 			{
-				path: baseDir,
 				depth: 1,
+				path: baseDir,
 				relativePath: '.',
 			},
 			{
-				path: path.resolve(baseDir, 'api'),
 				depth: 2,
+				path: path.resolve(baseDir, 'api'),
 				relativePath: 'api',
 			},
 			{
-				path: path.resolve(baseDir, 'guide'),
 				depth: 2,
+				path: path.resolve(baseDir, 'guide'),
 				relativePath: 'guide',
 			},
 		])
@@ -127,23 +129,23 @@ describe('getDirectoriesAtDepths', () => {
 
 		expect(result).toEqual([
 			{
-				path: baseDir,
 				depth: 1,
+				path: baseDir,
 				relativePath: '.',
 			},
 			{
-				path: path.resolve(baseDir, 'api'),
 				depth: 2,
+				path: path.resolve(baseDir, 'api'),
 				relativePath: 'api',
 			},
 			{
-				path: path.resolve(baseDir, 'guide'),
 				depth: 2,
+				path: path.resolve(baseDir, 'guide'),
 				relativePath: 'guide',
 			},
 			{
-				path: path.resolve(baseDir, 'api', 'advanced'),
 				depth: 3,
+				path: path.resolve(baseDir, 'api', 'advanced'),
 				relativePath: path.join('api', 'advanced'),
 			},
 		])
@@ -156,8 +158,8 @@ describe('getDirectoriesAtDepths', () => {
 
 		expect(result).toEqual([
 			{
-				path: baseDir,
 				depth: 1,
+				path: baseDir,
 				relativePath: '.',
 			},
 		])
@@ -170,13 +172,13 @@ describe('getDirectoriesAtDepths', () => {
 
 		expect(result).toEqual([
 			{
-				path: baseDir,
 				depth: 1,
+				path: baseDir,
 				relativePath: '.',
 			},
 			{
-				path: path.resolve(baseDir, 'guide'),
 				depth: 2,
+				path: path.resolve(baseDir, 'guide'),
 				relativePath: 'guide',
 			},
 		])
@@ -189,28 +191,28 @@ describe('getDirectoriesAtDepths', () => {
 
 		expect(result).toEqual([
 			{
-				path: baseDir,
 				depth: 1,
+				path: baseDir,
 				relativePath: '.',
 			},
 			{
-				path: path.resolve(baseDir, 'alpha'),
 				depth: 2,
+				path: path.resolve(baseDir, 'alpha'),
 				relativePath: 'alpha',
 			},
 			{
-				path: path.resolve(baseDir, 'beta'),
 				depth: 2,
+				path: path.resolve(baseDir, 'beta'),
 				relativePath: 'beta',
 			},
 			{
-				path: path.resolve(baseDir, 'zebra'),
 				depth: 2,
+				path: path.resolve(baseDir, 'zebra'),
 				relativePath: 'zebra',
 			},
 			{
-				path: path.resolve(baseDir, 'beta', 'nested'),
 				depth: 3,
+				path: path.resolve(baseDir, 'beta', 'nested'),
 				relativePath: path.join('beta', 'nested'),
 			},
 		])

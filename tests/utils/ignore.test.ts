@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'bun:test'
-import { filterPreparedFiles, isIgnored, resolveIgnorePatterns } from '@/utils/ignore'
+
 import type { PreparedFile } from '@/internal-types'
 
+import { filterPreparedFiles, isIgnored, resolveIgnorePatterns } from '@/utils/ignore'
+
 function makeFile(filePath: string): PreparedFile {
-	return { path: filePath, title: filePath, file: {} as PreparedFile['file'] }
+	return { file: {} as PreparedFile['file'], path: filePath, title: filePath }
 }
 
 describe('resolveIgnorePatterns', () => {
@@ -26,7 +28,7 @@ describe('resolveIgnorePatterns', () => {
 
 	it('removes globally ignored pattern when it is negated by perOutput', () => {
 		const { positive } = resolveIgnorePatterns(['team/*', 'blog/*'], ['!team/*'])
-		// team/* should be removed from the positive list
+		// Team/* should be removed from the positive list
 		expect(positive).not.toContain('team/*')
 		expect(positive).toContain('blog/*')
 	})
@@ -48,7 +50,7 @@ describe('resolveIgnorePatterns', () => {
 
 	it('handles perOutput with only negations and no global patterns', () => {
 		const { positive, negative } = resolveIgnorePatterns([], ['!team/*'])
-		// nothing to remove from global, but negative is populated
+		// Nothing to remove from global, but negative is populated
 		expect(positive).toEqual([])
 		expect(negative).toEqual(['team/*'])
 	})
@@ -78,7 +80,7 @@ describe('isIgnored', () => {
 	})
 
 	it('returns true for a file that matches positive but a sibling file matches negative', () => {
-		// team/bob.md is NOT in the negative list, so it stays ignored
+		// `team/bob.md` is NOT in the negative list, so it stays ignored
 		expect(isIgnored('team/bob.md', ['team/*'], ['team/alice.md'])).toBe(true)
 	})
 
@@ -150,9 +152,9 @@ describe('filterPreparedFiles', () => {
 			makeFile('api/reference/b.md'),
 			makeFile('team/alice.md'),
 		]
-		// globally ignore api/reference/*, but lift it via negation
+		// Globally ignore api/reference/*, but lift it via negation
 		const result = filterPreparedFiles(files, workDir, ['api/reference/*', 'team/*'], ['api/reference/*'])
-		// team/alice.md stays ignored; api/reference/* is un-ignored
+		// `team/alice.md` stays ignored; api/reference/* is un-ignored
 		expect(result).toHaveLength(2)
 		expect(result.map((f) => f.path)).not.toContain('team/alice.md')
 	})

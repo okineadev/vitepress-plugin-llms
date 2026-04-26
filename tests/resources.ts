@@ -1,6 +1,9 @@
-import matter from 'gray-matter'
 import type { DefaultTheme } from 'vitepress'
+
+import matter from 'gray-matter'
+
 import type { PreparedFile } from '@/internal-types'
+
 import fakeGettingStartedMd from './test-assets/getting-started.md'
 import fakeIndexMd from './test-assets/index.md'
 import fakeMarkdownDocument from './test-assets/markdown-document.md'
@@ -14,26 +17,26 @@ export const fakeCustomLlmsTxtTemplate = '# Custom title\n\n> Custom description
 
 export const sampleVitePressSidebar: DefaultTheme.Sidebar = [
 	{
+		items: [{ link: '/test/getting-started', text: 'Getting Started' }],
 		text: 'Test Section',
-		items: [{ text: 'Getting Started', link: '/test/getting-started' }],
 	},
 	{
+		items: [{ link: '/test/quickstart', text: 'Quickstart' }],
 		text: 'Quickstart Section',
-		items: [{ text: 'Quickstart', link: '/test/quickstart' }],
 	},
 ]
 
 export const sampleObjectVitePressSidebar: DefaultTheme.Sidebar = {
 	'/': [
 		{
+			items: [{ link: '/test/getting-started', text: 'Introduction' }],
 			text: 'Getting Started',
-			items: [{ text: 'Introduction', link: '/test/getting-started' }],
 		},
 	],
 	'/api/': [
 		{
+			items: [{ link: '/test/quickstart', text: 'Quickstart' }],
 			text: 'API Reference',
-			items: [{ text: 'Quickstart', link: '/test/quickstart' }],
 		},
 	],
 }
@@ -41,39 +44,39 @@ export const sampleObjectVitePressSidebar: DefaultTheme.Sidebar = {
 export const sampleObjectVitePressSidebarWithBase: DefaultTheme.Sidebar = {
 	'/': [
 		{
-			text: 'Getting Started',
 			base: '/test',
 			items: [
-				{ text: 'Introduction', link: '/getting-started' },
+				{ link: '/getting-started', text: 'Introduction' },
 				{
-					text: 'Index',
 					base: '/',
 					link: '/index',
+					text: 'Index',
 				},
 			],
+			text: 'Getting Started',
 		},
 	],
 	'/api/': [
 		{
-			text: 'API Reference',
 			base: '/test',
 			items: [
 				{
-					text: 'Other section',
 					link: '/other',
+					text: 'Other section',
 				},
 			],
+			text: 'API Reference',
 		},
 	],
 	'/tutorials/': [
 		{
-			text: 'Tutorials',
 			items: [
 				{
-					text: 'Quickstart',
 					link: '/test/quickstart',
+					text: 'Quickstart',
 				},
 			],
+			text: 'Tutorials',
 		},
 	],
 }
@@ -81,58 +84,58 @@ export const sampleObjectVitePressSidebarWithBase: DefaultTheme.Sidebar = {
 export const sampleObjectVitePressSidebarWithCommonPrefix: DefaultTheme.Sidebar = {
 	'/blog': [
 		{
-			text: 'Blog Started',
 			items: [
-				{ text: 'Version 1.0', link: '/blog/v1' },
-				{ text: 'Version 1.1', link: '/blog/v1.1' },
+				{ link: '/blog/v1', text: 'Version 1.0' },
+				{ link: '/blog/v1.1', text: 'Version 1.1' },
 			],
+			text: 'Blog Started',
 		},
 	],
 }
 
 export const sampleObjectVitePressSidebarWithoutSections: DefaultTheme.Sidebar = [
-	{ text: 'Getting Started', link: '/test/getting-started' },
-	{ text: 'Quickstart', link: '/test/quickstart' },
+	{ link: '/test/getting-started', text: 'Getting Started' },
+	{ link: '/test/quickstart', text: 'Quickstart' },
 ]
 
 export const fooMdSample: PreparedFile = {
-	title: 'Title',
-	path: 'foo.md',
 	file: matter(''),
+	path: 'foo.md',
+	title: 'Title',
 }
 
 export const preparedFilesSample: PreparedFile[] = [
 	{
-		title: 'Some cool tool',
-		path: 'index.md',
 		file: matter(fakeIndexMd),
+		path: 'index.md',
+		title: 'Some cool tool',
 	},
 	{
-		title: 'Getting started',
-		path: 'test/getting-started.md',
 		file: matter(fakeGettingStartedMd),
+		path: 'test/getting-started.md',
+		title: 'Getting started',
 	},
 	{
-		title: 'Quickstart',
-		path: 'test/quickstart.md',
 		file: matter(fakeQuickstartMd),
+		path: 'test/quickstart.md',
+		title: 'Quickstart',
 	},
 	{
-		title: 'Some other section',
-		path: 'test/other.md',
 		file: matter(fakeMarkdownDocument),
+		path: 'test/other.md',
+		title: 'Some other section',
 	},
 ]
 
 export const preparedFilesWithCommonPrefixSample: PreparedFile[] = [
 	{
-		title: 'First version',
-		path: 'blog/v1.md',
 		file: matter(fakeIndexMd),
+		path: 'blog/v1.md',
+		title: 'First version',
 	},
 	{
-		title: 'New features!',
-		path: 'blog/v1.1.md',
 		file: matter(fakeGettingStartedMd),
+		path: 'blog/v1.1.md',
+		title: 'New features!',
 	},
 ]

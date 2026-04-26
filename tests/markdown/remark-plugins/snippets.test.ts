@@ -4,9 +4,9 @@ import { remark } from 'remark'
 // Mock node:fs before importing the plugin
 const mockExistsSync = mock(() => true)
 const mockReadFileSync = mock(() => 'Included content from file')
-const mockStatSync = mock(() => ({ isFile: () => true }))
+const mockStatSync = mock(() => ({ isFile: (): true => true }))
 
-mock.module('node:fs', () => ({
+await mock.module('node:fs', () => ({
 	default: {
 		existsSync: mockExistsSync,
 		readFileSync: mockReadFileSync,
@@ -17,8 +17,9 @@ mock.module('node:fs', () => ({
 	statSync: mockStatSync,
 }))
 
-import path from 'node:path'
 import dedent from 'dedent'
+import path from 'node:path'
+
 // Import after mocking
 // oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 // @ts-ignore
@@ -178,7 +179,7 @@ After region`
 		// Check that the path was resolved from srcDir
 		expect(mockReadFileSync).toHaveBeenCalledWith(
 			expect.stringMatching(path.resolve('/source/root/config/file.md')),
-			'utf-8',
+			'utf8',
 		)
 	})
 })
@@ -421,7 +422,7 @@ function multiply(a, b) {
 		// Check that relative path was resolved correctly
 		expect(mockReadFileSync).toHaveBeenCalledWith(
 			expect.stringMatching(/relative[/\\]example\.js$/),
-			'utf-8',
+			'utf8',
 		)
 	})
 

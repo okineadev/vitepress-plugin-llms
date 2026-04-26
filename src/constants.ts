@@ -11,6 +11,7 @@ export const defaultLLMsTxtTemplate = `\
 {toc}`
 
 /** List of unnecessary files grouped by category. */
+// oxlint-disable-next-line sort-keys
 export const unnecessaryFilesList = {
 	/** `index.md` */
 	indexPage: ['index.md'],
@@ -21,28 +22,25 @@ export const unnecessaryFilesList = {
 	/** `README.md` */
 	readmeMd: ['README.md'],
 } as const
-unnecessaryFilesList satisfies { [type: string]: readonly string[] }
+unnecessaryFilesList satisfies Record<string, readonly string[]>
 
-export const tagRegex = (tag: RegExp | string, type: 'open' | 'closed', flags?: string): RegExp => {
-	return new RegExp(`<${type === 'open' ? '' : '/'}${tag}>`, flags)
-}
+export const tagRegex = (tag: string, type: 'open' | 'closed', flags?: string): RegExp =>
+	new RegExp(`<${type === 'open' ? '' : '/'}${tag}>`, flags)
 
 /**
  * Generates a regular expression that matches a complete custom tag, including its content.
  *
- * The resulting RegExp matches an opening tag, captures everything inside (non-greedily),
- * and then matches the corresponding closing tag. The tag name is provided as an argument.
+ * The resulting RegExp matches an opening tag, captures everything inside (non-greedily), and then matches
+ * the corresponding closing tag. The tag name is provided as an argument.
+ *
+ * @example
+ * const regex = fullTagRegex('note')
+ * const input = '<note>This is a note</note>'
+ * const match = input.match(regex)
+ * console.log(match?.[1]) // "This is a note"
  *
  * @param tag - The name of the tag to match (e.g., "note" will match <note>...</note>).
  * @returns A RegExp that captures the entire tag block including its inner content.
- *
- * @example
- * ```ts
- * const regex = fullTagRegex('note');
- * const input = '<note>This is a note</note>';
- * const match = input.match(regex);
- * console.log(match?.[1]); // "This is a note"
- * ```
  */
-export const fullTagRegex = (tag: RegExp | string, flags?: string): RegExp =>
+export const fullTagRegex = (tag: string, flags?: string): RegExp =>
 	new RegExp(`${tagRegex(tag, 'open').source}([\\s\\S]*?)${tagRegex(tag, 'closed').source}`, flags)

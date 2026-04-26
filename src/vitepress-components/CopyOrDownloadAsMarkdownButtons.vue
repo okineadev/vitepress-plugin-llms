@@ -60,37 +60,40 @@ import iconCopy from './icons/copy.svg?raw'
 import iconDownload from './icons/download.svg?raw'
 import iconExternal from './icons/external.svg?raw'
 import iconMarkdown from './icons/markdown.svg?raw'
-
 import { downloadFile, resolveMarkdownPageURL } from './utils'
 
 const aiProviders = [
-	{ name: 'ChatGPT', icon: iconChatGPT, url: 'https://chatgpt.com/?hints=search&prompt=' },
-	{ name: 'Claude', icon: iconClaude, url: 'https://claude.ai/new?q=' },
+	{ icon: iconChatGPT, name: 'ChatGPT', url: 'https://chatgpt.com/?hints=search&prompt=' },
+	{ icon: iconClaude, name: 'Claude', url: 'https://claude.ai/new?q=' },
 ]
 
 const isOpen = ref(false)
 const copied = ref(false)
 const downloaded = ref(false)
-const dropdownContainer = ref<HTMLElement | null>(null)
+const dropdownContainer = ref<HTMLElement | undefined>()
 const isRendered = ref(false)
-const dropdownMenu = ref<HTMLElement | null>(null)
+const dropdownMenu = ref<HTMLElement | undefined>()
 
-function toggleDropdown() {
+const animationDuration = 2000
+
+function toggleDropdown(): void {
 	if (isOpen.value) {
-		// close
+		// Close
 		isOpen.value = false
 
 		const el = dropdownMenu.value
-		if (!el) return
+		if (!el) {
+			return
+		}
 
-		const onEnd = () => {
+		const onEnd = (): void => {
 			isRendered.value = false
 			el.removeEventListener('transitionend', onEnd)
 		}
 
 		el.addEventListener('transitionend', onEnd)
 	} else {
-		// open
+		// Open
 		isRendered.value = true
 		requestAnimationFrame(() => {
 			isOpen.value = true
@@ -98,50 +101,54 @@ function toggleDropdown() {
 	}
 }
 
-const currentURL = window.location.origin + window.location.pathname
+const currentURL = globalThis.window.location.origin + globalThis.window.location.pathname
 
-function copyAsMarkdown() {
-	fetch(resolveMarkdownPageURL(currentURL))
-		.then((r) => r.text())
-		.then((text) => navigator.clipboard.writeText(text))
-		.then(() => {
-			copied.value = true
-			setTimeout(() => {
-				copied.value = false
-			}, 2000)
-		})
-		.catch((e) => console.error('❌ Error:', e))
+async function copyAsMarkdown(): Promise<void> {
+	try {
+		const response = await fetch(resolveMarkdownPageURL(currentURL))
+		const text = await response.text()
+		await navigator.clipboard.writeText(text)
+
+		copied.value = true
+		setTimeout(() => {
+			copied.value = false
+		}, animationDuration)
+	} catch (error) {
+		console.error('❌ Error:', error)
+	}
 
 	isOpen.value = false
 }
 
-function viewAsMarkdown() {
+function viewAsMarkdown(): void {
 	window.open(resolveMarkdownPageURL(currentURL), '_blank')
 	isOpen.value = false
 }
 
-function openInAI(provider: (typeof aiProviders)[0]) {
+function openInAI(provider: (typeof aiProviders)[0]): void {
 	const markdownUrl = resolveMarkdownPageURL(currentURL)
 	const prompt = `Read from ${markdownUrl} so I can ask questions about it.`
 	window.open(provider.url + encodeURIComponent(prompt), '_blank')
 	isOpen.value = false
 }
 
-function downloadMarkdown() {
-	fetch(resolveMarkdownPageURL(currentURL))
-		.then((r) => r.text())
-		.then((text) => {
-			const filename = resolveMarkdownPageURL(currentURL).split('/').pop() || 'page.md'
-			downloadFile(filename, text, 'text/markdown')
-			downloaded.value = true
-			setTimeout(() => {
-				downloaded.value = false
-			}, 2000)
-		})
-		.catch((e) => console.error('❌ Error:', e))
+async function downloadMarkdown(): Promise<void> {
+	try {
+		const response = await fetch(resolveMarkdownPageURL(currentURL))
+		const text = await response.text()
+		const filename = resolveMarkdownPageURL(currentURL).split('/').pop() || 'page.md'
+
+		downloadFile(filename, text, 'text/markdown')
+		downloaded.value = true
+		setTimeout(() => {
+			downloaded.value = false
+		}, animationDuration)
+	} catch (error) {
+		console.error('❌ Error:', error)
+	}
 }
 
-function handleClickOutside(event: MouseEvent) {
+function handleClickOutside(event: MouseEvent): void {
 	if (dropdownContainer.value && !dropdownContainer.value.contains(event.target as Node)) {
 		isOpen.value = false
 	}

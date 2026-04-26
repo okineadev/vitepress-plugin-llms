@@ -6,9 +6,8 @@ import matter from 'gray-matter'
 // @ts-ignore
 import { processVPParams } from '@/utils/dynamic-routes'
 
-const generateStringWithVPParams = (params: Record<string, string>, content: string) => {
-	return `__VP_PARAMS_START${JSON.stringify(params)}__VP_PARAMS_END__${content}`
-}
+const generateStringWithVPParams = (params: Readonly<Record<string, string>>, content: string): string =>
+	`__VP_PARAMS_START${JSON.stringify(params)}__VP_PARAMS_END__${content}`
 
 describe('processVPParams', () => {
 	it('replaces $params.pkg references in title', () => {
@@ -43,7 +42,7 @@ describe('processVPParams', () => {
 			# Content
 		`,
 		)
-		const title = matter(processVPParams(markdown)).data['title']
+		const { title } = matter(processVPParams(markdown)).data
 		expect(title).toBe('vitepress Documentation')
 	})
 })

@@ -1,7 +1,10 @@
-import path from 'node:path'
 import type { DefaultTheme } from 'vitepress'
-import type { LinksExtension, PreparedFile, VitePressConfig } from '@/internal-types'
+
+import path from 'node:path'
+
+import type { DeepReadonly, LinksExtension, PreparedFile, VitePressConfig } from '@/internal-types'
 import type { LlmstxtSettings } from '@/types'
+
 import { stripExtPosix, transformToPosixPath } from '@/utils/file-utils'
 import log from '@/utils/logger'
 import { generateLink } from '@/utils/template-utils'
@@ -17,14 +20,14 @@ import { generateLink } from '@/utils/template-utils'
  * @returns The formatted TOC entry as a Markdown list item.
  */
 export const generateTOCLink = (
-	file: PreparedFile,
+	file: DeepReadonly<PreparedFile>,
 	domain: LlmstxtSettings['domain'],
 	relativePath: string,
 	extension?: LinksExtension,
 	base?: string,
-) => {
-	const description: string = file.file.data['description'] as string
-	return `- [${file.title}](${generateLink(stripExtPosix(relativePath), domain, extension ?? '.md', base)})${description ? `: ${description.trim()}` : ''}\n`
+): string => {
+	const { description }: { description?: string } = file.file.data
+	return `- [${file.title}](${generateLink(stripExtPosix(relativePath), domain, extension ?? '.md', base)})${typeof description === 'string' ? `: ${description.trim()}` : ''}\n`
 }
 
 /**
@@ -33,7 +36,10 @@ export const generateTOCLink = (
  * @param items - Array of sidebar items to process.
  * @returns Array of paths collected from the sidebar items.
  */
-function collectPathsFromSidebarItems(items: DefaultTheme.SidebarItem[], base = ''): Promise<string[]> {
+async function collectPathsFromSidebarItems(
+	items: DeepReadonly<DefaultTheme.SidebarItem[]>,
+	base = '',
+): Promise<string[]> {
 	return Promise.all(
 		items.map(async (item) => {
 			const paths: string[] = []
@@ -44,6 +50,7 @@ function collectPathsFromSidebarItems(items: DefaultTheme.SidebarItem[], base = 
 
 			// Recursively add paths from nested items
 			if (item.items && Array.isArray(item.items)) {
+				// oxlint-disable-next-line typescript/no-unnecessary-condition
 				const nestedPaths = await collectPathsFromSidebarItems(item.items, item.base ?? base ?? '')
 				paths.push(...nestedPaths)
 			}
@@ -97,10 +104,12 @@ export function isPathMatch(filePath: string, sidebarPath: string): boolean {
  * @returns A string representing the formatted section of the TOC
  */
 async function processSidebarSection(
+	// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
 	section: DefaultTheme.SidebarItem,
-	preparedFiles: PreparedFile[],
+	preparedFiles: DeepReadonly<PreparedFile[]>,
 	domain?: LlmstxtSettings['domain'],
 	linksExtension?: LinksExtension,
+	// oxlint-disable-next-line no-magic-numbers
 	depth = 3,
 	base = '',
 ): Promise<string> {
@@ -118,7 +127,7 @@ async function processSidebarSection(
 					(item): item is DefaultTheme.SidebarItem & { link: string } =>
 						typeof item.link === 'string',
 				)
-				.map((item) => {
+				.map(async (item) => {
 					// Normalize the link path for matching
 					const normalizedItemLink = normalizeLinkPath(
 						path.posix.join(base, item.base ?? section.base ?? '', item.link),
@@ -137,9 +146,10 @@ async function processSidebarSection(
 					log.warn(
 						`No matching file found for sidebar link: ${item.link} (normalized: ${normalizedItemLink})`,
 					)
-					return null
+					// oxlint-disable-next-line no-useless-return typescript/consistent-return
+					return
 				}),
-		).then((items) => items.filter((item): item is string => item !== null)),
+		).then((items) => items.filter((item): item is string => item !== undefined)),
 
 		Promise.all(
 			section.items
@@ -150,7 +160,7 @@ async function processSidebarSection(
 						items: DefaultTheme.SidebarItem[]
 					} => Array.isArray(item.items) && item.items.length > 0,
 				)
-				.map((item) =>
+				.map(async (item) =>
 					processSidebarSection(
 						item,
 						preparedFiles,
@@ -158,6 +168,7 @@ async function processSidebarSection(
 						linksExtension,
 						// Increase depth for nested sections to maintain proper heading levels
 						depth + 1,
+						// oxlint-disable-next-line typescript/no-unnecessary-condition
 						item.base ?? section.base ?? base ?? '',
 					),
 				),
@@ -165,7 +176,7 @@ async function processSidebarSection(
 	])
 
 	// Filter out empty nested sections
-	const nonEmptyNestedSections = nestedSections.filter((section) => section.trim() !== '')
+	const nonEmptyNestedSections = nestedSections.filter((section_) => section_.trim() !== '')
 
 	// Check if we have any content before adding section header
 	const hasContent = linkItems.length > 0 || nonEmptyNestedSections.length > 0
@@ -198,10 +209,11 @@ async function processSidebarSection(
  * @param sidebarConfig - The sidebar configuration from VitePress.
  * @returns An array of sidebar items.
  */
+// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
 function flattenSidebarConfig(sidebarConfig: DefaultTheme.Sidebar): DefaultTheme.SidebarItem[] {
 	// If it's already an array, return as is
 	if (Array.isArray(sidebarConfig)) {
-		return sidebarConfig
+		return sidebarConfig as DefaultTheme.SidebarItem[]
 	}
 
 	// If it's an object with path keys, flatten it
@@ -213,65 +225,71 @@ function flattenSidebarConfig(sidebarConfig: DefaultTheme.Sidebar): DefaultTheme
 	return []
 }
 
-/**
- * Options for generating a Table of Contents (TOC).
- */
+/** Options for generating a Table of Contents (TOC). */
 export interface GenerateTOCOptions {
 	/** Optional domain to prefix URLs with. */
-	domain?: LlmstxtSettings['domain']
+	readonly domain?: LlmstxtSettings['domain']
 
 	/** Optional VitePress sidebar configuration. */
-	sidebarConfig?: DefaultTheme.Sidebar
+	readonly sidebarConfig?: DefaultTheme.Sidebar
 
 	/** The link extension for generated links. */
-	linksExtension?: LinksExtension
+	readonly linksExtension?: LinksExtension
 
-	/** The base URL path from VitePress config.
+	/**
+	 * The base URL path from VitePress config.
 	 *
 	 * {@link VitePressConfig.base}
 	 */
-	base?: VitePressConfig['base']
+	readonly base?: VitePressConfig['base'] | undefined
 
 	/**
-	 * Optional directory filter to only include files within the specified directory.
-	 * If not provided, all files will be included.
+	 * Optional directory filter to only include files within the specified directory. If not provided, all
+	 * files will be included.
 	 */
-	directoryFilter?: string
+	readonly directoryFilter?: string | undefined
 }
 
 /**
  * Generates a Table of Contents (TOC) for the provided prepared files.
  *
- * Each entry in the TOC is formatted as a markdown link to the corresponding
- * text file. If a VitePress sidebar configuration is provided, the TOC will be
- * organized into sections based on the sidebar structure, with heading levels (#, ##, ###)
- * reflecting the nesting depth of the sections.
+ * Each entry in the TOC is formatted as a markdown link to the corresponding text file. If a VitePress
+ * sidebar configuration is provided, the TOC will be organized into sections based on the sidebar structure,
+ * with heading levels (#, ##, ###) reflecting the nesting depth of the sections.
  *
  * @param preparedFiles - An array of prepared files.
  * @param options - Options for generating the TOC.
  * @returns A string representing the formatted Table of Contents.
  */
 export async function generateTOC(
-	preparedFiles: PreparedFile[],
+	preparedFiles: DeepReadonly<PreparedFile[]>,
+	// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
 	options: GenerateTOCOptions,
 ): Promise<string> {
 	const { domain, sidebarConfig, linksExtension, base, directoryFilter } = options
 	let tableOfContent = ''
 
 	// Filter files by directory if directoryFilter is provided
-	const filteredFiles =
-		typeof directoryFilter === 'string'
-			? directoryFilter === '.'
-				? preparedFiles // Root directory includes all files
-				: preparedFiles.filter((file) => {
-						const normalizedPath = transformToPosixPath(file.path)
-						const normalizedFilter = transformToPosixPath(directoryFilter)
-						return (
-							normalizedPath.startsWith(`${normalizedFilter}/`) ||
-							normalizedPath === normalizedFilter
-						)
-					})
-			: preparedFiles
+	let filteredFiles
+
+	if (typeof directoryFilter === 'string') {
+		if (directoryFilter === '.') {
+			// Root directory includes all files
+			filteredFiles = preparedFiles
+		} else {
+			const normalizedFilter = transformToPosixPath(directoryFilter)
+
+			filteredFiles = preparedFiles.filter((file) => {
+				const normalizedPath = transformToPosixPath(file.path)
+
+				return (
+					normalizedPath.startsWith(`${normalizedFilter}/`) || normalizedPath === normalizedFilter
+				)
+			})
+		}
+	} else {
+		filteredFiles = preparedFiles
+	}
 
 	// If sidebar configuration exists
 	if (sidebarConfig) {
@@ -281,16 +299,15 @@ export async function generateTOC(
 		// Process each top-level section in the flattened sidebar
 		if (flattenedSidebarConfig.length > 0) {
 			// Process sections in parallel
-			const sidebarSections = flattenedSidebarConfig.filter((section) => {
-				// Only process sections with items
-				return (
+			const sidebarSections = flattenedSidebarConfig.filter(
+				(section) =>
 					typeof section.items === 'object' &&
 					Array.isArray(section.items) &&
-					section.items.length > 0
-				)
-			})
+					section.items.length > 0,
+			)
 			const sectionResults = await Promise.all(
-				sidebarSections.map((section) =>
+				sidebarSections.map(async (section) =>
+					// oxlint-disable-next-line no-magic-numbers
 					processSidebarSection(section, filteredFiles, domain, linksExtension, 3, base),
 				),
 			)
@@ -309,7 +326,7 @@ export async function generateTOC(
 				tableOfContent += '### Other\n\n'
 
 				const tocEntries = await Promise.all(
-					unsortedFiles.map((file) => {
+					unsortedFiles.map(async (file) => {
 						const relativePath = file.path
 						return generateTOCLink(file, domain, relativePath, linksExtension, base)
 					}),
@@ -326,7 +343,7 @@ export async function generateTOC(
 	// Process remaining files in parallel
 	if (filteredFiles.length > 0) {
 		const tocEntries = await Promise.all(
-			filteredFiles.map((file) => {
+			filteredFiles.map(async (file) => {
 				const relativePath = file.path
 				return generateTOCLink(file, domain, relativePath, linksExtension, base)
 			}),

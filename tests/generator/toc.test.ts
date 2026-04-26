@@ -1,6 +1,9 @@
-import { describe, expect, it } from 'bun:test'
 import type { DefaultTheme } from 'vitepress'
+
+import { describe, expect, it } from 'bun:test'
+
 import { generateTOC, generateTOCLink, isPathMatch, normalizeLinkPath } from '@/generator/toc'
+
 import {
 	fooMdSample,
 	outDir,
@@ -80,12 +83,12 @@ describe('generateTOC', () => {
 		// Create a sidebar with an empty section
 		const sidebarWithEmptySection: DefaultTheme.Sidebar = [
 			{
-				text: 'Empty Section',
-				items: [], // No items in this section
+				items: [],
+				text: 'Empty Section', // No items in this section
 			},
 			{
+				items: [{ link: '/test/getting-started', text: 'Getting Started' }],
 				text: 'Test Section',
-				items: [{ text: 'Getting Started', link: '/test/getting-started' }],
 			},
 		]
 
@@ -103,21 +106,21 @@ describe('generateTOC', () => {
 		// Create a sidebar with nested empty sections
 		const sidebarWithNestedEmptySections: DefaultTheme.Sidebar = [
 			{
-				text: 'API',
 				items: [
 					{
-						text: 'Components',
-						items: [], // Empty nested section
+						items: [],
+						text: 'Components', // Empty nested section
 					},
 					{
-						text: 'Interfaces',
-						items: [], // Another empty nested section
+						items: [],
+						text: 'Interfaces', // Another empty nested section
 					},
 				],
+				text: 'API',
 			},
 			{
+				items: [{ link: '/test/getting-started', text: 'Getting Started' }],
 				text: 'Test Section',
-				items: [{ text: 'Getting Started', link: '/test/getting-started' }],
 			},
 		]
 
@@ -138,15 +141,15 @@ describe('generateTOC', () => {
 		// Create a sidebar with links to files that don't exist in preparedFiles
 		const sidebarWithNonMatchingFiles: DefaultTheme.Sidebar = [
 			{
-				text: 'Non-matching Section',
 				items: [
-					{ text: 'Non-existent', link: '/test/non-existent' },
-					{ text: 'Another Missing', link: '/test/missing' },
+					{ link: '/test/non-existent', text: 'Non-existent' },
+					{ link: '/test/missing', text: 'Another Missing' },
 				],
+				text: 'Non-matching Section',
 			},
 			{
+				items: [{ link: '/test/getting-started', text: 'Getting Started' }],
 				text: 'Test Section',
-				items: [{ text: 'Getting Started', link: '/test/getting-started' }],
 			},
 		]
 

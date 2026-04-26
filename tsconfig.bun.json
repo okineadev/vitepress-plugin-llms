@@ -7,5 +7,5 @@
 	},
 
 	// Setup linting for tests later
-	"include": ["tests/**/*.ts", "lint-staged.config.ts", "bunup.config.ts"]
+	"include": ["tests/**/*.ts", "lint-staged.config.ts", "bunup.config.ts", "oxlint.config.ts"]
 }

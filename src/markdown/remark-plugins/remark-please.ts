@@ -1,25 +1,31 @@
 import type { Paragraph, Parent, Root } from 'mdast'
+
 import { type BuildVisitor, visit } from 'unist-util-visit'
-import { fullTagRegex, tagRegex } from '@/constants'
+
 import type { NotUndefined } from '@/internal-types'
+
+import { fullTagRegex, tagRegex } from '@/constants'
 
 /**
  * Creates a remark plugin that either removes or unwraps specified HTML tags from markdown AST.
  *
- * @param intent - Specifies whether to 'remove' the tag and its content completely, or 'unwrap' to keep the content but remove the tags
+ * @param intent - Specifies whether to 'remove' the tag and its content completely, or 'unwrap' to keep the
+ *   content but remove the tags
  * @param tag - The HTML tag name to process (e.g., 'div', 'span', etc.)
- *
  * @returns A function that can be used as a remark plugin
  */
 function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 	return () =>
+		// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
 		(tree: Root): Root => {
 			const ourFullTagRegex = fullTagRegex(tag)
 
 			// First pass: collect all HTML nodes to process
 			const nodesToProcess: NotUndefined<Parameters<BuildVisitor<Root, 'html'>>>[] = []
 			visit(tree, 'html', (node, index, parent) => {
-				if (!parent || typeof index !== 'number') return
+				if (!parent || typeof index !== 'number') {
+					return
+				}
 				nodesToProcess.push([node, index, parent])
 			})
 
@@ -27,7 +33,7 @@ function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 			const emptyParagraphs = new Set<{ node: Paragraph; parent: Parent }>()
 
 			// Second pass: process nodes in reverse order
-			for (const [node, index, parent] of nodesToProcess.reverse()) {
+			for (const [node, index, parent] of nodesToProcess.toReversed()) {
 				// Case 1: The entire content is in one HTML node
 				if (ourFullTagRegex.test(node.value)) {
 					if (intent === 'remove') {
@@ -35,14 +41,16 @@ function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 						if (parent.type === 'paragraph' && parent.children.length === 0) {
 							emptyParagraphs.add({ node: parent, parent })
 						}
+						// oxlint-disable-next-line no-continue
 						continue
-					}
-					if (intent === 'unwrap') {
+						// oxlint-disable-next-line typescript/no-unnecessary-condition
+					} else if (intent === 'unwrap') {
 						const match = node.value.match(ourFullTagRegex)
 						if (typeof match?.[1] === 'string') {
 							// Replace the node with its inner content
 							node.value = match[1].trim()
 						}
+						// oxlint-disable-next-line no-continue
 						continue
 					}
 				}
@@ -53,24 +61,20 @@ function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 					let closeIndex = index + 1
 					while (closeIndex < parent.children.length) {
 						const closeNode = parent.children[closeIndex]
-						if (
-							closeNode !== undefined &&
-							closeNode.type === 'html' &&
-							tagRegex(tag, 'closed').test(closeNode.value)
-						) {
+						if (closeNode?.type === 'html' && tagRegex(tag, 'closed').test(closeNode.value)) {
 							break
 						}
-						closeIndex++
+						closeIndex += 1
 					}
 
 					if (closeIndex < parent.children.length) {
 						if (intent === 'remove') {
 							// Remove all nodes from opening to closing tag (inclusive)
 							parent.children.splice(index, closeIndex - index + 1)
-							// oxlint-disable-next-line max-depth
 							if (parent.type === 'paragraph' && parent.children.length === 0) {
 								emptyParagraphs.add({ node: parent, parent })
 							}
+							// oxlint-disable-next-line typescript/no-unnecessary-condition
 						} else if (intent === 'unwrap') {
 							// Keep the content between tags, remove only the HTML tag nodes
 							parent.children.splice(closeIndex, 1) // Remove closing tag
@@ -83,23 +87,23 @@ function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 			// Warning: Vibe-coded, be careful.
 
 			// Final pass: collect and remove empty paragraph nodes
-			const paragraphsToRemove: Array<{ index: number; parent: Parent }> = []
+			const paragraphsToRemove: { index: number; parent: Parent }[] = []
 
 			// First mark paragraphs that were emptied during tag removal
 			for (const { node, parent } of emptyParagraphs) {
-				// oxlint-disable-next-line typescript/no-unsafe-call typescript/no-unsafe-member-access
-				const index = parent.children.indexOf(node) as number
+				const index = parent.children.indexOf(node)
 				if (index !== -1) {
-					// oxlint-disable-next-line typescript/no-unsafe-assignment
 					paragraphsToRemove.push({ index, parent })
 				}
 			}
 
 			// Then check for any other empty paragraphs (only whitespace or no children)
 			visit(tree, 'paragraph', (node, index, parent) => {
-				if (!parent || typeof index !== 'number') return
+				if (!parent || typeof index !== 'number') {
+					return
+				}
 
-				const firstChild = node.children[0]
+				const [firstChild] = node.children
 				const isEmpty =
 					node.children.length === 0 ||
 					(node.children.length === 1 &&
@@ -112,7 +116,7 @@ function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 			})
 
 			// Remove empty paragraphs in reverse order to maintain correct indices
-			for (const { index, parent } of paragraphsToRemove.reverse()) {
+			for (const { index, parent } of paragraphsToRemove.toReversed()) {
 				parent.children.splice(index, 1)
 			}
 

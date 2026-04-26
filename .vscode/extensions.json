@@ -1,3 +1,8 @@
 {
-	"recommendations": ["github.vscode-github-actions", "davidanson.vscode-markdownlint", "oxc.oxc-vscode"]
+	"recommendations": [
+		"davidanson.vscode-markdownlint",
+		"oxc.oxc-vscode",
+		"typescriptteam.native-preview",
+		"vue.volar"
+	]
 }

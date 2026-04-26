@@ -2,11 +2,13 @@ import pc from 'picocolors'
 
 /**
  * Log prefix styling with the plugin name and separator.
+ *
  * @constant {string}
  */
 const logPrefix = pc.blue('llmstxt') + pc.dim(' » ')
 
 /** Logger object with standardized logging methods. */
+// oxlint-disable-next-line sort-keys
 const log = {
 	/**
 	 * Logs an informational message to the console.

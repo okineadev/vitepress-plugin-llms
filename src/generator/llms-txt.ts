@@ -1,42 +1,43 @@
-import matter, { GrayMatterFile, Input } from 'gray-matter'
+import type { GrayMatterFile, Input } from 'gray-matter'
 import type { DefaultTheme } from 'vitepress'
+
+import type { DeepReadonly, LinksExtension, PreparedFile, VitePressConfig } from '@/internal-types'
+import type { LlmstxtSettings } from '@/types'
+
 import { defaultLLMsTxtTemplate } from '@/constants'
 import { generateTOC } from '@/generator/toc'
-import type { LinksExtension, PreparedFile, VitePressConfig } from '@/internal-types'
-import type { LlmstxtSettings } from '@/types'
+import { clearGrayMatterCache } from '@/utils/helpers'
 import { extractTitle } from '@/utils/markdown'
 import { expandTemplate } from '@/utils/template-utils'
 
-/**
- * Options for generating the `llms.txt` file.
- */
+/** Options for generating the `llms.txt` file. */
 export interface GenerateLLMsTxtOptions {
 	/** `index.md` file. */
-	indexMdFile: GrayMatterFile<Input>
+	readonly indexMdFile: GrayMatterFile<Input>
 
 	/** Template to use for generating `llms.txt`. */
-	LLMsTxtTemplate?: LlmstxtSettings['customLLMsTxtTemplate']
+	readonly LLMsTxtTemplate?: Readonly<LlmstxtSettings['customLLMsTxtTemplate']>
 
 	/** Template variables for `customLLMsTxtTemplate`. */
 	templateVariables?: LlmstxtSettings['customTemplateVariables']
 
 	/** The VitePress configuration. */
-	vitepressConfig: VitePressConfig['vitepress']['userConfig']
+	readonly vitepressConfig: Readonly<VitePressConfig['vitepress']['userConfig']>
 
 	/** The base domain for the generated links. */
-	domain?: LlmstxtSettings['domain']
+	readonly domain?: Readonly<LlmstxtSettings['domain']>
 
 	/** The link extension for generated links. */
-	linksExtension?: LinksExtension
+	readonly linksExtension?: Readonly<LinksExtension> | undefined
 
 	/** Optional sidebar configuration for organizing the TOC. */
 	sidebar?: DefaultTheme.Sidebar
 
 	/**
-	 * Optional directory filter to only include files within the specified directory.
-	 * If not provided, all files will be included.
+	 * Optional directory filter to only include files within the specified directory. If not provided, all
+	 * files will be included.
 	 */
-	directoryFilter?: string
+	readonly directoryFilter?: string | undefined
 }
 
 /**
@@ -47,7 +48,8 @@ export interface GenerateLLMsTxtOptions {
  * @returns A string representing the content of the `llms.txt` file.
  */
 export async function generateLLMsTxt(
-	preparedFiles: PreparedFile[],
+	preparedFiles: DeepReadonly<PreparedFile[]>,
+	// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
 	{
 		indexMdFile,
 		LLMsTxtTemplate = defaultLLMsTxtTemplate,
@@ -58,43 +60,40 @@ export async function generateLLMsTxt(
 		directoryFilter,
 	}: GenerateLLMsTxtOptions,
 ): Promise<string> {
-	// @ts-expect-error
-	// oxlint-disable-next-line typescript/no-unsafe-call
-	matter.clearCache()
+	clearGrayMatterCache()
 
-	templateVariables.title ??=
-		// oxlint-disable-next-line typescript/no-unsafe-member-access
-		indexMdFile.data?.['hero']?.name ??
-		indexMdFile.data?.['title'] ??
+	templateVariables['title'] ??=
+		// oxlint-disable typescript/no-unnecessary-condition
+		indexMdFile.data['hero']?.name ?? // oxlint-disable-line typescript/no-unsafe-member-access
+		indexMdFile.data['title'] ??
 		vitepressConfig?.title ??
 		vitepressConfig?.titleTemplate ??
 		extractTitle(indexMdFile) ??
 		'LLMs Documentation'
 
-	templateVariables.description ??=
-		// oxlint-disable-next-line typescript/no-unsafe-member-access
+	templateVariables['description'] ??=
+		// oxlint-disable typescript/no-unnecessary-condition typescript/no-unsafe-member-access
 		indexMdFile.data?.['hero']?.text ??
 		vitepressConfig?.description ??
-		indexMdFile?.data?.['description'] ??
+		indexMdFile.data?.['description'] ??
 		indexMdFile.data?.['titleTemplate']
 
-	if (typeof templateVariables.description === 'string') {
-		templateVariables.description = `> ${templateVariables.description}`
+	if (typeof templateVariables['description'] === 'string') {
+		templateVariables['description'] = `> ${templateVariables['description']}`
 	}
 
-	templateVariables.details ??=
-		// oxlint-disable-next-line typescript/no-unsafe-member-access
-		indexMdFile.data?.['hero']?.tagline ??
-		indexMdFile.data?.['tagline'] ??
-		(templateVariables.description === undefined &&
+	templateVariables['details'] ??=
+		indexMdFile.data?.['hero']?.['tagline'] ??
+		indexMdFile.data['tagline'] ??
+		(templateVariables['description'] === undefined &&
 			'This file contains links to all documentation sections.')
 
-	templateVariables.toc ??= await generateTOC(preparedFiles, {
-		domain,
-		// oxlint-disable-next-line typescript/no-unsafe-member-access
-		sidebarConfig: sidebar ?? (vitepressConfig?.themeConfig?.sidebar as DefaultTheme.Sidebar),
+	templateVariables['toc'] ??= await generateTOC(preparedFiles, {
+		base: vitepressConfig.base,
 		directoryFilter,
-		base: vitepressConfig?.base,
+		domain,
+		// oxlint-disable-next-line typescript/no-unsafe-type-assertion
+		sidebarConfig: sidebar ?? (vitepressConfig.themeConfig?.sidebar as DefaultTheme.Sidebar),
 	})
 
 	return expandTemplate(LLMsTxtTemplate, templateVariables)

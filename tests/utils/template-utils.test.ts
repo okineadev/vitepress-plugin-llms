@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'bun:test'
 import matter from 'gray-matter'
+
 import { expandTemplate, generateMetadata, replaceTemplateVariable } from '@/utils/template-utils'
+
 import { sampleDomain } from '../resources'
 
 describe('replaceTemplateVariable', () => {

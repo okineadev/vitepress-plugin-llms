@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import matter from 'gray-matter'
+
 import { extractTitle } from '@/utils/markdown'
 
 const fakeIndexMd = matter(`\

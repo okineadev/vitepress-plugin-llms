@@ -6,6 +6,12 @@
 	"useTabs": true,
 	"tabWidth": 4,
 
+	// "jsdoc": {
+	// 	"descriptionWithDot": true,
+	// 	"preferCodeFences": true,
+	// 	"separateReturnsFromParam": true
+	// },
+
 	"overrides": [
 		{
 			"files": ["*.yml"],

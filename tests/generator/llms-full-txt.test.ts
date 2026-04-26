@@ -5,6 +5,7 @@ import {
 	// oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 	// @ts-ignore
 } from '@/generator/llms-full-txt'
+
 import { preparedFilesSample, sampleDomain } from '../resources'
 
 describe('generateLLMsFullTxt', () => {

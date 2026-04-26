@@ -1,1 +1,1 @@
-export * from '@/plugin'
+export { llmstxt as default } from './plugin'

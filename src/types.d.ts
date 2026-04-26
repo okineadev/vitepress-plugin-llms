@@ -1,4 +1,5 @@
 import type { DefaultTheme } from 'vitepress'
+
 import { unnecessaryFilesList } from '@/constants'
 
 interface TemplateVariables {
@@ -23,7 +24,7 @@ interface TemplateVariables {
 	 */
 	details?: string
 
-	// spell-checker:disable
+	// Spell-checker:disable
 	/**
 	 * An automatically generated **T**able **O**f **C**ontents.
 	 *
@@ -33,14 +34,11 @@ interface TemplateVariables {
 	 * - [Title 2](/bar/baz.md): Cras vel nibh id ipsum pharetra efficitur.
 	 * ```
 	 */
-	// spell-checker:enable
+	// Spell-checker:enable
 	toc?: string
 }
 
-interface CustomTemplateVariables extends TemplateVariables {
-	/** Any custom variable */
-	[key: string]: string | undefined
-}
+type CustomTemplateVariables = Record<string, string | undefined>
 
 export interface LlmstxtSettings extends TemplateVariables {
 	/**
@@ -63,9 +61,7 @@ export interface LlmstxtSettings extends TemplateVariables {
 	 * ```
 	 *
 	 * @example
-	 * ```typescript
 	 * llmstxt({ domain: 'https://example.com' })
-	 * ```
 	 */
 	domain?: string
 
@@ -128,12 +124,10 @@ export interface LlmstxtSettings extends TemplateVariables {
 	 * This is useful for configuring the plugin to generate documentation for LLMs in a specific language.
 	 *
 	 * @example
-	 * ```typescript
 	 * llmstxt({
 	 *     // Generate documentation for LLMs from English documentation only
 	 *     workDir: 'en'
 	 * })
-	 * ```
 	 *
 	 * @default vitepress.srcDir
 	 */
@@ -147,7 +141,6 @@ export interface LlmstxtSettings extends TemplateVariables {
 	 * This is useful for excluding certain files from LLMs, such as those not related to documentation (e.g., sponsors, team, etc.).
 	 *
 	 * @example
-	 * ```typescript
 	 * llmstxt({
 	 *     ignoreFiles: [
 	 *         'about/team/*',
@@ -155,7 +148,6 @@ export interface LlmstxtSettings extends TemplateVariables {
 	 *         // ...
 	 *     ]
 	 * })
-	 * ```
 	 *
 	 * @default []
 	 */
@@ -170,7 +162,6 @@ export interface LlmstxtSettings extends TemplateVariables {
 	 * Global `ignoreFiles` always applies to all outputs — these extend it per target.
 	 *
 	 * @example
-	 * ```typescript
 	 * llmstxt({
 	 *     // Excluded from ALL outputs
 	 *     ignoreFiles: ['team/*', 'blog/*'],
@@ -185,7 +176,6 @@ export interface LlmstxtSettings extends TemplateVariables {
 	 *         pages: ['internal/*', 'dev/*'],
 	 *     }
 	 * })
-	 * ```
 	 */
 	ignoreFilesPerOutput?: {
 		/**
@@ -272,7 +262,7 @@ export interface LlmstxtSettings extends TemplateVariables {
 	 */
 	excludeTeam?: boolean
 
-	// spell-checker:disable
+	// Spell-checker:disable
 	/**
 	 * A custom template for the `llms.txt` file, allowing for a personalized order of elements.
 	 *
@@ -300,7 +290,7 @@ export interface LlmstxtSettings extends TemplateVariables {
 	 * {toc}
 	 * ```
 	 */
-	// spell-checker:enable
+	// Spell-checker:enable
 	customLLMsTxtTemplate?: string
 
 	/**
@@ -313,25 +303,21 @@ export interface LlmstxtSettings extends TemplateVariables {
 	 * You can change the title in `llms.txt` without having to change the template:
 	 *
 	 * @example
-	 * ```typescript
 	 * llmstxt({
 	 *     customTemplateVariables: {
 	 *         title: 'Very custom title',
 	 *     }
 	 * })
-	 * ```
 	 *
 	 * You can also combine this with a custom template:
 	 *
 	 * @example
-	 * ```typescript
 	 * llmstxt({
 	 *     customLLMsTxtTemplate: '# {title}\n\n{foo}',
 	 *     customTemplateVariables: {
 	 *         foo: 'Very custom title',
 	 *     }
 	 * })
-	 * ```
 	 */
 	customTemplateVariables?: CustomTemplateVariables
 
@@ -347,6 +333,7 @@ export interface LlmstxtSettings extends TemplateVariables {
 	sidebar?:
 		| DefaultTheme.Sidebar
 		| ((
+				// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
 				configSidebar: DefaultTheme.Sidebar | undefined,
 		  ) => DefaultTheme.Sidebar | undefined | Promise<DefaultTheme.Sidebar | undefined>)
 

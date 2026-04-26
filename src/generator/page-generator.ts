@@ -1,7 +1,10 @@
+// oxlint-disable import/prefer-default-export
+import matter from 'gray-matter'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import matter from 'gray-matter'
-import type { PreparedFile } from '@/internal-types'
+
+import type { DeepReadonly, PreparedFile } from '@/internal-types'
+
 import log from '@/utils/logger'
 import { generateMetadata } from '@/utils/template-utils'
 
@@ -14,7 +17,7 @@ import { generateMetadata } from '@/utils/template-utils'
  * @param base - The base URL path from VitePress config.
  */
 export async function generateLLMFriendlyPages(
-	preparedFiles: PreparedFile[],
+	preparedFiles: DeepReadonly<PreparedFile[]>,
 	outDir: string,
 	domain?: string,
 	base?: string,
@@ -30,18 +33,18 @@ export async function generateLLMFriendlyPages(
 				targetPath,
 				matter.stringify(
 					mdFile.content,
-					// oxlint-disable-next-line typescript/no-unsafe-argument
 					generateMetadata(mdFile, {
+						base,
 						domain,
 						filePath: file.path,
 						linksExtension: '.md',
-						base,
 					}),
 				),
 			)
 
 			log.success(`Processed ${file.path}`)
 		} catch (error) {
+			// oxlint-disable-next-line typescript/no-unsafe-type-assertion
 			log.error(`Failed to process ${file.path}: ${(error as Error).message}`)
 		}
 	})

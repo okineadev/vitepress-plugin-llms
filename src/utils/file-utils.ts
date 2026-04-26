@@ -42,15 +42,14 @@ export const stripExtPosix = (filepath: string): string => stripExt(filepath, tr
 /**
  * Transforms a file path to use forward slashes (POSIX style) instead of backslashes.
  *
+ * @example
+ * 	```ts
+ * 	transformToPosixPath('foo\\bar\\baz.md') // Returns 'foo/bar/baz.md'
+ * 	```
+ *
  * @param filepath - The file path to transform
  * @returns The file path with forward slashes
- *
- * @example
- * ```ts
- * transformToPosixPath('foo\\bar\\baz.md') // Returns 'foo/bar/baz.md'
- * ```
  */
-// oxlint-disable-next-line typescript/no-unsafe-return typescript/no-unsafe-call
 export const transformToPosixPath = (filepath: string): string => filepath.replaceAll('\\', '/')
 
 /**
@@ -62,14 +61,14 @@ export const transformToPosixPath = (filepath: string): string => filepath.repla
  * @returns Array of directory objects with path and depth information
  */
 export function getDirectoriesAtDepths(
-	files: string[],
+	files: readonly string[],
 	baseDir: string,
 	maxDepth: number,
-): Array<{
+): {
 	path: string
 	depth: number
 	relativePath: string
-}> {
+}[] {
 	// Always include root directory
 	const directories = new Set<string>([baseDir])
 
@@ -78,24 +77,26 @@ export function getDirectoriesAtDepths(
 		const parts = relativePath.split(path.sep)
 
 		// Build directory paths up to maxDepth
-		for (let depth = 1; depth < Math.min(parts.length, maxDepth); depth++) {
+		for (let depth = 1; depth < Math.min(parts.length, maxDepth); depth += 1) {
 			const dirParts = parts.slice(0, depth)
 			const dirPath = path.resolve(baseDir, ...dirParts)
 			directories.add(dirPath)
 		}
 	}
 
-	return Array.from(directories)
+	return [...directories]
 		.map((dirPath) => ({
-			path: dirPath,
 			depth: dirPath === baseDir ? 1 : path.relative(baseDir, dirPath).split(path.sep).length + 1,
+			path: dirPath,
 			relativePath: path.relative(baseDir, dirPath) || '.',
 		}))
 		.filter((dir) => dir.depth <= maxDepth)
-		.sort((a, b) => {
+		.toSorted((one, another) => {
 			// Sort by depth first, then by path
-			if (a.depth !== b.depth) return a.depth - b.depth
-			return a.path.localeCompare(b.path)
+			if (one.depth !== another.depth) {
+				return one.depth - another.depth
+			}
+			return one.path.localeCompare(another.path)
 		})
 }
 // #endregion

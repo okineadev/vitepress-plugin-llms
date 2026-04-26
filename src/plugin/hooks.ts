@@ -376,6 +376,7 @@ export async function generateBundle(
 						directoryFilter,
 						domain: settings.domain,
 						linksExtension: settings.generateLLMFriendlyDocsForEachPage ? undefined : '.html',
+						sidebar: resolvedSidebar,
 					})
 
 					// Write content to llms-full.txt

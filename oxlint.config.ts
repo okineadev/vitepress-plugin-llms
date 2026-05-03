@@ -60,7 +60,7 @@ export default defineConfig({
 					// `for` loop variables
 					'i',
 					'j',
-					// Dummy param
+					// Placeholder param
 					'_',
 				],
 			},

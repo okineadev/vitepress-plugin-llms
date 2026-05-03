@@ -23,7 +23,7 @@ describe('generateLLMsTxt', () => {
 	readFile.mockReturnValue(Promise.resolve(fakeIndexMd))
 	afterAll(() => readFile.mockReset())
 
-	it('generates a `llms.txt` file', async () => {
+	it.serial('generates a `llms.txt` file', async () => {
 		expect(
 			await generateLLMsTxt(preparedFilesSample.slice(1), {
 				LLMsTxtTemplate: defaultLLMsTxtTemplate,

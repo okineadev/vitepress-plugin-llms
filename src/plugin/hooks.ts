@@ -42,7 +42,6 @@ export async function transform(
 	setIndexMdFile: (file: GrayMatterFile<Input>) => void,
 	mdFiles: Readonly<Map<string, string>>,
 	config: DeepReadonly<VitePressConfig>,
-	// TODO: Fix type
 ): Promise<{ code: string; map: null } | null> {
 	const orig = content
 
@@ -170,7 +169,7 @@ export async function generateBundle(
 	const resolvedSidebar =
 		typeof settings.sidebar === 'function'
 			? await settings.sidebar(config.vitepress.userConfig.themeConfig?.sidebar)
-			: settings.sidebar
+			: (settings.sidebar ?? config.vitepress.userConfig.themeConfig?.sidebar)
 
 	const outDir = config.vitepress.outDir || 'dist'
 
@@ -376,6 +375,7 @@ export async function generateBundle(
 						directoryFilter,
 						domain: settings.domain,
 						linksExtension: settings.generateLLMFriendlyDocsForEachPage ? undefined : '.html',
+						sidebar: resolvedSidebar,
 					})
 
 					// Write content to llms-full.txt

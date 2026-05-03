@@ -59,3 +59,143 @@ url: 'https://example.com/test/other.md'
 # Some cool stuff
 "
 `;
+
+exports[`generateLLMsFullTxt orders sections according to the VitePress sidebar (array sidebar) 1`] = `
+"---
+url: /test/getting-started.md
+description: Instructions on how to get started with the tool
+---
+
+# Installation
+
+blah blah blah...
+
+---
+
+---
+url: /test/quickstart.md
+description: Instructions for quick project initialization
+---
+
+# Project initialization
+
+blah blah blah...
+
+---
+
+---
+url: /test/other.md
+---
+# Some cool stuff
+"
+`;
+
+exports[`generateLLMsFullTxt orders sections according to the VitePress sidebar (object sidebar) 1`] = `
+"---
+url: /test/getting-started.md
+description: Instructions on how to get started with the tool
+---
+
+# Installation
+
+blah blah blah...
+
+---
+
+---
+url: /test/quickstart.md
+description: Instructions for quick project initialization
+---
+
+# Project initialization
+
+blah blah blah...
+
+---
+
+---
+url: /test/other.md
+---
+# Some cool stuff
+"
+`;
+
+exports[`generateLLMsFullTxt orders sections with object sidebar that uses base paths 1`] = `
+"---
+url: /test/getting-started.md
+description: Instructions on how to get started with the tool
+---
+
+# Installation
+
+blah blah blah...
+
+---
+
+---
+url: /test/other.md
+---
+# Some cool stuff
+
+---
+
+---
+url: /test/quickstart.md
+description: Instructions for quick project initialization
+---
+
+# Project initialization
+
+blah blah blah...
+"
+`;
+
+exports[`generateLLMsFullTxt appends files not referenced by the sidebar at the end 1`] = `
+"---
+url: /test/getting-started.md
+description: Instructions on how to get started with the tool
+---
+
+# Installation
+
+blah blah blah...
+
+---
+
+---
+url: /test/quickstart.md
+description: Instructions for quick project initialization
+---
+
+# Project initialization
+
+blah blah blah...
+
+---
+
+---
+url: /test/other.md
+---
+# Some cool stuff
+"
+`;
+
+exports[`generateLLMsFullTxt works correctly with common-prefix sidebar 1`] = `
+"---
+url: /blog/v1.md
+description: Blazing fast frontend tool
+---
+
+
+---
+
+---
+url: /blog/v1.1.md
+description: Instructions on how to get started with the tool
+---
+
+# Installation
+
+blah blah blah...
+"
+`;

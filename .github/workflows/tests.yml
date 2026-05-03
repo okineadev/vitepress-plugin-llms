@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-slim
+          - ubuntu-latest
           - ${{ inputs.run-on-windows && 'windows-latest' || '' }}
         exclude:
           - os: ''

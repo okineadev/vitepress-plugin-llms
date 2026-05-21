@@ -5,7 +5,7 @@
 				<!-- Main button -->
 				<div class="dropdown-trigger">
 					<!-- Copy area -->
-					<button class="copy-page" @click="copyAsMarkdown">
+					<button class="copy-page" @click="handleCopyAsMarkdown">
 						<span v-html="copied ? iconCheck : iconCopy" class="icon"></span>
 						<span class="label">
 							{{ copied ? 'Copied' : 'Copy page' }}
@@ -22,7 +22,7 @@
 
 				<!-- Dropdown -->
 				<div v-if="isRendered" ref="dropdownMenu" class="dropdown-menu" :class="{ open: isOpen }">
-					<button class="dropdown-item" @click="viewAsMarkdown">
+					<button class="dropdown-item" @click="handleViewAsMarkdown">
 						<span v-html="iconMarkdown" class="icon"></span>
 						View as Markdown
 						<span v-html="iconExternal" class="icon external"></span>
@@ -32,9 +32,9 @@
 						v-for="provider in aiProviders"
 						:key="provider.name"
 						class="dropdown-item"
-						@click="openInAI(provider)"
+						@click="handleOpenInAI(provider)"
 					>
-						<span v-html="provider.icon" class="icon"></span>
+						<span v-html="resolveProviderIcon(provider)" class="icon"></span>
 						Open in {{ provider.name }}
 						<span v-html="iconExternal" class="icon external"></span>
 					</button>
@@ -60,40 +60,50 @@ import iconCopy from './icons/copy.svg?raw'
 import iconDownload from './icons/download.svg?raw'
 import iconExternal from './icons/external.svg?raw'
 import iconMarkdown from './icons/markdown.svg?raw'
-import { downloadFile, resolveMarkdownPageURL } from './utils'
-
-const aiProviders = [
-	{ icon: iconChatGPT, name: 'ChatGPT', url: 'https://chatgpt.com/?hints=search&prompt=' },
-	{ icon: iconClaude, name: 'Claude', url: 'https://claude.ai/new?q=' },
-]
+import {
+	type MarkdownAiProvider,
+	useCopyOrDownloadAsMarkdownButtons,
+} from './use-copy-or-download-as-markdown-buttons'
 
 const isOpen = ref(false)
-const copied = ref(false)
-const downloaded = ref(false)
 const dropdownContainer = ref<HTMLElement | undefined>()
 const isRendered = ref(false)
 const dropdownMenu = ref<HTMLElement | undefined>()
 
-const animationDuration = 2000
+const { aiProviders, copied, copyAsMarkdown, downloadMarkdown, downloaded, openInAI, viewAsMarkdown } =
+	useCopyOrDownloadAsMarkdownButtons()
+
+const aiProviderIcons: Record<string, string> = {
+	ChatGPT: iconChatGPT,
+	Claude: iconClaude,
+}
+
+function closeDropdown(): void {
+	if (!isOpen.value) {
+		isRendered.value = false
+		return
+	}
+
+	isOpen.value = false
+
+	const el = dropdownMenu.value
+	if (!el) {
+		isRendered.value = false
+		return
+	}
+
+	const onEnd = (): void => {
+		isRendered.value = false
+		el.removeEventListener('transitionend', onEnd)
+	}
+
+	el.addEventListener('transitionend', onEnd)
+}
 
 function toggleDropdown(): void {
 	if (isOpen.value) {
-		// Close
-		isOpen.value = false
-
-		const el = dropdownMenu.value
-		if (!el) {
-			return
-		}
-
-		const onEnd = (): void => {
-			isRendered.value = false
-			el.removeEventListener('transitionend', onEnd)
-		}
-
-		el.addEventListener('transitionend', onEnd)
+		closeDropdown()
 	} else {
-		// Open
 		isRendered.value = true
 		requestAnimationFrame(() => {
 			isOpen.value = true
@@ -101,56 +111,28 @@ function toggleDropdown(): void {
 	}
 }
 
-const currentURL = globalThis.window.location.origin + globalThis.window.location.pathname
-
-async function copyAsMarkdown(): Promise<void> {
-	try {
-		const response = await fetch(resolveMarkdownPageURL(currentURL))
-		const text = await response.text()
-		await navigator.clipboard.writeText(text)
-
-		copied.value = true
-		setTimeout(() => {
-			copied.value = false
-		}, animationDuration)
-	} catch (error) {
-		console.error('❌ Error:', error)
-	}
-
-	isOpen.value = false
+function resolveProviderIcon(provider: MarkdownAiProvider): string {
+	return aiProviderIcons[provider.name] ?? iconExternal
 }
 
-function viewAsMarkdown(): void {
-	window.open(resolveMarkdownPageURL(currentURL), '_blank')
-	isOpen.value = false
+async function handleCopyAsMarkdown(): Promise<void> {
+	await copyAsMarkdown()
+	closeDropdown()
 }
 
-function openInAI(provider: (typeof aiProviders)[0]): void {
-	const markdownUrl = resolveMarkdownPageURL(currentURL)
-	const prompt = `Read from ${markdownUrl} so I can ask questions about it.`
-	window.open(provider.url + encodeURIComponent(prompt), '_blank')
-	isOpen.value = false
+function handleViewAsMarkdown(): void {
+	viewAsMarkdown()
+	closeDropdown()
 }
 
-async function downloadMarkdown(): Promise<void> {
-	try {
-		const response = await fetch(resolveMarkdownPageURL(currentURL))
-		const text = await response.text()
-		const filename = resolveMarkdownPageURL(currentURL).split('/').pop() || 'page.md'
-
-		downloadFile(filename, text, 'text/markdown')
-		downloaded.value = true
-		setTimeout(() => {
-			downloaded.value = false
-		}, animationDuration)
-	} catch (error) {
-		console.error('❌ Error:', error)
-	}
+function handleOpenInAI(provider: MarkdownAiProvider): void {
+	openInAI(provider)
+	closeDropdown()
 }
 
 function handleClickOutside(event: MouseEvent): void {
 	if (dropdownContainer.value && !dropdownContainer.value.contains(event.target as Node)) {
-		isOpen.value = false
+		closeDropdown()
 	}
 }
 

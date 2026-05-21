@@ -94,6 +94,12 @@ export default defineConfig({
 })
 ```
 
+If you want to build your own UI instead of using the bundled Vue component, you can consume the shared composable directly:
+
+```ts
+import { useCopyOrDownloadAsMarkdownButtons } from 'vitepress-plugin-llms'
+```
+
 ---
 
 ### ✅ Good practices

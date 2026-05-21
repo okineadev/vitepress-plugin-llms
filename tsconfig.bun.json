@@ -7,5 +7,11 @@
 	},
 
 	// Setup linting for tests later
-	"include": ["tests/**/*.ts", "lint-staged.config.ts", "bunup.config.ts", "oxlint.config.ts"]
+	"include": [
+		"tests/**/*.ts",
+		"src/vitepress-components/**/*.ts",
+		"lint-staged.config.ts",
+		"bunup.config.ts",
+		"oxlint.config.ts"
+	]
 }

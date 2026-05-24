@@ -10,7 +10,12 @@ export default defineConfig({
 		resolve: false,
 		splitting: true,
 	},
-	entry: ['src/index.ts', 'src/vitepress-components/utils.ts'],
+	entry: [
+		'src/index.ts',
+		'src/vitepress-components/utils.ts',
+		'src/vitepress-components/composables/copy-or-download-as-markdown-buttons.ts',
+	],
+	external: ['vue'],
 	plugins: [
 		copy('src/vitepress-components/*.vue').to('vitepress-components'),
 		copy('src/vitepress-components/icons').to('vitepress-components'),

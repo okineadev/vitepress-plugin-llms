@@ -27,7 +27,7 @@ const removeHtmlExtension = (pathSegment: string): string => {
 export function cleanUrl(url: string): string {
 	const { origin, pathname } = new URL(url)
 
-	const pathnameWithoutTrailingSlash = pathname.replace(/\/+$/, '')
+	const pathnameWithoutTrailingSlash = pathname.replace(/\/+$/u, '')
 
 	if (pathname.length > 0) {
 		return origin + removeHtmlExtension(pathnameWithoutTrailingSlash)

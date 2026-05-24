@@ -52,6 +52,10 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 
+import {
+	type MarkdownAiProvider,
+	useCopyOrDownloadAsMarkdownButtons,
+} from './composables/copy-or-download-as-markdown-buttons'
 import iconChatGPT from './icons/chatgpt.svg?raw'
 import iconCheck from './icons/check.svg?raw'
 import iconChevron from './icons/chevron.svg?raw'
@@ -60,10 +64,6 @@ import iconCopy from './icons/copy.svg?raw'
 import iconDownload from './icons/download.svg?raw'
 import iconExternal from './icons/external.svg?raw'
 import iconMarkdown from './icons/markdown.svg?raw'
-import {
-	type MarkdownAiProvider,
-	useCopyOrDownloadAsMarkdownButtons,
-} from './use-copy-or-download-as-markdown-buttons'
 
 const isOpen = ref(false)
 const dropdownContainer = ref<HTMLElement | undefined>()

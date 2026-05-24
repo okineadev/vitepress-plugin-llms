@@ -30,6 +30,10 @@
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js"
 		},
+		"./vitepress-components": {
+			"types": "./dist/vitepress-components/composables/copy-or-download-as-markdown-buttons.d.ts",
+			"import": "./dist/vitepress-components/composables/copy-or-download-as-markdown-buttons.js"
+		},
 		"./vitepress-components/*.vue": {
 			"import": "./dist/vitepress-components/*.vue"
 		}

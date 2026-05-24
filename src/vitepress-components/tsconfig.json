@@ -5,5 +5,5 @@
 		"lib": ["DOM"],
 		"strictNullChecks": true
 	},
-	"include": ["**/*.ts"]
+	"include": ["**/*.ts", "**/*.vue"]
 }

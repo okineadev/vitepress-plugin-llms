@@ -29,5 +29,5 @@
 		"./node_modules/@cspell/cspell-types/cspell.schema.json": "cspell.yml"
 	},
 	"oxc.enable.oxlint": true,
-	"typescript.native-preview.tsdk": "/home/okineadev/vitepress-plugin-llms/node_modules/@typescript/native-preview"
+	"typescript.native-preview.tsdk": "node_modules/@typescript/native-preview"
 }

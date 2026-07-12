@@ -125,5 +125,7 @@ export default defineConfig({
 		'typescript/require-await': 'off',
 		// Always false positives
 		'unicorn/no-abusive-eslint-disable': 'off',
+		'unicorn/no-array-reverse': 'off',
+		'unicorn/no-array-sort': 'off',
 	},
 })

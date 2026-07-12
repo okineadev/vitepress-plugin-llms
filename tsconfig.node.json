@@ -6,7 +6,7 @@
 		"isolatedDeclarations": true,
 		"checkJs": false,
 
-		"lib": ["es2023"],
+		"lib": ["es2022"],
 		"module": "preserve",
 		"target": "es2022",
 		"allowImportingTsExtensions": true,

@@ -33,7 +33,7 @@ function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 			const emptyParagraphs = new Set<{ node: Paragraph; parent: Parent }>()
 
 			// Second pass: process nodes in reverse order
-			for (const [node, index, parent] of nodesToProcess.slice().reverse()) {
+			for (const [node, index, parent] of [...nodesToProcess].reverse()) {
 				// Case 1: The entire content is in one HTML node
 				if (ourFullTagRegex.test(node.value)) {
 					if (intent === 'remove') {
@@ -116,7 +116,7 @@ function remarkPlease(intent: 'remove' | 'unwrap', tag: string) {
 			})
 
 			// Remove empty paragraphs in reverse order to maintain correct indices
-			for (const { index, parent } of paragraphsToRemove.slice().reverse()) {
+			for (const { index, parent } of [...paragraphsToRemove].reverse()) {
 				parent.children.splice(index, 1)
 			}
 

@@ -91,7 +91,6 @@ export function getDirectoriesAtDepths(
 			relativePath: path.relative(baseDir, dirPath) || '.',
 		}))
 		.filter((dir) => dir.depth <= maxDepth)
-		.slice()
 		.sort((one, another) => {
 			// Sort by depth first, then by path
 			if (one.depth !== another.depth) {

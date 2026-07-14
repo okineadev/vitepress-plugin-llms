@@ -6,7 +6,6 @@ import pc from 'picocolors'
 
 import type { VitePressConfig } from '@/internal-types'
 
-import { stripExt } from '@/utils/file-utils'
 import log from '@/utils/logger'
 
 /** Configures the development server to handle `llms.txt` and markdown files for LLMs. */
@@ -23,14 +22,7 @@ function configureDevServer(server: ViteDevServer, config: VitePressConfig): voi
 					// so strip the base before resolving it against the output directory
 					const base = config.base || '/'
 					const urlWithoutBase = req.url.startsWith(base) ? req.url.slice(base.length) : req.url
-					const outDir = config.vitepress.outDir || 'dist'
-
-					// Serve the requested file as-is if it exists (e.g. `llms.txt`, `llms-full.txt`),
-					// otherwise try to serve the markdown version of the requested page
-					const requestedPath = path.join(outDir, urlWithoutBase)
-					const filePath = fs.existsSync(requestedPath)
-						? requestedPath
-						: path.join(outDir, `${stripExt(urlWithoutBase)}.md`)
+					const filePath = path.join(config.vitepress.outDir || 'dist', urlWithoutBase)
 					const content = fs.readFileSync(filePath, 'utf8')
 					res.setHeader('Content-Type', 'text/plain; charset=utf-8')
 					res.end(content)

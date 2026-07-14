@@ -19,10 +19,15 @@ function configureDevServer(server: ViteDevServer, config: VitePressConfig): voi
 		(req: Omit<Connect.IncomingMessage, 'url'> & { url: string }, res, next): void => {
 			if (req.url.endsWith('.md') || req.url.endsWith('.txt')) {
 				try {
+					// `req.url` is absolute and includes the site base (e.g. `/base/guide/page.md`),
+					// so strip the base before resolving it against the output directory
+					const base = config.base || '/'
+					const urlWithoutBase = req.url.startsWith(base) ? req.url.slice(base.length) : req.url
+
 					// Try to read and serve the markdown file
-					const filePath = path.resolve(
+					const filePath = path.join(
 						config.vitepress.outDir || 'dist',
-						`${stripExt(req.url)}.md`,
+						`${stripExt(urlWithoutBase)}.md`,
 					)
 					const content = fs.readFileSync(filePath, 'utf8')
 					res.setHeader('Content-Type', 'text/plain; charset=utf-8')

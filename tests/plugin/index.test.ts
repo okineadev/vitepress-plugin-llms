@@ -12,6 +12,8 @@ const { access, mkdir, writeFile, readFile } = mockedFs.default
 
 await mock.module('node:fs/promises', () => mockedFs)
 
+import nodeFs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 
 import type { VitePressConfig } from '@/internal-types'
@@ -66,6 +68,70 @@ describe('llmstxt plugin', () => {
 			plugin[1].configureServer(mockServer)
 			const spyMiddlewaresUse = spyOn(mockServer.middlewares, 'use')
 			expect(spyMiddlewaresUse).toHaveBeenCalled()
+		})
+
+		/**
+		 * Configures the plugin with the given site base and a real output directory
+		 * containing `guide/getting-started.md`, then returns the registered middleware.
+		 *
+		 * @param base - The site base to resolve the config with.
+		 * @returns The middleware registered on the dev server.
+		 */
+		const setupMiddleware = (base: string) => {
+			const outDir = nodeFs.mkdtempSync(path.join(os.tmpdir(), 'llmstxt-test-'))
+			nodeFs.mkdirSync(path.join(outDir, 'guide'), { recursive: true })
+			nodeFs.writeFileSync(path.join(outDir, 'guide', 'getting-started.md'), '# Getting Started')
+
+			const config = {
+				...mockConfig,
+				base,
+				vitepress: { ...mockConfig.vitepress, outDir },
+			} as VitePressConfig
+
+			// @ts-expect-error
+			plugin[1].configResolved(config)
+			// @ts-expect-error
+			plugin[1].configureServer(mockServer)
+
+			const middlewaresUse = mockServer.middlewares.use as ReturnType<typeof mock>
+			return middlewaresUse.mock.calls[0]?.[0] as (
+				req: { url: string },
+				res: { setHeader: ReturnType<typeof mock>; end: ReturnType<typeof mock> },
+				next: ReturnType<typeof mock>,
+			) => void
+		}
+
+		it('should serve markdown files from the output directory', () => {
+			const middleware = setupMiddleware('/')
+			const res = { end: mock(), setHeader: mock() }
+			const next = mock()
+
+			middleware({ url: '/guide/getting-started.md' }, res, next)
+
+			expect(res.end).toHaveBeenCalledWith('# Getting Started')
+			expect(next).not.toHaveBeenCalled()
+		})
+
+		it('should strip the site base from the request URL', () => {
+			const middleware = setupMiddleware('/myproject/')
+			const res = { end: mock(), setHeader: mock() }
+			const next = mock()
+
+			middleware({ url: '/myproject/guide/getting-started.md' }, res, next)
+
+			expect(res.end).toHaveBeenCalledWith('# Getting Started')
+			expect(next).not.toHaveBeenCalled()
+		})
+
+		it('should pass to the next middleware when the file does not exist', () => {
+			const middleware = setupMiddleware('/')
+			const res = { end: mock(), setHeader: mock() }
+			const next = mock()
+
+			middleware({ url: '/guide/nonexistent.md' }, res, next)
+
+			expect(res.end).not.toHaveBeenCalled()
+			expect(next).toHaveBeenCalled()
 		})
 	})
 

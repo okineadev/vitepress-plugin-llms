@@ -81,6 +81,7 @@ describe('llmstxt plugin', () => {
 			const outDir = nodeFs.mkdtempSync(path.join(os.tmpdir(), 'llmstxt-test-'))
 			nodeFs.mkdirSync(path.join(outDir, 'guide'), { recursive: true })
 			nodeFs.writeFileSync(path.join(outDir, 'guide', 'getting-started.md'), '# Getting Started')
+			nodeFs.writeFileSync(path.join(outDir, 'llms.txt'), '# LLMs')
 
 			const config = {
 				...mockConfig,
@@ -120,6 +121,17 @@ describe('llmstxt plugin', () => {
 			middleware({ url: '/myproject/guide/getting-started.md' }, res, next)
 
 			expect(res.end).toHaveBeenCalledWith('# Getting Started')
+			expect(next).not.toHaveBeenCalled()
+		})
+
+		it('should serve `llms.txt` from the output directory', () => {
+			const middleware = setupMiddleware('/myproject/')
+			const res = { end: mock(), setHeader: mock() }
+			const next = mock()
+
+			middleware({ url: '/myproject/llms.txt' }, res, next)
+
+			expect(res.end).toHaveBeenCalledWith('# LLMs')
 			expect(next).not.toHaveBeenCalled()
 		})
 

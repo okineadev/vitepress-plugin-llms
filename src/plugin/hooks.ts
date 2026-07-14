@@ -313,7 +313,7 @@ export async function generateBundle(
 						indexMdFile,
 						linksExtension: settings.generateLLMFriendlyDocsForEachPage ? undefined : '.html',
 						sidebar: resolvedSidebar,
-						templateVariables,
+						templateVariables: { ...templateVariables },
 						vitepressConfig: config.vitepress.userConfig,
 					})
 

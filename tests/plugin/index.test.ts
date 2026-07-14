@@ -895,6 +895,79 @@ This is a test page.`
 				expect(apiLlmsTxt).not.toContain('getting-started')
 			})
 
+			it('should generate independent llms.txt content for each directory when using sidebar', async () => {
+				mockConfig.vitepress.userConfig = {
+					description: 'Shared description',
+					themeConfig: {
+						sidebar: {
+							'/api/': [
+								{
+									items: [{ link: '/api/reference', text: 'Reference' }],
+									text: 'API',
+								},
+							],
+							'/guide/': [
+								{
+									items: [{ link: '/guide/getting-started', text: 'Getting Started' }],
+									text: 'Guide',
+								},
+							],
+						},
+					},
+					title: 'Docs',
+				}
+
+				plugin = llmstxt({
+					experimental: { depth: 2 },
+					generateLLMFriendlyDocsForEachPage: false,
+					generateLLMsFullTxt: false,
+				})
+				// @ts-expect-error
+				plugin[1].configResolved(mockConfig)
+				await Promise.all([
+					// @ts-expect-error
+					plugin[0].transform('# Home', 'docs/index.md'),
+					// @ts-expect-error
+					plugin[0].transform('# Root file', 'docs/root-file.md'),
+					// @ts-expect-error
+					plugin[0].transform('# Getting started', 'docs/guide/getting-started.md'),
+					// @ts-expect-error
+					plugin[0].transform('# Reference', 'docs/api/reference.md'),
+				])
+				// @ts-expect-error
+				await plugin[1].generateBundle()
+
+				expect(writeFile).toHaveBeenCalledTimes(3)
+
+				const rootLlmsTxt = writeFile.mock.calls.find(
+					(call) =>
+						call[0] === path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'llms.txt'),
+				)?.[1] as string
+				const guideLlmsTxt = writeFile.mock.calls.find(
+					(call) =>
+						call[0] ===
+						path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'guide/llms.txt'),
+				)?.[1] as string
+				const apiLlmsTxt = writeFile.mock.calls.find(
+					(call) =>
+						call[0] === path.resolve(process.cwd(), mockConfig.vitepress.outDir, 'api/llms.txt'),
+				)?.[1] as string
+
+				expect(rootLlmsTxt).toContain('> Shared description')
+				expect(rootLlmsTxt).not.toContain('> > Shared description')
+				expect(rootLlmsTxt).toContain('root-file')
+				expect(rootLlmsTxt).toContain('getting-started')
+				expect(rootLlmsTxt).toContain('reference')
+
+				expect(guideLlmsTxt).toContain('getting-started')
+				expect(guideLlmsTxt).not.toContain('root-file')
+				expect(guideLlmsTxt).not.toContain('reference')
+
+				expect(apiLlmsTxt).toContain('reference')
+				expect(apiLlmsTxt).not.toContain('root-file')
+				expect(apiLlmsTxt).not.toContain('getting-started')
+			})
+
 			it('should generate both llms.txt and llms-full.txt at each depth level', async () => {
 				plugin = llmstxt({
 					experimental: { depth: 2 },

@@ -62,7 +62,9 @@ export async function generateLLMsTxt(
 ): Promise<string> {
 	clearGrayMatterCache()
 
-	templateVariables['title'] ??=
+	const variables = { ...templateVariables }
+
+	variables['title'] ??=
 		// oxlint-disable typescript/no-unnecessary-condition
 		indexMdFile.data['hero']?.name ?? // oxlint-disable-line typescript/no-unsafe-member-access
 		indexMdFile.data['title'] ??
@@ -71,24 +73,23 @@ export async function generateLLMsTxt(
 		extractTitle(indexMdFile) ??
 		'LLMs Documentation'
 
-	templateVariables['description'] ??=
+	variables['description'] ??=
 		// oxlint-disable typescript/no-unnecessary-condition typescript/no-unsafe-member-access
 		indexMdFile.data?.['hero']?.text ??
 		vitepressConfig?.description ??
 		indexMdFile.data?.['description'] ??
 		indexMdFile.data?.['titleTemplate']
 
-	if (typeof templateVariables['description'] === 'string') {
-		templateVariables['description'] = `> ${templateVariables['description']}`
+	if (typeof variables['description'] === 'string') {
+		variables['description'] = `> ${variables['description']}`
 	}
 
-	templateVariables['details'] ??=
+	variables['details'] ??=
 		indexMdFile.data?.['hero']?.['tagline'] ??
 		indexMdFile.data['tagline'] ??
-		(templateVariables['description'] === undefined &&
-			'This file contains links to all documentation sections.')
+		(variables['description'] === undefined && 'This file contains links to all documentation sections.')
 
-	templateVariables['toc'] ??= await generateTOC(preparedFiles, {
+	variables['toc'] ??= await generateTOC(preparedFiles, {
 		base: vitepressConfig.base,
 		directoryFilter,
 		domain,
@@ -96,5 +97,5 @@ export async function generateLLMsTxt(
 		sidebarConfig: sidebar ?? (vitepressConfig.themeConfig?.sidebar as DefaultTheme.Sidebar),
 	})
 
-	return expandTemplate(LLMsTxtTemplate, templateVariables)
+	return expandTemplate(LLMsTxtTemplate, variables)
 }

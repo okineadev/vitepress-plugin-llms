@@ -14,12 +14,11 @@ function configureDevServer(server: ViteDevServer, config: VitePressConfig): voi
 	log.info('Dev server configured for serving plain text docs for LLMs')
 	server.middlewares.use(
 		// @ts-expect-error
-		// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
+		// oxlint-disable-next-line typescript/prefer-readonly-parameter-types max-statements
 		(req: Omit<Connect.IncomingMessage, 'url'> & { url: string }, res, next): void => {
 			if (req.url.endsWith('.md') || req.url.endsWith('.txt')) {
 				try {
-					// `req.url` is absolute and includes the site base (e.g. `/base/guide/page.md`),
-					// so strip the base before resolving it against the output directory
+					// `req.url` is absolute and includes the site base (e.g. `/base/guide/page.md`), so strip the base before resolving it against the output directory
 					const base = config.base || '/'
 					const urlWithoutBase = req.url.startsWith(base) ? req.url.slice(base.length) : req.url
 					const filePath = path.join(config.vitepress.outDir || 'dist', urlWithoutBase)

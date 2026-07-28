@@ -1,6 +1,6 @@
 import type { DefaultTheme } from 'vitepress'
 
-import matter from 'gray-matter'
+import matter from '@11ty/gray-matter'
 
 import type { PreparedFile } from '@/internal-types'
 

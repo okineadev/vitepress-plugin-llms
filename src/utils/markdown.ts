@@ -1,5 +1,5 @@
 // oxlint-disable import/prefer-default-export
-import type { GrayMatterFile, Input } from 'gray-matter'
+import type { GrayMatterFile, Input } from '@11ty/gray-matter'
 
 import markdownTitle from 'markdown-title'
 

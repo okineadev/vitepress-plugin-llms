@@ -31,6 +31,6 @@ describe('generateLLMFriendlyPages', () => {
 
 		const firstCallArgs = writeFile.mock.calls[0] as [string, string]
 		expect(firstCallArgs[0]).toBe(path.resolve(outDir, (preparedFiles[0] as PreparedFile).path))
-		expect(firstCallArgs[1]).toContain("url: 'https://example.com/test/getting-started.md'")
+		expect(firstCallArgs[1]).toContain('url: https://example.com/test/getting-started.md')
 	})
 })

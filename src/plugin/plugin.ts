@@ -1,4 +1,4 @@
-import type { GrayMatterFile, Input } from 'gray-matter'
+import type { GrayMatterFile, Input } from '@11ty/gray-matter'
 import type { OutputBundle } from 'rollup'
 import type { Plugin, ViteDevServer } from 'vite'
 

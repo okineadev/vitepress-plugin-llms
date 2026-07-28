@@ -1,4 +1,4 @@
-import type { GrayMatterFile, Input } from 'gray-matter'
+import type { GrayMatterFile, Input } from '@11ty/gray-matter'
 import type { DefaultTheme } from 'vitepress'
 
 import type { DeepReadonly, LinksExtension, PreparedFile, VitePressConfig } from '@/internal-types'

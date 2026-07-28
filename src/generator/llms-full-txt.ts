@@ -1,6 +1,6 @@
 import type { DefaultTheme } from 'vitepress'
 
-import matter from 'gray-matter'
+import matter from '@11ty/gray-matter'
 import path from 'node:path'
 
 import type { DeepReadonly, LinksExtension, PreparedFile, VitePressConfig } from '@/internal-types'

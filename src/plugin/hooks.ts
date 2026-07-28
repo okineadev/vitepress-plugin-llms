@@ -1,7 +1,7 @@
 import type { Node } from 'mdast'
 import type { OutputBundle } from 'rollup'
 
-import matter, { type GrayMatterFile, type Input } from 'gray-matter'
+import matter, { type GrayMatterFile, type Input } from '@11ty/gray-matter'
 import { millify } from 'millify'
 import { minimatch } from 'minimatch'
 import fs from 'node:fs/promises'

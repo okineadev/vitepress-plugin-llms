@@ -32,7 +32,7 @@ url: /test/other.md
 
 exports[`generateLLMsFullTxt correctly attaches the domain to URLs in context 1`] = `
 "---
-url: 'https://example.com/test/getting-started.md'
+url: https://example.com/test/getting-started.md
 description: Instructions on how to get started with the tool
 ---
 
@@ -43,7 +43,7 @@ blah blah blah...
 ---
 
 ---
-url: 'https://example.com/test/quickstart.md'
+url: https://example.com/test/quickstart.md
 description: Instructions for quick project initialization
 ---
 
@@ -54,7 +54,7 @@ blah blah blah...
 ---
 
 ---
-url: 'https://example.com/test/other.md'
+url: https://example.com/test/other.md
 ---
 # Some cool stuff
 "

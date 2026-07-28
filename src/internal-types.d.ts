@@ -1,4 +1,4 @@
-import type { GrayMatterFile } from 'gray-matter'
+import type { GrayMatterFile } from '@11ty/gray-matter'
 import type { ResolvedConfig } from 'vite'
 import type { SiteConfig, UserConfig, DefaultTheme } from 'vitepress'
 

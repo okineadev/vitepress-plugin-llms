@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import dedent from 'dedent'
-import matter from 'gray-matter'
+import matter from '@11ty/gray-matter'
 
 // oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 // @ts-ignore

@@ -8,7 +8,7 @@ await mock.module('node:fs/promises', () => mockedFs)
 
 const { readFile } = mockedFs.default
 
-import matter from 'gray-matter'
+import matter from '@11ty/gray-matter'
 
 import {
 	generateLLMsTxt,

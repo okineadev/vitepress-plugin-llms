@@ -1,7 +1,7 @@
 import type { Code, Root, RootContent } from 'mdast'
 import type { VFile } from 'vfile'
 
-import matter from 'gray-matter'
+import matter from '@11ty/gray-matter'
 import { fromMarkdown } from 'mdast-util-from-markdown'
 import fs from 'node:fs'
 import path from 'node:path'

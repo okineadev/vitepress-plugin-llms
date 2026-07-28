@@ -1,4 +1,4 @@
-import matter from 'gray-matter'
+import matter from '@11ty/gray-matter'
 import prettyBytes from 'pretty-bytes'
 
 /**

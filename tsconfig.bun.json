@@ -1,5 +1,6 @@
 {
 	"extends": "./tsconfig.base.json",
+	"references": [{ "path": "./tsconfig.node.json" }],
 	"compilerOptions": {
 		"composite": true,
 		"lib": ["DOM"],
@@ -7,5 +8,5 @@
 	},
 
 	// Setup linting for tests later
-	"include": ["src/**/*.ts", "tests/**/*.ts", "lint-staged.config.ts", "bunup.config.ts", "oxlint.config.ts"]
+	"include": ["tests/**/*.ts", "lint-staged.config.ts", "bunup.config.ts", "oxlint.config.ts"]
 }

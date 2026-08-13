@@ -1,6 +1,6 @@
 {
 	"name": "vitepress-plugin-llms",
-	"version": "1.13.4",
+	"version": "1.13.5",
 	"description": "📜 A VitePress plugin for generating LLM-friendly documentation",
 	"keywords": [
 		"ai",

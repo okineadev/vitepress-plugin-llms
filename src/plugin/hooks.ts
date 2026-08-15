@@ -126,7 +126,7 @@ export async function transform(
 
 		// Insert llmHint at start or after __VP_PARAMS_END__ if present
 		if (llmHint) {
-			const hintBlock = `<div style="display: none;" hidden="true" aria-hidden="true" data-nosnippet>${llmHint}</div>\n`
+			const hintBlock = `<div style="display: none;" hidden data-nosnippet>${llmHint}</div>\n`
 			// oxlint-disable-next-line no-shadow
 			let { content } = modifiedContent
 			const marker = '__VP_PARAMS_END__'

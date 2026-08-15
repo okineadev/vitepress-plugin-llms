@@ -208,6 +208,18 @@ Check out the Plugins API Guide for documentation about creating plugins.
 <llm-exclude>Note only for humans</llm-exclude>
 ```
 
+## 🔍 Validating the deployed output
+
+This plugin generates a correct `llms.txt` at build time, but serving-layer config can break it in production: host redirect rules, domain migrations, and docs restructures all bite after the build goes green.
+
+[llms-txt-check](https://github.com/portdeveloper/llms-txt-check) verifies the deployed file against what your site actually serves (it resolves this plugin's relative URLs against your site's origin automatically):
+
+```yaml
+- run: npx llms-txt-check https://your-docs-site.com
+```
+
+It exits nonzero when the file or any listed URL stops serving, so the deploy that breaks a route goes red.
+
 ## 🚀 Why `vitepress-plugin-llms`?
 
 LLMs (Large Language Models) are great at processing text, but traditional documentation formats can be too heavy and cluttered. `vitepress-plugin-llms` generates raw Markdown documentation that LLMs can efficiently process

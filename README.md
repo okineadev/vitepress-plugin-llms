@@ -94,6 +94,29 @@ export default defineConfig({
 })
 ```
 
+The plugin accepts the following options (or a string as the component name for backward compatibility):
+
+| Option          | Type      | Default                             | Description                                                    |
+| --------------- | --------- | ----------------------------------- | -------------------------------------------------------------- |
+| `componentName` | `string`  | `'CopyOrDownloadAsMarkdownButtons'` | The name of the registered Vue component to inject.            |
+| `showDownload`  | `boolean` | `true`                              | Whether to show the <kbd>📥 Download as Markdown</kbd> button. |
+
+For example, to hide the download button:
+
+```ts
+import { defineConfig } from 'vitepress'
+import { copyOrDownloadAsMarkdownButtons } from 'vitepress-plugin-llms'
+
+export default defineConfig({
+  // ...
+  markdown: {
+    config(md) {
+      md.use(copyOrDownloadAsMarkdownButtons, { showDownload: false })
+    },
+  },
+})
+```
+
 If you want to build your **own UI** instead of using the bundled Vue component, you can consume the shared composable directly:
 
 ```ts
@@ -184,6 +207,18 @@ Check out the Plugins API Guide for documentation about creating plugins.
 
 <llm-exclude>Note only for humans</llm-exclude>
 ```
+
+## 🔍 Validating the deployed output
+
+This plugin generates a correct `llms.txt` at build time, but serving-layer config can break it in production: host redirect rules, domain migrations, and docs restructures all bite after the build goes green.
+
+[llms-txt-check](https://github.com/portdeveloper/llms-txt-check) verifies the deployed file against what your site actually serves (it resolves this plugin's relative URLs against your site's origin automatically):
+
+```yaml
+- run: npx llms-txt-check https://your-docs-site.com
+```
+
+It exits nonzero when the file or any listed URL stops serving, so the deploy that breaks a route goes red.
 
 ## 🚀 Why `vitepress-plugin-llms`?
 

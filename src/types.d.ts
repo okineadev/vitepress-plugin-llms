@@ -361,3 +361,58 @@ export interface LlmstxtSettings extends TemplateVariables {
 		depth?: number
 	}
 }
+
+export interface LLMsLocalizationConfig {
+	/**
+	 * Text displayed on the main action button when a page can be copied.
+	 *
+	 * ---
+	 *
+	 * Default fallback: `'Copy page'`
+	 */
+	copyText?: string
+
+	/**
+	 * Text displayed on the main action button briefly after a successful copy operation.
+	 *
+	 * ---
+	 *
+	 * Default fallback: `'Copied'`
+	 */
+	copiedText?: string
+
+	/**
+	 * Text displayed on the dropdown menu item used to read the raw documentation stream.
+	 *
+	 * ---
+	 *
+	 * Default fallback: `'View as Markdown'`
+	 */
+	viewMarkdownText?: string
+
+	/**
+	 * Template text displayed on dropdown action buttons that route to external AI platform workspaces.
+	 *
+	 * ---
+	 *
+	 * Must include the `{provider}` token placeholder which dynamically switches to the platform target names (e.g. ChatGPT, Claude).
+	 *
+	 * Default fallback: `'Open in {provider}'`
+	 */
+	openInAIText?: string
+}
+
+declare module 'vitepress' {
+	export interface DefaultTheme {
+		/**
+		 * VitePress {@link DefaultTheme | Theme Configuration} Extension for LLMs
+		 *
+		 * ---
+		 *
+		 * Here you can insert your localized translation strings for the `vitepress-plugin-llms` action layout context.
+		 *
+		 * Usually this parameter is used to handle internationalization across multi-language site configurations.
+		 */
+		llms?: LLMsLocalizationConfig
+	}
+}

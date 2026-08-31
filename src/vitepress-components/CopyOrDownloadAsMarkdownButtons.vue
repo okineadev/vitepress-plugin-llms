@@ -8,7 +8,11 @@
 					<button class="copy-page" @click="handleCopyAsMarkdown">
 						<span v-html="copied ? iconCheck : iconCopy" class="icon"></span>
 						<span class="label">
-							{{ copied ? 'Copied' : 'Copy page' }}
+							{{
+								copied
+									? theme.llms?.copiedText || 'Copied'
+									: theme.llms?.copyText || 'Copy page'
+							}}
 						</span>
 					</button>
 
@@ -24,7 +28,7 @@
 				<div v-if="isRendered" ref="dropdownMenu" class="dropdown-menu" :class="{ open: isOpen }">
 					<button class="dropdown-item" @click="handleViewAsMarkdown">
 						<span v-html="iconMarkdown" class="icon"></span>
-						View as Markdown
+						{{ theme.llms?.viewMarkdownText || 'View as Markdown' }}
 						<span v-html="iconExternal" class="icon external"></span>
 					</button>
 
@@ -35,7 +39,10 @@
 						@click="handleOpenInAI(provider)"
 					>
 						<span v-html="resolveProviderIcon(provider)" class="icon"></span>
-						Open in {{ provider.name }}
+						{{
+							theme.llms?.openInAIText.replace('{provider}', provider.name) ||
+							'Open in {provider}'
+						}}
 						<span v-html="iconExternal" class="icon external"></span>
 					</button>
 				</div>
@@ -50,6 +57,7 @@
 </template>
 
 <script setup lang="ts">
+import { useData } from 'vitepress'
 import { onMounted, onUnmounted, ref } from 'vue'
 
 import {
@@ -70,6 +78,7 @@ const dropdownContainer = ref<HTMLElement | undefined>()
 const isRendered = ref(false)
 const dropdownMenu = ref<HTMLElement | undefined>()
 
+const { theme } = useData()
 const { aiProviders, copied, copyAsMarkdown, downloadMarkdown, downloaded, openInAI, viewAsMarkdown } =
 	useCopyOrDownloadAsMarkdownButtons()
 

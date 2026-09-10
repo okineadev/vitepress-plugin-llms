@@ -21,3 +21,4 @@ jobs:
       - uses: gouravkhunger/dependents.info@bb3d55b67e0ec762dacb8c7456585a8464e14cb4 # v0.1.5
         with:
           exclude-users: koel
+          max-pages: 100

@@ -100,6 +100,63 @@ If you want to build your **own UI** instead of using the bundled Vue component,
 import { useCopyOrDownloadAsMarkdownButtons } from 'vitepress-plugin-llms/vitepress-components'
 ```
 
+### Localizing the buttons
+
+The bundled `CopyOrDownloadAsMarkdownButtons` component reads its labels from VitePress's `themeConfig.llms`. Add this configuration to `.vitepress/config.ts` after setting up the component above.
+
+All properties are optional strings:
+
+| Property           | Default value        | Purpose                                   |
+| ------------------ | -------------------- | ----------------------------------------- |
+| `copyText`         | `Copy page`          | Main copy button                          |
+| `copiedText`       | `Copied`             | Confirmation after a successful copy      |
+| `viewMarkdownText` | `View as Markdown`   | Dropdown item for viewing raw Markdown    |
+| `openInAIText`     | `Open in {provider}` | Dropdown items for opening an AI provider |
+
+Keep the literal `{provider}` placeholder in `openInAIText`: the component replaces it with the provider name, such as `ChatGPT` or `Claude`.
+
+For a single-language site, set `themeConfig.llms` at the top level. For a multilingual site, set `locales.<locale>.themeConfig.llms` for each language using [VitePress's internationalization configuration](https://vitepress.dev/guide/i18n). For example:
+
+<!-- spell-checker:disable -->
+
+```ts
+import { defineConfig } from 'vitepress'
+
+export default defineConfig({
+  // Keep your existing plugin and Markdown configuration.
+  themeConfig: {
+    llms: {
+      copyText: 'Copy page',
+      copiedText: 'Copied',
+      viewMarkdownText: 'View as Markdown',
+      openInAIText: 'Open in {provider}',
+    },
+  },
+  locales: {
+    root: {
+      label: 'English',
+      lang: 'en',
+    },
+    es: {
+      label: 'Español',
+      lang: 'es',
+      themeConfig: {
+        llms: {
+          copyText: 'Copiar página',
+          copiedText: 'Copiado',
+          viewMarkdownText: 'Ver como Markdown',
+          openInAIText: 'Abrir en {provider}',
+        },
+      },
+    },
+  },
+})
+```
+
+<!-- spell-checker:enable -->
+
+To add or update a translation, edit the corresponding locale's `themeConfig.llms`. VitePress merges locale-specific theme settings with the top-level `themeConfig`, and the component updates its labels when the active locale changes. Any label that is missing or empty in the resolved configuration falls back to the English default above.
+
 ---
 
 ### ✅ Good practices

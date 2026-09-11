@@ -40,8 +40,10 @@
 					>
 						<span v-html="resolveProviderIcon(provider)" class="icon"></span>
 						{{
-							theme.llms?.openInAIText.replace('{provider}', provider.name) ||
-							'Open in {provider}'
+							(theme.llms?.openInAIText || 'Open in {provider}').replace(
+								'{provider}',
+								provider.name,
+							)
 						}}
 						<span v-html="iconExternal" class="icon external"></span>
 					</button>

@@ -223,7 +223,7 @@ The file structure in `.vitepress/dist` folder will be as follows:
 
 ## 📖 [llmstxt.org](https://llmstxt.org/) Standard
 
-This plugin follows the [llmstxt.org](https://llmstxt.org/) standard, which defines the best practices for LLM-friendly documentation.
+This plugin follows the [llmstxt.org v2](https://llmstxt.org/) standard, which defines the best practices for LLM-friendly documentation.
 
 ## ✅ The most popular projects that trust this plugin
 

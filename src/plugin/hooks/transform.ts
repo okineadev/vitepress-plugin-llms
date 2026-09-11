@@ -8,7 +8,7 @@ import type { LlmstxtSettings } from '@/types'
 
 import { fullTagRegex } from '@/constants'
 import { clearGrayMatterCache } from '@/utils/helpers'
-import { resolveOutputFilePath, resolvePageURL } from '@/utils/vitepress-rewrites'
+import { resolveOutputFilePath } from '@/utils/vitepress-rewrites'
 
 type TransformSettings = Required<LlmstxtSettings> & { ignoreFiles: string[]; workDir: string }
 
@@ -61,34 +61,22 @@ function stripLLMTags(content: string): string {
 /**
  * Builds the hidden hint string shown to LLMs, or returns an empty string.
  *
- * @param isMainPage - A boolean indicating if the current file is the main index page.
- * @param resolvedOutFilePath - The resolved output file path for the current Markdown file.
  * @param options - Configuration options including settings and VitePress configuration.
  * @returns The generated hint string, or an empty string if no hints apply.
  */
-// oxlint-disable-next-line max-statements
-function buildLLMHint(isMainPage: boolean, resolvedOutFilePath: string, options: LLMHintOptions): string {
+function buildLLMHint(options: LLMHintOptions): string {
 	const { settings, config } = options
 	const base = config.base || '/'
 	const basePath = base === '/' ? '' : base.replace(/\/$/u, '')
 
-	if (isMainPage) {
-		const notices: string[] = []
-		if (settings.generateLLMsTxt) {
-			notices.push(`${basePath}/llms.txt for optimized Markdown documentation`)
-		}
-		if (settings.generateLLMsFullTxt) {
-			notices.push(`${basePath}/llms-full.txt for full documentation bundle`)
-		}
-		return notices.length > 0 ? `Are you an LLM? View ${notices.join(', or ')}` : ''
+	const notices: string[] = []
+	if (settings.generateLLMsTxt) {
+		notices.push(`${basePath}/llms.txt for optimized Markdown documentation`)
 	}
-
-	if (settings.generateLLMFriendlyDocsForEachPage) {
-		const currentUrl = resolvePageURL(path.relative(settings.workDir, resolvedOutFilePath))
-		return `Are you an LLM? You can read better optimized documentation at ${basePath}/${currentUrl} for this page in Markdown format`
+	if (settings.generateLLMsFullTxt) {
+		notices.push(`${basePath}/llms-full.txt for full documentation bundle`)
 	}
-
-	return ''
+	return notices.length > 0 ? `Are you an LLM? View ${notices.join(', or ')}` : ''
 }
 
 /**
@@ -142,29 +130,19 @@ function shouldTransformFile(id: string, workDir: string): boolean {
  *
  * @param content - The stripped Markdown content.
  * @param isMainPage - A boolean indicating if this is the main index page.
- * @param resolvedOutFilePath - The output path resolved for the current file.
  * @param options - Configuration options for hint generation.
  * @returns The content with the hint applied, or the original content if no hint is needed.
  */
-// oxlint-disable-next-line max-params
-function applyHintIfNeeded(
-	content: string,
-	isMainPage: boolean,
-	resolvedOutFilePath: string,
-	options: LLMHintOptions,
-): string {
+function applyHintIfNeeded(content: string, isMainPage: boolean, options: LLMHintOptions): string {
 	const { settings } = options
 	const needsHint =
-		settings.injectLLMHint &&
-		(settings.generateLLMFriendlyDocsForEachPage ||
-			settings.generateLLMsTxt ||
-			settings.generateLLMsFullTxt)
+		isMainPage && settings.injectLLMHint && (settings.generateLLMsTxt || settings.generateLLMsFullTxt)
 
 	if (!needsHint) {
 		return content
 	}
 
-	const hint = buildLLMHint(isMainPage, resolvedOutFilePath, options)
+	const hint = buildLLMHint(options)
 	return applyLLMHint(content, hint)
 }
 
@@ -220,7 +198,7 @@ async function transform(
 	}
 
 	let modified = stripLLMTags(content)
-	modified = applyHintIfNeeded(modified, isMainPage, resolvedOutFilePath, { config, settings })
+	modified = applyHintIfNeeded(modified, isMainPage, { config, settings })
 
 	addToCollection({ content, id, isMainPage }, settings, mdFiles)
 

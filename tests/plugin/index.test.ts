@@ -143,7 +143,7 @@ describe('llmstxt plugin', () => {
 				)
 			})
 
-			it('should inject LLM hint for regular page when generateLLMFriendlyDocsForEachPage is enabled', async () => {
+			it('should not inject LLM hint for regular pages', async () => {
 				const plugin = llmstxt({
 					generateLLMFriendlyDocsForEachPage: true,
 					generateLLMsFullTxt: false,
@@ -157,10 +157,7 @@ describe('llmstxt plugin', () => {
 				// @ts-expect-error
 				const result = await plugin[0].transform(fakeMarkdownDocument, 'docs/test.md')
 
-				expect(result).not.toBeNull()
-				expect(result.code).toContain(
-					'Are you an LLM? You can read better optimized documentation at /test.md for this page in Markdown format',
-				)
+				expect(result).toBeNull()
 			})
 
 			it('should respect base path in LLM hints', async () => {
@@ -189,9 +186,7 @@ describe('llmstxt plugin', () => {
 				// Test regular page
 				// @ts-expect-error
 				const pageResult = await plugin[0].transform(fakeMarkdownDocument, 'docs/test.md')
-				expect(pageResult.code).toContain(
-					'Are you an LLM? You can read better optimized documentation at /myproject/test.md for this page in Markdown format',
-				)
+				expect(pageResult).toBeNull()
 			})
 
 			it('should not inject LLM hint when injectLLMHint is disabled', async () => {
@@ -230,7 +225,7 @@ describe('llmstxt plugin', () => {
 				expect(result).toBeNull()
 			})
 
-			it('should handle rewrites correctly in LLM hints', async () => {
+			it('should not inject LLM hints into rewritten regular pages', async () => {
 				const configWithRewrites = {
 					...mockConfig,
 					vitepress: {
@@ -254,9 +249,7 @@ describe('llmstxt plugin', () => {
 				// @ts-expect-error
 				const result = await plugin[0].transform(fakeMarkdownDocument, 'docs/guide/index.md')
 
-				expect(result.code).toContain(
-					'Are you an LLM? You can read better optimized documentation at /guide.md for this page in Markdown format',
-				)
+				expect(result).toBeNull()
 			})
 
 			it('should preserve frontmatter when injecting LLM hint', async () => {
@@ -278,7 +271,7 @@ This is a test page.`
 				plugin[1].configResolved(mockConfig)
 
 				// @ts-expect-error
-				const result = await plugin[0].transform(contentWithFrontmatter, 'docs/test.md')
+				const result = await plugin[0].transform(contentWithFrontmatter, 'docs/index.md')
 
 				expect(result.code).toContain('---')
 				expect(result.code).toContain('title: Test Page')
@@ -312,9 +305,7 @@ This is a test page.`
 				// Test regular page
 				// @ts-expect-error
 				const pageResult = await plugin[0].transform(fakeMarkdownDocument, 'docs/test.md')
-				expect(pageResult.code).toContain(
-					'Are you an LLM? You can read better optimized documentation at /test.md for this page in Markdown format',
-				)
+				expect(pageResult).toBeNull()
 			})
 		})
 	})

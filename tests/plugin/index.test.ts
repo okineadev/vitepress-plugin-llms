@@ -19,7 +19,7 @@ import type { VitePressConfig } from '@/internal-types'
 // Import the module under test AFTER mocking its dependencies
 // oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 // @ts-ignore
-import { llmstxt } from '@/plugin/plugin'
+import llmstxt from '@/plugin/plugin'
 
 describe('llmstxt plugin', () => {
 	let plugin: [Plugin, Plugin]
@@ -708,7 +708,7 @@ This is a test page.`
 							if (filepath.endsWith('api/reference.md')) {
 								return 'api.md'
 							}
-							return filepath.replace(/^docs\//, '')
+							return filepath.replace(/^docs\//u, '')
 						},
 					},
 				},

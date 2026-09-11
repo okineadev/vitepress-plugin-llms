@@ -10,7 +10,7 @@ export interface PreparedFile {
 	 * @example
 	 * 	'Guide'
 	 */
-	readonly title: string
+	title: string
 
 	/**
 	 * The absolute path to the file.
@@ -18,21 +18,21 @@ export interface PreparedFile {
 	 * @example
 	 * 	'guide/getting-started.md'
 	 */
-	readonly path: string
+	path: string
 
 	/**
 	 * The prepared file itself.
 	 *
 	 * @example
-	 * 	```typescript
-	 * 	{
-	 * 	data: {
-	 * 	title: 'Guide'
-	 * 	},
-	 * 	content: 'Content goes here'
-	 * 	orig: '---\ntitle: Guide\n---\n\nContent goes here'
-	 * 	}
-	 * 	```
+	 * ```typescript
+	 * {
+	 *   data: {
+	 *     title: 'Guide'
+	 *   },
+	 *   content: 'Content goes here'
+	 *   orig: '---\ntitle: Guide\n---\n\nContent goes here'
+	 * }
+	 * ```
 	 */
 	file: GrayMatterFile<Input>
 }
@@ -59,10 +59,10 @@ export type NotUndefined<T> = {
 	[K in keyof T]-?: Exclude<T[K], undefined>
 }
 
-export type DeepReadonly<T> = T extends (...args: unknown) => unknown
-	? T
-	: T extends readonly unknown[]
-		? readonly DeepReadonly<T[number]>[]
-		: T extends object
-			? { readonly [K in keyof T]: DeepReadonly<T[K]> }
-			: T
+// Export type DeepReadonly<T> = T extends (...args: unknown) => unknown
+// 	? T
+// 	: T extends unknown[]
+// 		? T[number][]
+// 		: T extends object
+// 			? { [K in keyof T]: T[K] }
+// 			: T

@@ -1,9 +1,10 @@
 // oxlint-disable import/prefer-default-export
-import matter from '@11ty/gray-matter'
+import matter, { type GrayMatterFile, type Input } from '@11ty/gray-matter'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import type { DeepReadonly, PreparedFile } from '@/internal-types'
+import type { PreparedFile, VitePressConfig } from '@/internal-types'
+import type { LlmstxtSettings } from '@/types'
 
 import log from '@/utils/logger'
 import { generateMetadata } from '@/utils/template-utils'
@@ -13,18 +14,19 @@ import { generateMetadata } from '@/utils/template-utils'
  *
  * @param preparedFiles - An array of prepared files.
  * @param outDir - The output directory.
- * @param domain - The domain to use for links.
- * @param base - The base URL path from VitePress config.
+ * @param options - The configuration options.
+ * @param options.domain - The domain to use for links.
+ * @param options.base - The base URL path from VitePress config.
  */
 export async function generateLLMFriendlyPages(
-	preparedFiles: DeepReadonly<PreparedFile[]>,
+	preparedFiles: PreparedFile[],
 	outDir: string,
-	domain?: string,
-	base?: string,
+	{ domain, base }: { domain?: LlmstxtSettings['domain']; base?: VitePressConfig['base'] },
 ): Promise<void> {
 	const tasks = preparedFiles.map(async (file) => {
 		try {
-			const mdFile = file.file
+			// oxlint-disable-next-line typescript/no-unsafe-assignment
+			const mdFile: GrayMatterFile<Input> = file.file
 			const targetPath = path.resolve(outDir, file.path)
 
 			await fs.mkdir(path.dirname(targetPath), { recursive: true })

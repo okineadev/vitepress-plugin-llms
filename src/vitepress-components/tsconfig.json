@@ -3,7 +3,8 @@
 	"compilerOptions": {
 		"composite": true,
 		"lib": ["DOM"],
-		"strictNullChecks": true
+		"strictNullChecks": true,
+		"isolatedDeclarations": true
 	},
 	"include": ["**/*.ts", "**/*.vue"]
 }

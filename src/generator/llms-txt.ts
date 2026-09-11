@@ -1,7 +1,7 @@
 import type { GrayMatterFile, Input } from '@11ty/gray-matter'
 import type { DefaultTheme } from 'vitepress'
 
-import type { DeepReadonly, LinksExtension, PreparedFile, VitePressConfig } from '@/internal-types'
+import type { LinksExtension, PreparedFile, VitePressConfig } from '@/internal-types'
 import type { LlmstxtSettings } from '@/types'
 
 import { defaultLLMsTxtTemplate } from '@/constants'
@@ -13,22 +13,22 @@ import { expandTemplate } from '@/utils/template-utils'
 /** Options for generating the `llms.txt` file. */
 export interface GenerateLLMsTxtOptions {
 	/** `index.md` file. */
-	readonly indexMdFile: GrayMatterFile<Input>
+	indexMdFile: GrayMatterFile<Input>
 
 	/** Template to use for generating `llms.txt`. */
-	readonly LLMsTxtTemplate?: Readonly<LlmstxtSettings['customLLMsTxtTemplate']>
+	LLMsTxtTemplate?: LlmstxtSettings['customLLMsTxtTemplate']
 
 	/** Template variables for `customLLMsTxtTemplate`. */
 	templateVariables?: LlmstxtSettings['customTemplateVariables']
 
 	/** The VitePress configuration. */
-	readonly vitepressConfig: Readonly<VitePressConfig['vitepress']['userConfig']>
+	vitepressConfig: VitePressConfig['vitepress']['userConfig']
 
 	/** The base domain for the generated links. */
-	readonly domain?: Readonly<LlmstxtSettings['domain']>
+	domain?: LlmstxtSettings['domain']
 
 	/** The link extension for generated links. */
-	readonly linksExtension?: Readonly<LinksExtension> | undefined
+	linksExtension?: LinksExtension | undefined
 
 	/** Optional sidebar configuration for organizing the TOC. */
 	sidebar?: DefaultTheme.Sidebar
@@ -37,7 +37,38 @@ export interface GenerateLLMsTxtOptions {
 	 * Optional directory filter to only include files within the specified directory. If not provided, all
 	 * files will be included.
 	 */
-	readonly directoryFilter?: string | undefined
+	directoryFilter?: string | undefined
+}
+
+function resolveTemplateVariables({
+	indexMdFile,
+	templateVariables = {},
+	vitepressConfig,
+}: GenerateLLMsTxtOptions): NonNullable<LlmstxtSettings['customTemplateVariables']> {
+	const variables = { ...templateVariables }
+	variables['title'] ??=
+		// oxlint-disable-next-line typescript/no-unsafe-member-access
+		indexMdFile.data['hero']?.name ??
+		indexMdFile.data['title'] ??
+		vitepressConfig.title ??
+		vitepressConfig.titleTemplate ??
+		extractTitle(indexMdFile) ??
+		'LLMs Documentation'
+	variables['description'] ??=
+		// oxlint-disable-next-line typescript/no-unsafe-member-access
+		indexMdFile.data['hero']?.text ??
+		vitepressConfig.description ??
+		indexMdFile.data['description'] ??
+		indexMdFile.data['titleTemplate']
+	if (typeof variables['description'] === 'string') {
+		variables['description'] = `> ${variables['description']}`
+	}
+	variables['details'] ??=
+		// oxlint-disable-next-line typescript/no-unsafe-member-access
+		indexMdFile.data['hero']?.['tagline'] ??
+		indexMdFile.data['tagline'] ??
+		(variables['description'] === undefined && 'This file contains links to all documentation sections.')
+	return variables
 }
 
 /**
@@ -45,11 +76,17 @@ export interface GenerateLLMsTxtOptions {
  *
  * @param preparedFiles - An array of prepared files.
  * @param options - Options for generating the `llms.txt` file.
+ * @param options.indexMdFile - The index markdown file object.
+ * @param options.LLMsTxtTemplate - Custom template string for the file.
+ * @param options.templateVariables - Variables to inject into the template.
+ * @param options.vitepressConfig - The VitePress configuration object.
+ * @param options.domain - The base domain for absolute URLs.
+ * @param options.sidebar - Custom sidebar configuration.
+ * @param options.directoryFilter - Filter function or pattern for files.
  * @returns A string representing the content of the `llms.txt` file.
  */
 export async function generateLLMsTxt(
-	preparedFiles: DeepReadonly<PreparedFile[]>,
-	// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
+	preparedFiles: PreparedFile[],
 	{
 		indexMdFile,
 		LLMsTxtTemplate = defaultLLMsTxtTemplate,
@@ -62,39 +99,13 @@ export async function generateLLMsTxt(
 ): Promise<string> {
 	clearGrayMatterCache()
 
-	const variables = { ...templateVariables }
-
-	variables['title'] ??=
-		// oxlint-disable typescript/no-unnecessary-condition
-		indexMdFile.data['hero']?.name ?? // oxlint-disable-line typescript/no-unsafe-member-access
-		indexMdFile.data['title'] ??
-		vitepressConfig?.title ??
-		vitepressConfig?.titleTemplate ??
-		extractTitle(indexMdFile) ??
-		'LLMs Documentation'
-
-	variables['description'] ??=
-		// oxlint-disable typescript/no-unnecessary-condition typescript/no-unsafe-member-access
-		indexMdFile.data?.['hero']?.text ??
-		vitepressConfig?.description ??
-		indexMdFile.data?.['description'] ??
-		indexMdFile.data?.['titleTemplate']
-
-	if (typeof variables['description'] === 'string') {
-		variables['description'] = `> ${variables['description']}`
-	}
-
-	variables['details'] ??=
-		indexMdFile.data?.['hero']?.['tagline'] ??
-		indexMdFile.data['tagline'] ??
-		(variables['description'] === undefined && 'This file contains links to all documentation sections.')
+	const variables = resolveTemplateVariables({ indexMdFile, templateVariables, vitepressConfig })
 
 	variables['toc'] ??= await generateTOC(preparedFiles, {
 		base: vitepressConfig.base,
 		directoryFilter,
 		domain,
-		// oxlint-disable-next-line typescript/no-unsafe-type-assertion
-		sidebarConfig: sidebar ?? (vitepressConfig.themeConfig?.sidebar as DefaultTheme.Sidebar),
+		sidebarConfig: sidebar ?? vitepressConfig.themeConfig?.sidebar,
 	})
 
 	return expandTemplate(LLMsTxtTemplate, variables)

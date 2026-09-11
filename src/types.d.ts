@@ -333,7 +333,6 @@ export interface LlmstxtSettings extends TemplateVariables {
 	sidebar?:
 		| DefaultTheme.Sidebar
 		| ((
-				// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
 				configSidebar: DefaultTheme.Sidebar | undefined,
 		  ) => DefaultTheme.Sidebar | undefined | Promise<DefaultTheme.Sidebar | undefined>)
 

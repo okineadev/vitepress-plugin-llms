@@ -2,8 +2,6 @@ import type { Commit } from 'conventional-commits-parser'
 
 import { type Rule, type UserConfig, RuleConfigSeverity } from '@commitlint/types'
 
-import type { DeepReadonly } from './src/internal-types'
-
 const COMMITLINT_HELP_URL =
 	'https://github.com/okineadev/vitepress-plugin-llms/blob/main/CONTRIBUTING.md#conventional-pr-titles'
 
@@ -15,10 +13,10 @@ const COMMITLINT_HELP_URL =
  * @returns A tuple where the first element is a boolean indicating if the rule passed, and the second is an
  *   optional error message.
  */
-const subjectLowercaseFirst: Rule = async (parsed: DeepReadonly<Commit>) => {
+const subjectLowercaseFirst: Rule = async (parsed: Commit) => {
 	// Find the first alphabetic character
 	if (typeof parsed.subject === 'string' && parsed.subject.length === 0) {
-		const match = /[a-z]/i.exec(parsed.subject)
+		const match = /[a-z]/iu.exec(parsed.subject)
 
 		if (match) {
 			const [firstLetter] = match

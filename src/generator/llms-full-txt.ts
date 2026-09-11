@@ -1,9 +1,9 @@
 import type { DefaultTheme } from 'vitepress'
 
-import matter from '@11ty/gray-matter'
+import matter, { type GrayMatterFile, type Input } from '@11ty/gray-matter'
 import path from 'node:path'
 
-import type { DeepReadonly, LinksExtension, PreparedFile, VitePressConfig } from '@/internal-types'
+import type { LinksExtension, PreparedFile, VitePressConfig } from '@/internal-types'
 import type { LlmstxtSettings } from '@/types'
 
 import { collectPathsFromSidebarItems, flattenSidebarConfig, isPathMatch } from '@/generator/toc'
@@ -13,29 +13,29 @@ import { generateMetadata } from '@/utils/template-utils'
 /** Options for generating the `llms-full.txt` file. */
 export interface GenerateLLMsFullTxtOptions {
 	/** The base domain for the generated links. */
-	readonly domain?: LlmstxtSettings['domain']
+	domain?: LlmstxtSettings['domain']
 
 	/** The link extension for generated links. */
-	readonly linksExtension?: LinksExtension
+	linksExtension?: LinksExtension
 
 	/**
 	 * The base URL path from VitePress config.
 	 *
 	 * {@link VitePressConfig.base}
 	 */
-	readonly base?: VitePressConfig['base']
+	base?: VitePressConfig['base']
 
 	/**
 	 * Optional directory filter to only include files within the specified directory. If not provided, all
 	 * files will be included.
 	 */
-	readonly directoryFilter?: string
+	directoryFilter?: string
 
 	/**
 	 * Optional VitePress sidebar configuration used to order file sections the same way as `llms.txt`.
 	 * When provided, files are emitted in sidebar order; unmatched files are appended at the end.
 	 */
-	readonly sidebar?: DefaultTheme.Sidebar
+	sidebar?: DefaultTheme.Sidebar
 }
 
 /**
@@ -46,15 +46,15 @@ export interface GenerateLLMsFullTxtOptions {
  * @param sidebar - The VitePress sidebar configuration.
  * @returns A new array with files in sidebar order.
  */
+// oxlint-disable-next-line max-statements
 async function sortFilesBySidebar(
-	files: DeepReadonly<PreparedFile[]>,
-	// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
+	files: PreparedFile[],
 	sidebar: DefaultTheme.Sidebar,
-): Promise<DeepReadonly<PreparedFile[]>> {
+): Promise<PreparedFile[]> {
 	const flatSidebar = flattenSidebarConfig(sidebar)
 	const sidebarPaths = await collectPathsFromSidebarItems(flatSidebar)
 
-	const ordered: DeepReadonly<PreparedFile>[] = []
+	const ordered: PreparedFile[] = []
 	const seen = new Set<string>()
 
 	// Walk sidebar paths in order and pick matching files
@@ -90,9 +90,8 @@ async function sortFilesBySidebar(
  * @returns A string representing the full content of the LLMs.txt file.
  */
 export async function generateLLMsFullTxt(
-	preparedFiles: DeepReadonly<PreparedFile[]>,
-	// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
-	options: Readonly<GenerateLLMsFullTxtOptions>,
+	preparedFiles: PreparedFile[],
+	options: GenerateLLMsFullTxtOptions,
 ): Promise<string> {
 	const { domain, linksExtension, base, directoryFilter, sidebar } = options
 
@@ -121,7 +120,8 @@ export async function generateLLMsFullTxt(
 	const fileContents = await Promise.all(
 		filteredFiles.map(async (file) => {
 			// File.path is already relative to outDir, so use it directly
-			const metadata = generateMetadata(file.file, {
+			// oxlint-disable-next-line typescript/no-unsafe-type-assertion
+			const metadata = generateMetadata(file.file as GrayMatterFile<Input>, {
 				base,
 				domain,
 				filePath: file.path,

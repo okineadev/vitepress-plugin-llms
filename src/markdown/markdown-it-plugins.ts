@@ -13,16 +13,14 @@ import Token from 'markdown-it/lib/token.mjs' // 🩼
  *   component is already registered so as not to get confused with it
  */
 export function copyOrDownloadAsMarkdownButtons(
-	// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
+	// oxlint-disable-next-line jsdoc/require-param
 	md: MarkdownIt,
 	componentName = 'CopyOrDownloadAsMarkdownButtons',
 ): void {
 	const orig = md.renderer.render.bind(md.renderer)
 
 	md.renderer.render = (tokens, options, env): string => {
-		const len = tokens.length
-
-		for (let i = 0; i < len; i += 1) {
+		for (let i = 0; i < tokens.length; i += 1) {
 			const open = tokens[i]
 			if (open?.tag === 'h1' && open.type === 'heading_open') {
 				const closeIndex = tokens.findIndex(

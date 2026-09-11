@@ -1,12 +1,12 @@
+import matter from '@11ty/gray-matter'
 import { describe, expect, it } from 'bun:test'
 import dedent from 'dedent'
-import matter from '@11ty/gray-matter'
 
 // oxlint-disable-next-line typescript/prefer-ts-expect-error typescript/ban-ts-comment
 // @ts-ignore
 import { processVPParams } from '@/utils/dynamic-routes'
 
-const generateStringWithVPParams = (params: Readonly<Record<string, string>>, content: string): string =>
+const generateStringWithVPParams = (params: Record<string, string>, content: string): string =>
 	`__VP_PARAMS_START${JSON.stringify(params)}__VP_PARAMS_END__${content}`
 
 describe('processVPParams', () => {

@@ -55,11 +55,7 @@ export function resolveMarkdownPageURL(url: string): string {
  * @param content - The content of the file. Can be a string or other Blob-compatible data.
  * @param blobType - The MIME type of the content (e.g., 'text/plain', 'application/json').
  */
-export function downloadFile(
-	filename: string,
-	content: Readonly<string | Blob>,
-	blobType = 'text/plain',
-): void {
+export function downloadFile(filename: string, content: string | Blob, blobType = 'text/plain'): void {
 	const blob = content instanceof Blob ? content : new Blob([content], { type: blobType })
 	const url = URL.createObjectURL(blob)
 

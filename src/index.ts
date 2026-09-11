@@ -1,2 +1,4 @@
 export { copyOrDownloadAsMarkdownButtons } from '@/markdown/markdown-it-plugins'
-export { llmstxt as default } from '@/plugin/plugin'
+import llmstxt from '@/plugin/plugin'
+
+export default llmstxt

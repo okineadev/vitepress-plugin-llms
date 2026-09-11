@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'bun:test'
 import matter from '@11ty/gray-matter'
+import { describe, expect, it } from 'bun:test'
 
 import { extractTitle } from '@/utils/markdown'
 

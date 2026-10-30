@@ -50,12 +50,12 @@ describe('generateLLMsTxt', () => {
 	it.serial('prefers the resolved base over the base config of vitepress', async () => {
 		const llmsTxt = await generateLLMsTxt(preparedFilesSample.slice(1), {
 			LLMsTxtTemplate: defaultLLMsTxtTemplate,
+			base: '/foo/',
 			indexMdFile: matter(fakeIndexMd),
 			templateVariables: {},
 			vitepressConfig: {
 				base: '/docs/',
 			},
-			base: '/foo/',
 		})
 		expect(llmsTxt).toContain('](/foo/')
 		expect(llmsTxt).not.toContain('/docs/')

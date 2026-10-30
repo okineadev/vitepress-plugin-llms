@@ -48,6 +48,7 @@ async function generateContent(
 		: generateLLMsTxt(files, {
 				...commonOptions,
 				LLMsTxtTemplate: settings.customLLMsTxtTemplate,
+				base: config.base,
 				indexMdFile,
 				templateVariables: {
 					description: settings.description,
@@ -57,7 +58,6 @@ async function generateContent(
 					...settings.customTemplateVariables,
 				},
 				vitepressConfig: config.vitepress.userConfig,
-				base: config.base,
 			})
 }
 

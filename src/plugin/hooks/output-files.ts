@@ -57,6 +57,7 @@ async function generateContent(
 					...settings.customTemplateVariables,
 				},
 				vitepressConfig: config.vitepress.userConfig,
+				base: config.base,
 			})
 }
 

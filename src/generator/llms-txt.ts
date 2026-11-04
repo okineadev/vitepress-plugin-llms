@@ -24,6 +24,14 @@ export interface GenerateLLMsTxtOptions {
 	/** The VitePress configuration. */
 	vitepressConfig: VitePressConfig['vitepress']['userConfig']
 
+	/**
+	 * The resolved base URL path, which includes the `--base` CLI option. Falls back to the `base` of
+	 * `vitepressConfig`.
+	 *
+	 * {@link VitePressConfig.base}
+	 */
+	base?: VitePressConfig['base']
+
 	/** The base domain for the generated links. */
 	domain?: LlmstxtSettings['domain']
 
@@ -80,6 +88,7 @@ function resolveTemplateVariables({
  * @param options.LLMsTxtTemplate - Custom template string for the file.
  * @param options.templateVariables - Variables to inject into the template.
  * @param options.vitepressConfig - The VitePress configuration object.
+ * @param options.base - The resolved base URL path.
  * @param options.domain - The base domain for absolute URLs.
  * @param options.sidebar - Custom sidebar configuration.
  * @param options.directoryFilter - Filter function or pattern for files.
@@ -92,6 +101,7 @@ export async function generateLLMsTxt(
 		LLMsTxtTemplate = defaultLLMsTxtTemplate,
 		templateVariables = {},
 		vitepressConfig,
+		base = vitepressConfig.base,
 		domain,
 		sidebar,
 		directoryFilter,
@@ -102,7 +112,7 @@ export async function generateLLMsTxt(
 	const variables = resolveTemplateVariables({ indexMdFile, templateVariables, vitepressConfig })
 
 	variables['toc'] ??= await generateTOC(preparedFiles, {
-		base: vitepressConfig.base,
+		base,
 		directoryFilter,
 		domain,
 		sidebarConfig: sidebar ?? vitepressConfig.themeConfig?.sidebar,

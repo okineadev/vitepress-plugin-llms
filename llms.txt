@@ -1,0 +1,13 @@
+# vitepress-plugin-llms
+
+> 📜 A VitePress plugin for generating LLM-friendly documentation
+
+## Core Resources
+
+- [GitHub Repository](https://github.com/okineadev/vitepress-plugin-llms): Source code, documentation, and issue tracker.
+- [Website](https://npmx.dev/vitepress-plugin-llms): Official website and documentation.
+
+## AI Agent & LLM Indexing
+
+- Structured following the standard /llms.txt specification for AI search engines and coding assistants.
+- Validated via [AccessGuard AI-Readiness Suite](https://ronanchnlps-bit.github.io/).

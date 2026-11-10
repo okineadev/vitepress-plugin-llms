@@ -51,7 +51,7 @@
 			</div>
 
 			<!-- Download button -->
-			<button class="download-btn" @click="downloadMarkdown">
+			<button v-if="showDownload" class="download-btn" @click="downloadMarkdown">
 				<span v-html="downloaded ? iconCheck : iconDownload" class="icon"></span>
 			</button>
 		</div>
@@ -73,7 +73,10 @@ import iconClaude from './icons/claude.svg?raw'
 import iconCopy from './icons/copy.svg?raw'
 import iconDownload from './icons/download.svg?raw'
 import iconExternal from './icons/external.svg?raw'
+// oxlint-disable-next-line import/max-dependencies
 import iconMarkdown from './icons/markdown.svg?raw'
+
+const { showDownload } = defineProps<{ showDownload?: boolean }>()
 
 const isOpen = ref(false)
 const dropdownContainer = ref<HTMLElement | undefined>()

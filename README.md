@@ -94,6 +94,29 @@ export default defineConfig({
 })
 ```
 
+The plugin accepts the following options (or a string as the component name for backward compatibility):
+
+| Option          | Type      | Default                             | Description                                                    |
+| --------------- | --------- | ----------------------------------- | -------------------------------------------------------------- |
+| `componentName` | `string`  | `'CopyOrDownloadAsMarkdownButtons'` | The name of the registered Vue component to inject.            |
+| `showDownload`  | `boolean` | `true`                              | Whether to show the <kbd>📥 Download as Markdown</kbd> button. |
+
+For example, to hide the download button:
+
+```ts
+import { defineConfig } from 'vitepress'
+import { copyOrDownloadAsMarkdownButtons } from 'vitepress-plugin-llms'
+
+export default defineConfig({
+  // ...
+  markdown: {
+    config(md) {
+      md.use(copyOrDownloadAsMarkdownButtons, { showDownload: false })
+    },
+  },
+})
+```
+
 If you want to build your **own UI** instead of using the bundled Vue component, you can consume the shared composable directly:
 
 ```ts

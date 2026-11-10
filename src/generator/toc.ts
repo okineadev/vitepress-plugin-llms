@@ -333,6 +333,9 @@ export interface GenerateTOCOptions {
 	/** Optional VitePress sidebar configuration. */
 	sidebarConfig?: DefaultTheme.Sidebar
 
+	/** Whether to include unlisted pages in the generated TOC. */
+	includeUnlistedPages?: boolean
+
 	/** The link extension for generated links. */
 	linksExtension?: LinksExtension
 
@@ -453,6 +456,8 @@ interface GenerateSidebarTOCOptions {
 	domain?: LlmstxtSettings['domain']
 	linksExtension?: LinksExtension
 
+	includeUnlistedPages?: boolean
+
 	base?: string
 }
 
@@ -460,7 +465,7 @@ interface GenerateSectionTOCOptions extends Omit<GenerateSidebarTOCOptions, 'sid
 	sections: DefaultTheme.SidebarItem[]
 }
 
-async function generateOtherSectionTOC({
+async function generateUnlistedPagesSectionTOC({
 	sections,
 	files,
 	domain,
@@ -488,6 +493,7 @@ async function generateOtherSectionTOC({
  * @param options.files - Filtered files
  * @param options.domain - Optional domain
  * @param options.linksExtension - Optional link extension
+ * @param options.includeUnlistedPages - Whether to include unlisted pages in the generated TOC
  * @param options.base - Base path
  *
  * @returns TOC string or empty string if sidebar is empty
@@ -497,6 +503,7 @@ async function generateSidebarTOC({
 	files,
 	domain,
 	linksExtension,
+	includeUnlistedPages = true,
 	base = '',
 }: GenerateSidebarTOCOptions): Promise<string> {
 	const flattenedSidebar = flattenSidebarConfig(sidebarConfig)
@@ -507,23 +514,26 @@ async function generateSidebarTOC({
 
 	const sections = getSidebarSections(flattenedSidebar)
 
-	const sectionTOC = await generateSectionTOC({
-		base,
-		domain,
-		files,
-		linksExtension,
-		sections,
-	})
+	const generatedTOC = await Promise.all([
+		generateSectionTOC({
+			base,
+			domain,
+			files,
+			linksExtension,
+			sections,
+		}),
+		includeUnlistedPages
+			? generateUnlistedPagesSectionTOC({
+					base,
+					domain,
+					files,
+					linksExtension,
+					sections,
+				})
+			: Promise.resolve(''),
+	])
 
-	const otherSectionTOC = await generateOtherSectionTOC({
-		base,
-		domain,
-		files,
-		linksExtension,
-		sections,
-	})
-
-	return `${sectionTOC}${otherSectionTOC}`
+	return generatedTOC.join('')
 }
 
 /**
@@ -540,7 +550,14 @@ export async function generateTOC(
 	preparedFiles: PreparedFile[],
 	options: GenerateTOCOptions,
 ): Promise<string> {
-	const { domain, sidebarConfig, linksExtension, base, directoryFilter } = options
+	const {
+		domain,
+		sidebarConfig,
+		linksExtension,
+		base,
+		directoryFilter,
+		includeUnlistedPages = true,
+	} = options
 
 	const filteredFiles = filterFiles(preparedFiles, directoryFilter)
 
@@ -549,6 +566,7 @@ export async function generateTOC(
 			base,
 			domain,
 			files: filteredFiles,
+			includeUnlistedPages,
 			linksExtension,
 			sidebarConfig,
 		})

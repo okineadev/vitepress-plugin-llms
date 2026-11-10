@@ -49,6 +49,7 @@ async function generateContent(
 				...commonOptions,
 				LLMsTxtTemplate: settings.customLLMsTxtTemplate,
 				base: config.base,
+				includeUnlistedPages: settings.includeUnlistedPages,
 				indexMdFile,
 				templateVariables: {
 					description: settings.description,

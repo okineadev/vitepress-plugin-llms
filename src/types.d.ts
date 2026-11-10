@@ -351,6 +351,18 @@ export interface LlmstxtSettings extends TemplateVariables {
 		 */
 		depth?: number
 	}
+
+	/**
+	 * Whether to include unlisted pages in the generated TOC.
+	 *
+	 * ---
+	 *
+	 * This adds an "Other" section for pages that are not mentioned anywhere in the `sidebar`
+	 * configuration.
+	 *
+	 * @default true
+	 */
+	includeUnlistedPages?: boolean
 }
 
 export interface LLMsLocalizationConfig {

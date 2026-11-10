@@ -46,6 +46,9 @@ export interface GenerateLLMsTxtOptions {
 	 * files will be included.
 	 */
 	directoryFilter?: string | undefined
+
+	/** Whether to include unlisted pages in the generated TOC. */
+	includeUnlistedPages?: boolean
 }
 
 function resolveTemplateVariables({
@@ -105,6 +108,7 @@ export async function generateLLMsTxt(
 		domain,
 		sidebar,
 		directoryFilter,
+		includeUnlistedPages,
 	}: GenerateLLMsTxtOptions,
 ): Promise<string> {
 	clearGrayMatterCache()
@@ -115,6 +119,7 @@ export async function generateLLMsTxt(
 		base,
 		directoryFilter,
 		domain,
+		includeUnlistedPages,
 		sidebarConfig: sidebar ?? vitepressConfig.themeConfig?.sidebar,
 	})
 

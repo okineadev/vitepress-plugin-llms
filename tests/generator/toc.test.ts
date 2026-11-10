@@ -163,6 +163,49 @@ describe('generateTOC', () => {
 		expect(toc).toContain('### Test Section')
 	})
 
+	describe('includeUnlistedPages', () => {
+		it('includes unlisted pages by default', async () => {
+			const toc = await generateTOC(preparedFilesSample.slice(1), {
+				sidebarConfig: sampleObjectVitePressSidebar,
+			})
+
+			expect(toc).toContain('### Other')
+			expect(toc).toContain('- [Some other section](/test/other.md)')
+		})
+
+		it('does not include unlisted pages when disabled', async () => {
+			const toc = await generateTOC(preparedFilesSample.slice(1), {
+				includeUnlistedPages: false,
+				sidebarConfig: sampleObjectVitePressSidebar,
+			})
+
+			expect(toc).not.toContain('### Other')
+			expect(toc).toContain('### Getting Started')
+			expect(toc).toContain('### API Reference')
+		})
+
+		it('does not include unlisted pages when all files are already covered by the sidebar', async () => {
+			const sidebarWithAllFiles: DefaultTheme.Sidebar = [
+				{
+					items: [
+						{ link: '/test/getting-started', text: 'Getting Started' },
+						{ link: '/test/quickstart', text: 'Quickstart' },
+						{ link: '/test/other', text: 'Some other section' },
+					],
+					text: 'All files',
+				},
+			]
+
+			const toc = await generateTOC(preparedFilesSample.slice(1), {
+				includeUnlistedPages: true,
+				sidebarConfig: sidebarWithAllFiles,
+			})
+
+			expect(toc).not.toContain('### Other')
+			expect(toc).toContain('### All files')
+		})
+	})
+
 	it.serial('resolves paths with common prefixes correctly', async () => {
 		const toc = await generateTOC(preparedFilesWithCommonPrefixSample, {
 			sidebarConfig: sampleObjectVitePressSidebarWithCommonPrefix,

@@ -2,6 +2,5 @@ export {
 	copyOrDownloadAsMarkdownButtons,
 	type CopyOrDownloadAsMarkdownButtonsPluginOptions,
 } from '@/markdown/markdown-it-plugins'
-import llmstxt from '@/plugin/plugin'
 
-export default llmstxt
+export { default } from '@/plugin/plugin'

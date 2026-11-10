@@ -434,7 +434,7 @@ async function generateSectionTOC({
 export function flattenSidebarConfig(sidebarConfig: DefaultTheme.Sidebar): DefaultTheme.SidebarItem[] {
 	// If it's already an array, return as is
 	if (Array.isArray(sidebarConfig)) {
-		return sidebarConfig as DefaultTheme.SidebarItem[]
+		return sidebarConfig
 	}
 
 	// If it's an object with path keys, flatten it

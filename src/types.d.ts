@@ -46,7 +46,7 @@ export interface LlmstxtSettings extends TemplateVariables {
 	 *
 	 * ---
 	 *
-	 * Domain attachment is not yet agreed upon (since it depends on the AI ​​whether it can resolve the relative paths that are currently there), but if you want you can add it
+	 * Domain attachment is not yet agreed upon (since it depends on the AI whether it can resolve the relative paths that are currently there), but if you want you can add it
 	 *
 	 * ℹ️ **Note**: Domain cannot end with `/`.
 	 *

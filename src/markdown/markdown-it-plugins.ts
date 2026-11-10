@@ -1,4 +1,3 @@
-// oxlint-disable import/prefer-default-export
 import type MarkdownIt from 'markdown-it'
 
 import Token from 'markdown-it/lib/token.mjs' // 🩼
@@ -30,9 +29,7 @@ export interface CopyOrDownloadAsMarkdownButtonsPluginOptions {
  *   component name or hide the download button.
  */
 export function copyOrDownloadAsMarkdownButtons(
-	// oxlint-disable-next-line typescript/prefer-readonly-parameter-types -- `md` is intentionally mutated via `md.renderer.render`
 	md: MarkdownIt,
-	// oxlint-disable-next-line typescript/prefer-readonly-parameter-types -- options object is normalized and not mutated
 	options: CopyOrDownloadAsMarkdownButtonsPluginOptions | string = 'CopyOrDownloadAsMarkdownButtons',
 ): void {
 	// Handle backward compatibility: support both string and object parameter
@@ -44,7 +41,7 @@ export function copyOrDownloadAsMarkdownButtons(
 
 	const orig = md.renderer.render.bind(md.renderer)
 
-	md.renderer.render = (tokens, options, env): string => {
+	md.renderer.render = (tokens, renderOptions, env): string => {
 		for (let i = 0; i < tokens.length; i += 1) {
 			const open = tokens[i]
 			if (open?.tag === 'h1' && open.type === 'heading_open') {

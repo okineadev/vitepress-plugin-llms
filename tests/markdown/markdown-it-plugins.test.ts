@@ -56,7 +56,7 @@ describe('copyOrDownloadAsMarkdownButtons', () => {
 		const mdMultipleH1 = new MarkdownIt()
 		mdMultipleH1.use(copyOrDownloadAsMarkdownButtons)
 		const result = mdMultipleH1.render('# First\n\n## Second\n\n# Third')
-		const matches = result.match(/CopyOrDownloadAsMarkdownButtons/g)
+		const matches = result.match(/CopyOrDownloadAsMarkdownButtons/gu)
 		expect(matches).toHaveLength(1)
 	})
 })

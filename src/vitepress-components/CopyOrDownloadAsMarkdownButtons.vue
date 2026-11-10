@@ -73,15 +73,10 @@ import iconClaude from './icons/claude.svg?raw'
 import iconCopy from './icons/copy.svg?raw'
 import iconDownload from './icons/download.svg?raw'
 import iconExternal from './icons/external.svg?raw'
+// oxlint-disable-next-line import/max-dependencies
 import iconMarkdown from './icons/markdown.svg?raw'
 
-interface Props {
-	showDownload?: boolean
-}
-
-const props = withDefaults(defineProps<Props>(), {
-	showDownload: true,
-})
+const { showDownload } = defineProps<{ showDownload?: boolean }>()
 
 const isOpen = ref(false)
 const dropdownContainer = ref<HTMLElement | undefined>()

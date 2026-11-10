@@ -43,7 +43,7 @@ jobs:
             src/
             tests/
             .gitignore
-            bunup.config.ts
+            tsdown.config.ts
             package.json
             .oxfmtrc.json
             oxlint.config.ts

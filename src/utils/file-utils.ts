@@ -61,7 +61,7 @@ export const transformToPosixPath = (filepath: string): string => filepath.repla
  * @returns Array of directory objects with path and depth information
  */
 export function getDirectoriesAtDepths(
-	files: readonly string[],
+	files: string[],
 	baseDir: string,
 	maxDepth: number,
 ): {

@@ -192,12 +192,20 @@ describe('generateTOC', () => {
 
 describe('generateTOCLink', () => {
 	it('generates a TOC link with description', () => {
-		const result = generateTOCLink(fooMdSample, sampleDomain, `${outDir}/path`, '.md')
+		const result = generateTOCLink(fooMdSample, {
+			domain: sampleDomain,
+			extension: '.md',
+			relativePath: `${outDir}/path`,
+		})
 		expect(result).toBe(`- [Title](${sampleDomain}/${outDir}/path.md)\n`)
 	})
 
 	it('generates a TOC link without description', () => {
-		const result = generateTOCLink(fooMdSample, sampleDomain, `${outDir}/path`, '.md')
+		const result = generateTOCLink(fooMdSample, {
+			domain: sampleDomain,
+			extension: '.md',
+			relativePath: `${outDir}/path`,
+		})
 		expect(result).toBe(`- [Title](${sampleDomain}/${outDir}/path.md)\n`)
 	})
 })

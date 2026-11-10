@@ -1,1 +1,3 @@
-export { llmstxt as default } from './plugin'
+import llmstxt from './plugin'
+
+export default llmstxt

@@ -13,32 +13,38 @@ import { sampleDomain } from '../resources'
 
 describe('generateLink', () => {
 	it('generates a link with domain, path, and extension', () => {
-		const result = generateLink('docs/guide', sampleDomain, '.md')
+		const result = generateLink('docs/guide', { domain: sampleDomain, extension: '.md' })
 		expect(result).toBe(`${sampleDomain}/docs/guide.md`)
 	})
 
 	it('generates a link without domain', () => {
-		const result = generateLink('docs/guide', undefined, '.md')
+		const result = generateLink('docs/guide', { extension: '.md' })
 		expect(result).toBe('/docs/guide.md')
 	})
 
 	it('generates a link with base URL', () => {
-		const result = generateLink('docs/guide', sampleDomain, '.md', '/awesomeproject')
-		expect(result).toBe(`${sampleDomain}/awesomeproject/docs/guide.md`)
-	})
-
-	it('generates a link with base URL without domain', () => {
-		const result = generateLink('docs/guide', undefined, '.md', '/awesomeproject')
+		const result = generateLink('docs/guide', {
+			base: '/awesomeproject',
+			extension: '.md',
+		})
 		expect(result).toBe('/awesomeproject/docs/guide.md')
 	})
 
 	it('handles base URL without leading slash', () => {
-		const result = generateLink('docs/guide', sampleDomain, '.md', 'awesomeproject')
+		const result = generateLink('docs/guide', {
+			base: 'awesomeproject',
+			domain: sampleDomain,
+			extension: '.md',
+		})
 		expect(result).toBe(`${sampleDomain}/awesomeproject/docs/guide.md`)
 	})
 
 	it('handles base URL with trailing slash', () => {
-		const result = generateLink('docs/guide', sampleDomain, '.md', '/awesomeproject/')
+		const result = generateLink('docs/guide', {
+			base: '/awesomeproject/',
+			domain: sampleDomain,
+			extension: '.md',
+		})
 		expect(result).toBe(`${sampleDomain}/awesomeproject/docs/guide.md`)
 	})
 })

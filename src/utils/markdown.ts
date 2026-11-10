@@ -9,7 +9,6 @@ import markdownTitle from 'markdown-title'
  * @param file - The markdown file to extract the title from.
  * @returns The extracted title, or `undefined` if no title is found.
  */
-// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
 export function extractTitle(file: GrayMatterFile<Input>): string | undefined {
 	// oxlint-disable-next-line typescript/no-unsafe-type-assertion
 	return (file.data['title'] ?? file.data['titleTemplate'] ?? markdownTitle(file.content)) as

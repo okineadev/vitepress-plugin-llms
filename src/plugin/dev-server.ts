@@ -9,12 +9,13 @@ import type { VitePressConfig } from '@/internal-types'
 import log from '@/utils/logger'
 
 /** Configures the development server to handle `llms.txt` and markdown files for LLMs. */
-// oxlint-disable-next-line require-await typescript/prefer-readonly-parameter-types jsdoc/require-param
+// oxlint-disable-next-line jsdoc/require-param
 function configureDevServer(server: ViteDevServer, config: VitePressConfig): void {
 	log.info('Dev server configured for serving plain text docs for LLMs')
 	server.middlewares.use(
+		// oxlint-disable-next-line typescript/ban-ts-comment
 		// @ts-expect-error
-		// oxlint-disable-next-line typescript/prefer-readonly-parameter-types max-statements
+		// oxlint-disable-next-line max-statements
 		(req: Omit<Connect.IncomingMessage, 'url'> & { url: string }, res, next): void => {
 			if (req.url.endsWith('.md') || req.url.endsWith('.txt')) {
 				try {

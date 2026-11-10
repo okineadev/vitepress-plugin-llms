@@ -9,7 +9,7 @@ on:
       - src/**
       - tests/**
       - .gitignore
-      - bunup.config.ts
+      - tsdown.config.ts
       - package.json
       - .oxfmtrc.json
       - oxlint.config.ts
@@ -26,7 +26,7 @@ on:
       - src/**
       - tests/**
       - .gitignore
-      - bunup.config.ts
+      - tsdown.config.ts
       - package.json
       - .oxfmtrc.json
       - oxlint.config.ts
@@ -79,7 +79,7 @@ jobs:
             patches/
             src/
             .gitignore
-            bunup.config.ts
+            tsdown.config.ts
             package.json
             bun.lock
             bunfig.toml

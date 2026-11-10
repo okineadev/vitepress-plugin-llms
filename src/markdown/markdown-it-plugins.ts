@@ -44,10 +44,8 @@ export function copyOrDownloadAsMarkdownButtons(
 
 	const orig = md.renderer.render.bind(md.renderer)
 
-	md.renderer.render = (tokens, renderOptions, env): string => {
-		const len = tokens.length
-
-		for (let i = 0; i < len; i += 1) {
+	md.renderer.render = (tokens, options, env): string => {
+		for (let i = 0; i < tokens.length; i += 1) {
 			const open = tokens[i]
 			if (open?.tag === 'h1' && open.type === 'heading_open') {
 				const closeIndex = tokens.findIndex(

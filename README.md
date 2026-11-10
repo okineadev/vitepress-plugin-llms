@@ -123,6 +123,63 @@ If you want to build your **own UI** instead of using the bundled Vue component,
 import { useCopyOrDownloadAsMarkdownButtons } from 'vitepress-plugin-llms/vitepress-components'
 ```
 
+### Localizing the buttons
+
+The bundled `CopyOrDownloadAsMarkdownButtons` component reads its labels from VitePress's `themeConfig.llms`. Add this configuration to `.vitepress/config.ts` after setting up the component above.
+
+All properties are optional strings:
+
+| Property           | Default value        | Purpose                                   |
+| ------------------ | -------------------- | ----------------------------------------- |
+| `copyText`         | `Copy page`          | Main copy button                          |
+| `copiedText`       | `Copied`             | Confirmation after a successful copy      |
+| `viewMarkdownText` | `View as Markdown`   | Dropdown item for viewing raw Markdown    |
+| `openInAIText`     | `Open in {provider}` | Dropdown items for opening an AI provider |
+
+Keep the literal `{provider}` placeholder in `openInAIText`: the component replaces it with the provider name, such as `ChatGPT` or `Claude`.
+
+For a single-language site, set `themeConfig.llms` at the top level. For a multilingual site, set `locales.<locale>.themeConfig.llms` for each language using [VitePress's internationalization configuration](https://vitepress.dev/guide/i18n). For example:
+
+<!-- spell-checker:disable -->
+
+```ts
+import { defineConfig } from 'vitepress'
+
+export default defineConfig({
+  // Keep your existing plugin and Markdown configuration.
+  themeConfig: {
+    llms: {
+      copyText: 'Copy page',
+      copiedText: 'Copied',
+      viewMarkdownText: 'View as Markdown',
+      openInAIText: 'Open in {provider}',
+    },
+  },
+  locales: {
+    root: {
+      label: 'English',
+      lang: 'en',
+    },
+    es: {
+      label: 'Español',
+      lang: 'es',
+      themeConfig: {
+        llms: {
+          copyText: 'Copiar página',
+          copiedText: 'Copiado',
+          viewMarkdownText: 'Ver como Markdown',
+          openInAIText: 'Abrir en {provider}',
+        },
+      },
+    },
+  },
+})
+```
+
+<!-- spell-checker:enable -->
+
+To add or update a translation, edit the corresponding locale's `themeConfig.llms`. VitePress merges locale-specific theme settings with the top-level `themeConfig`, and the component updates its labels when the active locale changes. Any label that is missing or empty in the resolved configuration falls back to the English default above.
+
 ---
 
 ### ✅ Good practices
@@ -246,7 +303,7 @@ The file structure in `.vitepress/dist` folder will be as follows:
 
 ## 📖 [llmstxt.org](https://llmstxt.org/) Standard
 
-This plugin follows the [llmstxt.org](https://llmstxt.org/) standard, which defines the best practices for LLM-friendly documentation.
+This plugin follows the [llmstxt.org v2](https://llmstxt.org/) standard, which defines the best practices for LLM-friendly documentation.
 
 ## ✅ The most popular projects that trust this plugin
 
@@ -266,7 +323,7 @@ Here is a list of less popular but no less cool projects that were the first to 
 | [**shadcn/vue**](https://shadcn-vue.com/)                |     [![Stars](https://img.shields.io/github/stars/unovue/shadcn-vue?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/unovue/shadcn-vue)     |      [llms.txt](https://shadcn-vue.com/llms.txt)      |      [llms-full.txt](https://shadcn-vue.com/llms-full.txt)      |
 | [**Fantastic-admin**](https://fantastic-admin.hurui.me/) | [![Stars](https://img.shields.io/github/stars/fantastic-admin/basic?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/fantastic-admin/basic) | [llms.txt](https://fantastic-admin.hurui.me/llms.txt) | [llms-full.txt](https://fantastic-admin.hurui.me/llms-full.txt) |
 | [**Vue Macros**](https://vue-macros.dev/)                | [![Stars](https://img.shields.io/github/stars/vue-macros/vue-macros?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/vue-macros/vue-macros) |      [llms.txt](https://vue-macros.dev/llms.txt)      |      [llms-full.txt](https://vue-macros.dev/llms-full.txt)      |
-| [**oRPC**](https://orpc.unnoq.com/)                      |        [![Stars](https://img.shields.io/github/stars/middleapi/orpc?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/middleapi/orpc)        |      [llms.txt](https://orpc.unnoq.com/llms.txt)      |      [llms-full.txt](https://orpc.unnoq.com/llms-full.txt)      |
+| [**oRPC**](https://orpc.dev/)                            |        [![Stars](https://img.shields.io/github/stars/middleapi/orpc?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/middleapi/orpc)        |      [llms.txt](https://orpc.dev/llms.txt)            |      [llms-full.txt](https://orpc.dev/llms-full.txt)            |
 | [**tsdown**](https://tsdown.dev/)                        |       [![Stars](https://img.shields.io/github/stars/rolldown/tsdown?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/rolldown/tsdown)       |        [llms.txt](https://tsdown.dev/llms.txt)        |        [llms-full.txt](https://tsdown.dev/llms-full.txt)        |
 | [**GramIO**](https://gramio.dev/)                        |       [![Stars](https://img.shields.io/github/stars/gramiojs/gramio?style=flat&label=%E2%AD%90&labelColor=FAFAFA&color=212121)](https://github.com/gramiojs/gramio)       |        [llms.txt](https://gramio.dev/llms.txt)        |        [llms-full.txt](https://gramio.dev/llms-full.txt)        |
 

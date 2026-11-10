@@ -2,21 +2,21 @@ import { onMounted, ref, type Ref } from 'vue'
 
 import { downloadFile, resolveMarkdownPageURL } from '../utils'
 
-type MarkdownAiProviders = readonly MarkdownAiProvider[]
+type MarkdownAiProviders = MarkdownAiProvider[]
 
 /**
  * Represents an AI provider that can open the current page as Markdown.
  */
 export interface MarkdownAiProvider {
 	/** Display name of the provider, e.g. `'ChatGPT'`. */
-	readonly name: string
+	name: string
 	/**
 	 * Base URL used to open the provider with a pre-filled prompt.
 	 * The encoded prompt string will be appended directly to this URL.
 	 *
 	 * @example 'https://claude.ai/new?q='
 	 */
-	readonly url: string
+	url: string
 }
 
 const defaultAnimationDuration = 2000
@@ -38,10 +38,10 @@ const defaultAnimationDuration = 2000
  * })
  * ```
  */
-export const defaultAiProviders = [
+export const defaultAiProviders: MarkdownAiProviders = [
 	{ name: 'ChatGPT', url: 'https://chatgpt.com/?hints=search&prompt=' },
 	{ name: 'Claude', url: 'https://claude.ai/new?q=' },
-] as const satisfies readonly MarkdownAiProvider[]
+] as const
 
 type ResolvedMarkdownAiProviders<Providers extends MarkdownAiProviders | undefined> =
 	Providers extends MarkdownAiProviders ? Providers : typeof defaultAiProviders
@@ -56,7 +56,7 @@ export interface UseCopyOrDownloadAsMarkdownButtonsOptions<
 	 * List of AI providers shown in the dropdown.
 	 * Defaults to {@link defaultAiProviders}.
 	 */
-	readonly aiProviders?: Providers
+	aiProviders?: Providers
 	/**
 	 * Duration in milliseconds for which the `copied` / `downloaded`
 	 * state remains `true` after a successful action.
@@ -64,14 +64,14 @@ export interface UseCopyOrDownloadAsMarkdownButtonsOptions<
 	 *
 	 * @default 2000
 	 */
-	readonly animationDuration?: number
+	animationDuration?: number
 	/**
 	 * Override the current page URL used to derive the Markdown file URL.
 	 * When omitted, `window.location.origin + window.location.pathname` is used.
 	 *
 	 * Useful in tests or non-browser environments.
 	 */
-	readonly currentURL?: string
+	currentURL?: string
 }
 
 /**
@@ -90,12 +90,12 @@ export interface UseCopyOrDownloadAsMarkdownButtonsReturn<
 	 * The resolved URL of the current page.
 	 * Empty string during SSR; populated in `onMounted`.
 	 */
-	currentURL: Readonly<Ref<string>>
+	currentURL: Ref<string>
 	/**
 	 * The resolved URL of the `.md` source file for the current page.
 	 * Empty string during SSR; populated in `onMounted`.
 	 */
-	markdownPageURL: Readonly<Ref<string>>
+	markdownPageURL: Ref<string>
 	/** Fetches the page Markdown and writes it to the clipboard. */
 	copyAsMarkdown: () => Promise<void>
 	/** Fetches the page Markdown and triggers a file download. */
@@ -108,7 +108,7 @@ export interface UseCopyOrDownloadAsMarkdownButtonsReturn<
 	 *
 	 * @param provider - One of the entries from {@link aiProviders}.
 	 */
-	openInAI: (provider: Readonly<Providers[number]>) => void
+	openInAI: (provider: Providers[number]) => void
 }
 
 const fetchMarkdown = async (markdownPageURL: string): Promise<string> => {
@@ -119,7 +119,6 @@ const fetchMarkdown = async (markdownPageURL: string): Promise<string> => {
 const resolveMarkdownFilename = (markdownPageURL: string): string =>
 	markdownPageURL.split('/').pop() ?? 'page.md'
 
-// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
 const scheduleReset = (state: Ref<boolean>, animationDuration: number): void => {
 	setTimeout(() => {
 		state.value = false
@@ -157,7 +156,7 @@ const scheduleReset = (state: Ref<boolean>, animationDuration: number): void => 
  * })
  * ```
  */
-// oxlint-disable-next-line max-statements max-lines-per-function
+// oxlint-disable-next-line max-lines-per-function max-statements
 export function useCopyOrDownloadAsMarkdownButtons<
 	const Providers extends MarkdownAiProviders | undefined = undefined,
 >(

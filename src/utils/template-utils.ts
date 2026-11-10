@@ -1,6 +1,6 @@
 import type { GrayMatterFile, Input } from '@11ty/gray-matter'
 
-import type { DeepReadonly, LinksExtension, VitePressConfig } from '@/internal-types'
+import type { LinksExtension, VitePressConfig } from '@/internal-types'
 import type { LlmstxtSettings } from '@/types'
 
 import { stripExtPosix, transformToPosixPath } from '@/utils/file-utils'
@@ -16,7 +16,7 @@ import { stripExtPosix, transformToPosixPath } from '@/utils/file-utils'
  *
  * @returns A case-insensitive regular expression that detects `{key}` occurrences in a string.
  */
-const templateVariable = (key: string): RegExp => new RegExp(`(\\n\\s*\\n)?\\{${key}\\}`, 'gi')
+const templateVariable = (key: string): RegExp => new RegExp(`(\\n\\s*\\n)?\\{${key}\\}`, 'giu')
 
 /**
  * Replaces occurrences of a template variable `{variable}` in a given content string with a provided value.
@@ -25,25 +25,27 @@ const templateVariable = (key: string): RegExp => new RegExp(`(\\n\\s*\\n)?\\{${
  * @example
  * 	;```ts
  * 	const template = 'Hello {name}!'
- * 	const result = replaceTemplateVariable(template, 'name', 'Alice', 'User')
+ * 	const result = replaceTemplateVariable(template, 'name', 'Alice', { fallback: 'User' })
  * 	console.log(result) // 'Hello Alice!'
  * 	```
  *
  * @param content - The template string containing placeholders.
  * @param variable - The template variable name to replace.
  * @param value - The value to replace the variable with.
- * @param fallback - An optional fallback value if `value` is empty.
+ * @param options - Configuration options.
+ * @param options.fallback - An optional fallback value if `value` is empty.
  *
  * @returns A new string with the template variable replaced.
  */
+// oxlint-disable-next-line max-params
 export function replaceTemplateVariable(
 	content: string,
 	variable: string,
 	value: string | undefined,
-	fallback?: string,
+	{ fallback = '' }: { fallback?: string } = {},
 ): string {
 	return content.replace(templateVariable(variable), (_, prefix: string) => {
-		const val = value !== undefined && value.length > 0 ? value : (fallback ?? '')
+		const val = value !== undefined && value.length > 0 ? value : fallback
 
 		return val.length > 0 ? `${prefix ? '\n\n' : ''}${val}` : ''
 	})
@@ -63,14 +65,11 @@ export function replaceTemplateVariable(
  *
  * @returns A string with all template variables replaced.
  */
-export const expandTemplate = (
-	template: string,
-	variables: Readonly<Record<string, string | undefined>>,
-): string => {
+export const expandTemplate = (template: string, variables: Record<string, string | undefined>): string => {
 	let result = template
 
-	for (const [key, value] of Object.entries(variables)) {
-		result = replaceTemplateVariable(result, key, value)
+	for (const [variable, value] of Object.entries(variables)) {
+		result = replaceTemplateVariable(result, variable, value)
 	}
 
 	return result
@@ -80,18 +79,25 @@ export const expandTemplate = (
 /**
  * Generates a complete link by combining a domain, path, and an optional extension.
  *
- * @param domain - The base domain of the link (e.g., "https://example.com").
  * @param urlPath - The path to append to the domain (e.g., "guide").
- * @param extension - An optional extension to append to the path (e.g., ".md").
- * @param base - The base URL path from VitePress config (e.g., "/docs/flowdown").
+ * @param options - The configuration options.
+ * @param options.domain - The base domain of the link (e.g., "https://example.com").
+ * @param options.extension - An optional extension to append to the path (e.g., ".md").
+ * @param options.base - The base URL path from VitePress config (e.g., "/docs/flowdown").
  *
  * @returns The generated link
  */
 export const generateLink = (
 	urlPath: string,
-	domain?: string,
-	extension?: LinksExtension,
-	base?: VitePressConfig['base'],
+	{
+		domain,
+		extension,
+		base,
+	}: {
+		domain?: LlmstxtSettings['domain']
+		extension?: LinksExtension
+		base?: VitePressConfig['base']
+	},
 ): string =>
 	expandTemplate('{domain}/{base}{path}{extension}', {
 		base:
@@ -106,20 +112,20 @@ export const generateLink = (
 /** Options for generating metadata for markdown files. */
 export interface GenerateMetadataOptions {
 	/** Optional domain name to prepend to the URL. */
-	readonly domain?: LlmstxtSettings['domain']
+	domain?: LlmstxtSettings['domain']
 
 	/** Path to the file relative to the content root. */
-	readonly filePath: string
+	filePath: string
 
 	/** The link extension for generated links. */
-	readonly linksExtension?: LinksExtension | undefined
+	linksExtension?: LinksExtension
 
 	/**
 	 * The base URL path from VitePress config.
 	 *
 	 * {@link VitePressConfig.base}
 	 */
-	readonly base?: VitePressConfig['base'] | undefined
+	base?: VitePressConfig['base']
 }
 
 /**
@@ -131,17 +137,25 @@ export interface GenerateMetadataOptions {
  *
  * @param sourceFile - Parsed markdown file with frontmatter using gray-matter.
  * @param options - Options for generating metadata.
+ * @param options.domain - The base domain used to construct the file URL.
+ * @param options.filePath - The path to the file, used to build the URL and strip the extension.
+ * @param options.linksExtension - The extension to append to generated links (defaults to `.md`).
+ * @param options.base - The base URL path from VitePress config prepended to the file path.
  *
  * @returns Object containing metadata properties for the file.
  */
 export function generateMetadata(
-	sourceFile: DeepReadonly<GrayMatterFile<Input>>,
+	sourceFile: GrayMatterFile<Input>,
 	{ domain, filePath, linksExtension, base }: GenerateMetadataOptions,
 ): { url: string; description?: string } {
 	return {
-		url: generateLink(stripExtPosix(filePath), domain, linksExtension ?? '.md', base),
+		url: generateLink(stripExtPosix(filePath), {
+			base,
+			domain,
+			extension: linksExtension ?? '.md',
+		}),
 		...(typeof sourceFile.data['description'] === 'string' && {
 			description: sourceFile.data['description'],
 		}),
-	} as ReturnType<typeof generateMetadata>
+	}
 }

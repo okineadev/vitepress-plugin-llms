@@ -94,19 +94,11 @@ export interface LlmstxtSettings extends TemplateVariables {
 	stripHTML?: boolean
 
 	/**
-	 * Whether to insert invisible text with a reference to LLM-Friendly documentation for LLMs on every page.
+	 * Whether to insert invisible text linking to llms.txt and llms-full.txt on the main page.
 	 *
-	 * Could significantly advance the use of LLM-Friendly documentation in regular chats (possibly).
+	 * Other pages use standard HTML discovery links instead of hidden text.
 	 *
-	 * ---
-	 *
-	 * It inserts text on each page that is invisible to humans but visible to machines (thanks to the CSS property `display: none`), in simple sections it looks like this:
-	 *
-	 * ```plaintext
-	 * Are you an LLM? You can read better optimized documentation at /guide/what-is-vitepress.md for this page in Markdown format
-	 * ```
-	 *
-	 * On the main page it will look like this:
+	 * The main page hint is hidden with `display: none` and looks like this:
 	 *
 	 * ```plaintext
 	 * Are you an LLM? View /llms.txt for optimized Markdown documentation, or /llms-full.txt for full documentation bundle
@@ -333,7 +325,6 @@ export interface LlmstxtSettings extends TemplateVariables {
 	sidebar?:
 		| DefaultTheme.Sidebar
 		| ((
-				// oxlint-disable-next-line typescript/prefer-readonly-parameter-types
 				configSidebar: DefaultTheme.Sidebar | undefined,
 		  ) => DefaultTheme.Sidebar | undefined | Promise<DefaultTheme.Sidebar | undefined>)
 
@@ -359,5 +350,60 @@ export interface LlmstxtSettings extends TemplateVariables {
 		 * @experimental
 		 */
 		depth?: number
+	}
+}
+
+export interface LLMsLocalizationConfig {
+	/**
+	 * Text displayed on the main action button when a page can be copied.
+	 *
+	 * ---
+	 *
+	 * Default fallback: `'Copy page'`
+	 */
+	copyText?: string
+
+	/**
+	 * Text displayed on the main action button briefly after a successful copy operation.
+	 *
+	 * ---
+	 *
+	 * Default fallback: `'Copied'`
+	 */
+	copiedText?: string
+
+	/**
+	 * Text displayed on the dropdown menu item used to read the raw documentation stream.
+	 *
+	 * ---
+	 *
+	 * Default fallback: `'View as Markdown'`
+	 */
+	viewMarkdownText?: string
+
+	/**
+	 * Template text displayed on dropdown action buttons that route to external AI platform workspaces.
+	 *
+	 * ---
+	 *
+	 * Must include the `{provider}` token placeholder which dynamically switches to the platform target names (e.g. ChatGPT, Claude).
+	 *
+	 * Default fallback: `'Open in {provider}'`
+	 */
+	openInAIText?: string
+}
+
+declare module 'vitepress' {
+	export interface DefaultTheme {
+		/**
+		 * VitePress {@link DefaultTheme | Theme Configuration} Extension for LLMs
+		 *
+		 * ---
+		 *
+		 * Here you can insert your localized translation strings for the `vitepress-plugin-llms` action layout context.
+		 *
+		 * Usually this parameter is used to handle internationalization across multi-language site configurations.
+		 */
+		llms?: LLMsLocalizationConfig
 	}
 }

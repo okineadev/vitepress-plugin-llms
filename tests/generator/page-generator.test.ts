@@ -24,7 +24,7 @@ describe('generateLLMFriendlyPages', () => {
 
 	it('should generate LLM friendly pages for each prepared file', async () => {
 		const preparedFiles = preparedFilesSample.slice(1)
-		await generateLLMFriendlyPages(preparedFiles, outDir, 'https://example.com')
+		await generateLLMFriendlyPages(preparedFiles, outDir, { domain: 'https://example.com' })
 
 		expect(mkdir).toHaveBeenCalledTimes(preparedFiles.length)
 		expect(writeFile).toHaveBeenCalledTimes(preparedFiles.length)

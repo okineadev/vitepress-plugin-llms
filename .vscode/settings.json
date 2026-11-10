@@ -17,7 +17,6 @@
 	},
 
 	"material-icon-theme.files.associations": {
-		"bunup.config.ts": "bun",
 		"tsconfig.bun.json": "tsconfig"
 	},
 	"material-icon-theme.folders.associations": {

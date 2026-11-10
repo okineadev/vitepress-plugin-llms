@@ -40,6 +40,7 @@ export const tagRegex = (tag: string, type: 'open' | 'closed', flags?: string): 
  * console.log(match?.[1]) // "This is a note"
  *
  * @param tag - The name of the tag to match (e.g., "note" will match <note>...</note>).
+ * @param flags - Optional RegExp flags.
  * @returns A RegExp that captures the entire tag block including its inner content.
  */
 export const fullTagRegex = (tag: string, flags?: string): RegExp =>

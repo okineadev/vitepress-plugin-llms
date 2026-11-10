@@ -18,6 +18,13 @@ export default defineConfig({
 	},
 	overrides: [
 		{
+			files: ['**/*.d.ts'],
+			rules: {
+				// Public option declarations include extensive API documentation and examples.
+				'max-lines': ['warn', { max: 300, skipBlankLines: true, skipComments: true }],
+			},
+		},
+		{
 			files: ['tests/**/*.ts'],
 			rules: {
 				'id-length': 'off',
@@ -69,6 +76,7 @@ export default defineConfig({
 		'import/exports-last': 'off',
 		'import/first': 'off',
 		'import/group-exports': 'off',
+		'import/max-dependencies': ['warn', { ignoreTypeImports: true, max: 10 }],
 		'import/no-default-export': 'off',
 		'import/no-named-export': 'off',
 		'import/no-nodejs-modules': 'off',
@@ -76,8 +84,14 @@ export default defineConfig({
 		'import/unambiguous': 'off',
 		'init-declarations': 'off',
 		'jsdoc/check-tag-names': [
-			'error',
+			'warn',
 			{ definedTags: ['experimental', 'remarks', 'constant'], typed: true },
+		],
+		'jsdoc/require-param': [
+			'warn',
+			{
+				checkDestructuredRoots: false,
+			},
 		],
 		'jsdoc/require-param-type': 'off',
 		'jsdoc/require-returns-type': 'off',
@@ -116,12 +130,7 @@ export default defineConfig({
 		],
 		'typescript/no-non-null-assertion': 'off',
 		'typescript/non-nullable-type-assertion-style': 'off',
-		'typescript/prefer-readonly-parameter-types': [
-			'warn',
-			{
-				ignoreInferredTypes: true,
-			},
-		],
+		'typescript/prefer-readonly-parameter-types': ['off'],
 		'typescript/require-await': 'off',
 		// Always false positives
 		'unicorn/no-abusive-eslint-disable': 'off',

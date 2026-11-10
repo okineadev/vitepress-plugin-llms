@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'bun:test'
 import matter from '@11ty/gray-matter'
+import { describe, expect, it } from 'bun:test'
 
 import { expandTemplate, generateMetadata, replaceTemplateVariable } from '@/utils/template-utils'
 
@@ -12,12 +12,12 @@ describe('replaceTemplateVariable', () => {
 	})
 
 	it('uses fallback value when main value is empty', () => {
-		const result = replaceTemplateVariable('Hello {name}!', 'name', '', 'User')
+		const result = replaceTemplateVariable('Hello {name}!', 'name', '', { fallback: 'User' })
 		expect(result).toBe('Hello User!')
 	})
 
 	it('removes variable if both value and fallback are empty', () => {
-		const result = replaceTemplateVariable('Hello {name}!', 'name', '', '')
+		const result = replaceTemplateVariable('Hello {name}!', 'name', '')
 		expect(result).toBe('Hello !')
 	})
 

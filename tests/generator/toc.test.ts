@@ -1,9 +1,10 @@
 import type { DefaultTheme } from 'vitepress'
 
-import { describe, expect, it } from 'bun:test'
+import { beforeEach, describe, expect, it } from 'bun:test'
 
 import { generateTOC, generateTOCLink, isPathMatch, normalizeLinkPath } from '@/generator/toc'
 
+import mockedLogger from '../mocks/utils/logger'
 import {
 	fooMdSample,
 	outDir,
@@ -16,6 +17,8 @@ import {
 	sampleObjectVitePressSidebarWithoutSections,
 	sampleVitePressSidebar,
 } from '../resources'
+
+const logWarn = mockedLogger.default.warn
 
 describe('generateTOC', () => {
 	it('generates a table of contents', async () => {
@@ -161,6 +164,54 @@ describe('generateTOC', () => {
 		expect(toc).not.toContain('### Non-matching Section')
 		// But the section with matching files should still be there
 		expect(toc).toContain('### Test Section')
+	})
+
+	describe('ignorePatterns', () => {
+		beforeEach(() => {
+			logWarn.mockClear()
+		})
+
+		it('does not warn for unmatched sidebar links that match ignorePatterns', async () => {
+			const sidebarWithIgnoredLinks: DefaultTheme.Sidebar = [
+				{
+					items: [
+						{ link: '/api/reference/addAlias', text: 'addAlias' },
+						{ link: '/api/reference/Wxt', text: 'Wxt' },
+					],
+					text: 'API Reference',
+				},
+				{
+					items: [{ link: '/test/getting-started', text: 'Getting Started' }],
+					text: 'Guide',
+				},
+			]
+
+			const toc = await generateTOC(preparedFilesSample.slice(1), {
+				ignorePatterns: { negative: [], positive: ['api/reference/**'] },
+				sidebarConfig: sidebarWithIgnoredLinks,
+			})
+
+			expect(toc).not.toContain('### API Reference')
+			expect(toc).toContain('### Guide')
+			expect(logWarn).not.toHaveBeenCalled()
+		})
+
+		it('still warns for unmatched sidebar links that are not ignored', async () => {
+			const sidebarWithMissingLink: DefaultTheme.Sidebar = [
+				{
+					items: [{ link: '/test/missing-page', text: 'Missing' }],
+					text: 'Broken',
+				},
+			]
+
+			await generateTOC(preparedFilesSample.slice(1), {
+				ignorePatterns: { negative: [], positive: ['api/reference/**'] },
+				sidebarConfig: sidebarWithMissingLink,
+			})
+
+			expect(logWarn).toHaveBeenCalled()
+			expect(String(logWarn.mock.calls[0]?.[0])).toContain('No matching file found for sidebar link')
+		})
 	})
 
 	describe('includeUnlistedPages', () => {

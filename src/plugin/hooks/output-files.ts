@@ -6,6 +6,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import pc from 'picocolors'
 
+import type { IgnorePatterns } from '@/generator/toc'
 import type { PreparedFile, VitePressConfig } from '@/internal-types'
 import type { LlmstxtSettings } from '@/types'
 
@@ -31,10 +32,11 @@ interface FileOptions {
 	files: PreparedFile[]
 	directory: string
 	full: boolean
+	ignorePatterns: IgnorePatterns
 }
 
 async function generateContent(
-	{ files, directory: directoryFilter, full }: FileOptions,
+	{ files, directory: directoryFilter, full, ignorePatterns }: FileOptions,
 	{ settings, config, sidebar, indexMdFile }: OutputOptions,
 ): Promise<string> {
 	const commonOptions = {
@@ -49,6 +51,7 @@ async function generateContent(
 				...commonOptions,
 				LLMsTxtTemplate: settings.customLLMsTxtTemplate,
 				base: config.base,
+				ignorePatterns,
 				includeUnlistedPages: settings.includeUnlistedPages,
 				indexMdFile,
 				templateVariables: {
@@ -63,7 +66,7 @@ async function generateContent(
 }
 
 async function writeOutputFile(
-	{ files, directory, full }: FileOptions,
+	{ files, directory, full, ignorePatterns }: FileOptions,
 	options: OutputOptions,
 ): Promise<void> {
 	const filename = full ? 'llms-full.txt' : 'llms.txt'
@@ -75,7 +78,7 @@ async function writeOutputFile(
 			? `Generating full documentation bundle (${pc.cyan(outputFileName)})...`
 			: `Generating ${pc.cyan(outputFileName)}...`,
 	)
-	const content = await generateContent({ directory, files, full }, options)
+	const content = await generateContent({ directory, files, full, ignorePatterns }, options)
 	await fs.writeFile(outputPath, content, 'utf8')
 	logGeneratedFile({ content, count: files.length, file: outputFileName, full })
 }
@@ -91,7 +94,10 @@ function createTasks(full: boolean, options: OutputOptions): Promise<void>[] {
 	)
 	const files = filterPreparedFiles(preparedFiles, settings.workDir, patterns.positive, patterns.negative)
 	return directories.map(async (directory) =>
-		writeOutputFile({ directory: directory.relativePath, files, full }, options),
+		writeOutputFile(
+			{ directory: directory.relativePath, files, full, ignorePatterns: patterns },
+			options,
+		),
 	)
 }
 

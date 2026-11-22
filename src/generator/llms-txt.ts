@@ -5,7 +5,7 @@ import type { LinksExtension, PreparedFile, VitePressConfig } from '@/internal-t
 import type { LlmstxtSettings } from '@/types'
 
 import { defaultLLMsTxtTemplate } from '@/constants'
-import { generateTOC } from '@/generator/toc'
+import { generateTOC, type IgnorePatterns } from '@/generator/toc'
 import { clearGrayMatterCache } from '@/utils/helpers'
 import { extractTitle } from '@/utils/markdown'
 import { expandTemplate } from '@/utils/template-utils'
@@ -49,6 +49,12 @@ export interface GenerateLLMsTxtOptions {
 
 	/** Whether to include unlisted pages in the generated TOC. */
 	includeUnlistedPages?: boolean
+
+	/**
+	 * Optional ignore patterns for this output. Sidebar links matching these patterns are omitted from the
+	 * TOC without a warning.
+	 */
+	ignorePatterns?: IgnorePatterns
 }
 
 function resolveTemplateVariables({
@@ -109,6 +115,7 @@ export async function generateLLMsTxt(
 		sidebar,
 		directoryFilter,
 		includeUnlistedPages,
+		ignorePatterns,
 	}: GenerateLLMsTxtOptions,
 ): Promise<string> {
 	clearGrayMatterCache()
@@ -119,6 +126,7 @@ export async function generateLLMsTxt(
 		base,
 		directoryFilter,
 		domain,
+		ignorePatterns,
 		includeUnlistedPages,
 		sidebarConfig: sidebar ?? vitepressConfig.themeConfig?.sidebar,
 	})

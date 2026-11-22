@@ -5,8 +5,11 @@ import type { Plugin } from 'vitepress'
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
 
 import mockedFs from '../mocks/fs'
+import mockedLogger from '../mocks/utils/logger'
 import fakeIndexMd from '../test-assets/index.md'
 import fakeMarkdownDocument from '../test-assets/markdown-document.md'
+
+const logWarn = mockedLogger.default.warn
 
 const { access, mkdir, writeFile, readFile } = mockedFs.default
 
@@ -1091,6 +1094,59 @@ This is a test page.`
 			// But MUST appear in llms-full.txt and as a standalone page
 			expect(llmsFullTxt).toContain('reference')
 			expect(apiPage).toBeDefined()
+		})
+
+		it('does not warn for sidebar links excluded via ignoreFilesPerOutput.llmsTxt', async () => {
+			logWarn.mockClear()
+
+			mockConfig = {
+				...mockConfig,
+				vitepress: {
+					...mockConfig.vitepress,
+					userConfig: {
+						themeConfig: {
+							sidebar: [
+								{
+									items: [
+										{ link: '/api/reference', text: 'API Reference' },
+										{ link: '/guide/intro', text: 'Intro' },
+									],
+									text: 'Docs',
+								},
+							],
+						},
+					},
+				},
+			}
+
+			plugin = llmstxt({
+				generateLLMFriendlyDocsForEachPage: false,
+				generateLLMsFullTxt: false,
+				generateLLMsTxt: true,
+				ignoreFiles: [],
+				ignoreFilesPerOutput: {
+					llmsTxt: ['api/**'],
+				},
+			})
+			// @ts-expect-error
+			plugin[1].configResolved(mockConfig)
+			await Promise.all([
+				// @ts-expect-error
+				plugin[0].transform(fakeIndexMd, 'docs/index.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/guide/intro.md'),
+				// @ts-expect-error
+				plugin[0].transform(fakeMarkdownDocument, 'docs/api/reference.md'),
+			])
+			// @ts-expect-error
+			await plugin[1].generateBundle()
+
+			const calls = writeFile.mock.calls as [string, string][]
+			const llmsTxt = calls.find(([p]) => p.endsWith('llms.txt'))?.[1]
+
+			expect(llmsTxt).toContain('/guide/intro.md')
+			expect(llmsTxt).not.toContain('/api/reference')
+			expect(logWarn).not.toHaveBeenCalled()
 		})
 
 		it('ignores files for llms-full.txt only', async () => {

@@ -7,8 +7,15 @@ import type { LinksExtension, PreparedFile, VitePressConfig } from '@/internal-t
 import type { LlmstxtSettings } from '@/types'
 
 import { stripExtPosix, transformToPosixPath } from '@/utils/file-utils'
+import { isIgnored } from '@/utils/ignore'
 import log from '@/utils/logger'
 import { generateLink } from '@/utils/template-utils'
+
+/** Resolved ignore pattern sets used when filtering files for a specific output. */
+export interface IgnorePatterns {
+	positive: string[]
+	negative: string[]
+}
 
 interface GenerateTOCLinkOptions {
 	domain: LlmstxtSettings['domain']
@@ -101,11 +108,29 @@ interface ResolveLeafItemsOptions {
 	base: string
 	domain?: LlmstxtSettings['domain']
 	linksExtension?: LinksExtension
+	ignorePatterns?: IgnorePatterns
+}
+
+/**
+ * Returns whether a normalized sidebar link matches the given ignore patterns.
+ *
+ * Checks both the path without an extension (sidebar form) and a `.md`-suffixed
+ * variant (prepared-file form) so glob patterns match either representation.
+ *
+ * @param normalizedItemLink - Sidebar link path after {@link normalizeLinkPath}
+ * @param ignorePatterns - Positive/negative ignore pattern sets for the current output
+ * @returns `true` if the link should be treated as intentionally ignored
+ */
+function isSidebarLinkIgnored(normalizedItemLink: string, ignorePatterns: IgnorePatterns): boolean {
+	const relativePath = normalizedItemLink.replace(/^\//u, '')
+	const { positive, negative } = ignorePatterns
+	return isIgnored(relativePath, positive, negative) || isIgnored(`${relativePath}.md`, positive, negative)
 }
 
 /**
  * Resolves leaf sidebar items (those with a `link`) into TOC link strings.
- * Items that have no matching prepared file are skipped with a warning.
+ * Items that have no matching prepared file are skipped with a warning, unless the
+ * link matches {@link ResolveLeafItemsOptions.ignorePatterns} (intentional exclusion).
  *
  * @param items - Sidebar items to process
  * @param preparedFiles - Preprocessed file metadata used for matching links
@@ -114,6 +139,7 @@ interface ResolveLeafItemsOptions {
  * @param options.base - Global/base fallback path for resolving links
  * @param options.domain - Optional domain used for absolute URL generation
  * @param options.linksExtension - Optional extension to append to generated links
+ * @param options.ignorePatterns - Optional ignore patterns; matching unmatched links skip without warning
  * @returns Array of resolved TOC link strings
  */
 async function resolveLeafItems(
@@ -121,7 +147,7 @@ async function resolveLeafItems(
 	preparedFiles: PreparedFile[],
 	options: ResolveLeafItemsOptions,
 ): Promise<string[]> {
-	const { sectionBase, base, domain, linksExtension } = options
+	const { sectionBase, base, domain, linksExtension, ignorePatterns } = options
 
 	const leafItems = items.filter(
 		(item): item is DefaultTheme.SidebarItem & { link: string } => typeof item.link === 'string',
@@ -145,6 +171,10 @@ async function resolveLeafItems(
 					extension: linksExtension,
 					relativePath: matchingFile.path,
 				})
+			}
+
+			if (ignorePatterns && isSidebarLinkIgnored(normalizedItemLink, ignorePatterns)) {
+				return undefined
 			}
 
 			log.warn(
@@ -223,6 +253,7 @@ interface ResolveNestedSectionsOptions {
 	depth: number
 	domain?: LlmstxtSettings['domain']
 	linksExtension?: LinksExtension | undefined
+	ignorePatterns?: IgnorePatterns
 }
 
 /**
@@ -246,7 +277,7 @@ async function resolveNestedSections(
 	preparedFiles: PreparedFile[],
 	options: ResolveNestedSectionsOptions,
 ): Promise<string[]> {
-	const { sectionBase, base, depth, domain, linksExtension } = options
+	const { sectionBase, base, depth, domain, linksExtension, ignorePatterns } = options
 
 	const nestedItems = items.filter(
 		(item): item is DefaultTheme.SidebarItem & { items: DefaultTheme.SidebarItem[] } =>
@@ -262,6 +293,7 @@ async function resolveNestedSections(
 				// Increase depth for nested sections to maintain proper heading levels
 				depth: depth + 1,
 				domain,
+				ignorePatterns,
 				linksExtension,
 			}),
 		),
@@ -275,6 +307,7 @@ interface ProcessSidebarSectionOptions {
 	linksExtension?: LinksExtension | undefined
 	depth?: number
 	base?: string
+	ignorePatterns?: IgnorePatterns
 }
 
 /**
@@ -307,16 +340,24 @@ async function processSidebarSection(
 		// oxlint-disable-next-line no-magic-numbers
 		depth = 3,
 		base = '',
+		ignorePatterns,
 	} = options
 
 	const sectionBase = section.base ?? ''
 
 	const [linkItems, nonEmptyNestedSections] = await Promise.all([
-		resolveLeafItems(section.items, preparedFiles, { base, domain, linksExtension, sectionBase }),
+		resolveLeafItems(section.items, preparedFiles, {
+			base,
+			domain,
+			ignorePatterns,
+			linksExtension,
+			sectionBase,
+		}),
 		resolveNestedSections(section.items, preparedFiles, {
 			base,
 			depth,
 			domain,
+			ignorePatterns,
 			linksExtension,
 			sectionBase,
 		}),
@@ -351,6 +392,12 @@ export interface GenerateTOCOptions {
 	 * files will be included.
 	 */
 	directoryFilter?: string | undefined
+
+	/**
+	 * Optional ignore patterns for the current output. Sidebar links that match these patterns are skipped
+	 * silently instead of emitting a "no matching file" warning.
+	 */
+	ignorePatterns?: IgnorePatterns
 }
 
 /**
@@ -418,10 +465,11 @@ async function generateSectionTOC({
 	domain,
 	linksExtension,
 	base,
+	ignorePatterns,
 }: GenerateSectionTOCOptions): Promise<string> {
 	const results = await Promise.all(
 		sections.map(async (section) =>
-			processSidebarSection(section, files, { base, depth: 3, domain, linksExtension }),
+			processSidebarSection(section, files, { base, depth: 3, domain, ignorePatterns, linksExtension }),
 		),
 	)
 
@@ -459,6 +507,8 @@ interface GenerateSidebarTOCOptions {
 	includeUnlistedPages?: boolean
 
 	base?: string
+
+	ignorePatterns?: IgnorePatterns
 }
 
 interface GenerateSectionTOCOptions extends Omit<GenerateSidebarTOCOptions, 'sidebarConfig'> {
@@ -505,6 +555,7 @@ async function generateSidebarTOC({
 	linksExtension,
 	includeUnlistedPages = true,
 	base = '',
+	ignorePatterns,
 }: GenerateSidebarTOCOptions): Promise<string> {
 	const flattenedSidebar = flattenSidebarConfig(sidebarConfig)
 
@@ -519,6 +570,7 @@ async function generateSidebarTOC({
 			base,
 			domain,
 			files,
+			ignorePatterns,
 			linksExtension,
 			sections,
 		}),
@@ -527,6 +579,7 @@ async function generateSidebarTOC({
 					base,
 					domain,
 					files,
+					ignorePatterns,
 					linksExtension,
 					sections,
 				})
@@ -557,6 +610,7 @@ export async function generateTOC(
 		base,
 		directoryFilter,
 		includeUnlistedPages = true,
+		ignorePatterns,
 	} = options
 
 	const filteredFiles = filterFiles(preparedFiles, directoryFilter)
@@ -566,6 +620,7 @@ export async function generateTOC(
 			base,
 			domain,
 			files: filteredFiles,
+			ignorePatterns,
 			includeUnlistedPages,
 			linksExtension,
 			sidebarConfig,
